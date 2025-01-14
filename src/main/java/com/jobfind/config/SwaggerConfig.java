@@ -12,9 +12,9 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("ChatHub API")
+                .info(new Info().title("JobFind API")
                         .version("1.0.0")
-                        .description("API documentation for ChatHub application"))
+                        .description("API documentation for JobFind application"))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",
