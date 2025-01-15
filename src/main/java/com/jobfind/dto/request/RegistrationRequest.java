@@ -9,16 +9,19 @@ import lombok.*;
 @NoArgsConstructor
 public class RegistrationRequest {
     private String email;
-
+    private String password;
     private String phone;
 
-    private String password;
-
     private String firstName;
-
     private String lastName;
-
     private String resumePath;
 
+    private String companyName;
+    private String industry;
+    private String logoPath;
+    private String website;
+    private String description;
+
+    private Boolean isVerified;
     private Role role;
 }

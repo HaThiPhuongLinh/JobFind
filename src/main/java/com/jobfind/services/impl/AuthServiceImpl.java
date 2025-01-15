@@ -5,9 +5,11 @@ import com.jobfind.dto.request.AuthRequest;
 import com.jobfind.dto.request.RegistrationRequest;
 import com.jobfind.dto.response.AuthResponse;
 import com.jobfind.exception.BadRequestException;
+import com.jobfind.models.Company;
 import com.jobfind.models.JobSeekerProfile;
 import com.jobfind.models.User;
 import com.jobfind.models.enums.Role;
+import com.jobfind.repositories.CompanyRepository;
 import com.jobfind.repositories.JobSeekerProfileRepository;
 import com.jobfind.repositories.UserRepository;
 import com.jobfind.services.IAuthService;
@@ -25,6 +27,7 @@ import java.util.Map;
 public class AuthServiceImpl implements IAuthService {
     private final UserRepository userRepository;
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
+    private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     @Override
@@ -57,6 +60,16 @@ public class AuthServiceImpl implements IAuthService {
             if (StringUtils.isEmpty(registrationRequest.getResumePath())) {
                 infoMessage.put("resumePath", "Resume path must be required.");
             }
+        } else if (registrationRequest.getRole() == Role.Company) {
+            if (StringUtils.isEmpty(registrationRequest.getCompanyName())) {
+                infoMessage.put("companyName", "Company name must be required.");
+            }
+            if (StringUtils.isEmpty(registrationRequest.getIndustry())) {
+                infoMessage.put("industry", "Industry must be specified.");
+            }
+            if (StringUtils.isEmpty(registrationRequest.getLogoPath())) {
+                infoMessage.put("logoPath", "Logo Path must be specified.");
+            }
         }
 
         if (!infoMessage.isEmpty()){
@@ -77,11 +90,23 @@ public class AuthServiceImpl implements IAuthService {
 
         userRepository.save(user);
 
+        Boolean isVerified = registrationRequest.getIsVerified() != null && registrationRequest.getIsVerified();
+
         if (registrationRequest.getRole() == Role.JobSeeker) {
             jobSeekerProfileRepository.save(JobSeekerProfile.builder()
                     .firstName(registrationRequest.getFirstName())
                     .lastName(registrationRequest.getLastName())
                     .resumePath(registrationRequest.getResumePath())
+                    .user(user)
+                    .build());
+        } else if (registrationRequest.getRole() == Role.Company) {
+            companyRepository.save(Company.builder()
+                    .companyName(registrationRequest.getCompanyName())
+                    .industry(registrationRequest.getIndustry())
+                    .logoPath(registrationRequest.getLogoPath())
+                    .website(registrationRequest.getWebsite())
+                    .description(registrationRequest.getDescription())
+                    .isVerified(isVerified)
                     .user(user)
                     .build());
         }
