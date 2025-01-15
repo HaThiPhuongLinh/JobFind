@@ -19,8 +19,6 @@ public class JobSeekerProfile {
 
     private String lastName;
 
-    private String phone;
-
     private String resumePath;
 
     @OneToOne
