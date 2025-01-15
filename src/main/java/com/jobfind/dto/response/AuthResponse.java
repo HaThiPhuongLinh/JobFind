@@ -1,5 +1,6 @@
 package com.jobfind.dto.response;
 
+import com.jobfind.models.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,4 +18,6 @@ public class AuthResponse {
     private String phone;
 
     private String token;
+
+    private Role role;
 }

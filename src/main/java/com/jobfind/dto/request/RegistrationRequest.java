@@ -1,5 +1,8 @@
 package com.jobfind.dto.request;
+
+import com.jobfind.models.enums.Role;
 import lombok.*;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -16,4 +19,6 @@ public class RegistrationRequest {
     private String lastName;
 
     private String resumePath;
+
+    private Role role;
 }

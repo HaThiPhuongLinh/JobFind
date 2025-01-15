@@ -43,16 +43,20 @@ public class AuthServiceImpl implements IAuthService {
             infoMessage.put("password", "Password must be required.");
         }
 
-        if (StringUtils.isEmpty(registrationRequest.getFirstName())) {
-            infoMessage.put("firstName", "First name must be required.");
+        if (registrationRequest.getRole() == null) {
+            infoMessage.put("role", "Role must be specified (JobSeeker, Company).");
         }
 
-        if (StringUtils.isEmpty(registrationRequest.getLastName())) {
-            infoMessage.put("lastName", "Last name must be required.");
-        }
-
-        if (StringUtils.isEmpty(registrationRequest.getResumePath())) {
-            infoMessage.put("resumePath", "Resume path must be required.");
+        if (registrationRequest.getRole() == Role.JobSeeker) {
+            if (StringUtils.isEmpty(registrationRequest.getFirstName())) {
+                infoMessage.put("firstName", "First name must be required.");
+            }
+            if (StringUtils.isEmpty(registrationRequest.getLastName())) {
+                infoMessage.put("lastName", "Last name must be required.");
+            }
+            if (StringUtils.isEmpty(registrationRequest.getResumePath())) {
+                infoMessage.put("resumePath", "Resume path must be required.");
+            }
         }
 
         if (!infoMessage.isEmpty()){
@@ -66,19 +70,21 @@ public class AuthServiceImpl implements IAuthService {
                 .email(registrationRequest.getEmail())
                 .passwordHash(passwordEncoder.encode(registrationRequest.getPassword()))
                 .phone(registrationRequest.getPhone())
-                .role(Role.JobSeeker)
+                .role(registrationRequest.getRole())
                 .createdAt(LocalDateTime.now())
                 .isActive(true)
                 .build();
 
         userRepository.save(user);
 
-        jobSeekerProfileRepository.save(JobSeekerProfile.builder()
-                .firstName(registrationRequest.getFirstName())
-                .lastName(registrationRequest.getLastName())
-                .resumePath(registrationRequest.getResumePath())
-                .user(user)
-                .build());
+        if (registrationRequest.getRole() == Role.JobSeeker) {
+            jobSeekerProfileRepository.save(JobSeekerProfile.builder()
+                    .firstName(registrationRequest.getFirstName())
+                    .lastName(registrationRequest.getLastName())
+                    .resumePath(registrationRequest.getResumePath())
+                    .user(user)
+                    .build());
+        }
     }
 
     @Override
@@ -106,6 +112,7 @@ public class AuthServiceImpl implements IAuthService {
                 .userId(user.getUserId())
                 .email(user.getEmail())
                 .phone(user.getPhone())
+                .role(user.getRole())
                 .build();
     }
 }
