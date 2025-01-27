@@ -4,8 +4,10 @@ import com.jobfind.dto.request.ResetPasswordRequest;
 import com.jobfind.dto.request.UpdatePersonalInfoRequest;
 import com.jobfind.dto.response.SuccessResponse;
 import com.jobfind.services.IUserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,14 +20,14 @@ public class UserController {
     private IUserService userServiceImpl;
 
     @PostMapping("/update-profile")
-    public ResponseEntity<SuccessResponse> updateProfile(@RequestBody UpdatePersonalInfoRequest updatePersonalInfoRequest) {
-        userServiceImpl.updatePersonalInfo(updatePersonalInfoRequest);
+    public ResponseEntity<SuccessResponse> updateProfile(@Valid @RequestBody UpdatePersonalInfoRequest updatePersonalInfoRequest, BindingResult bindingResult) {
+        userServiceImpl.updatePersonalInfo(updatePersonalInfoRequest, bindingResult);
         return ResponseEntity.ok(new SuccessResponse("User profile updated successfully"));
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<SuccessResponse> changePassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
-        userServiceImpl.updatePassword(resetPasswordRequest);
+    public ResponseEntity<SuccessResponse> changePassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest, BindingResult bindingResult) {
+        userServiceImpl.updatePassword(resetPasswordRequest, bindingResult);
         return ResponseEntity.ok(new SuccessResponse("Password updated successfully"));
     }
 }

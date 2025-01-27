@@ -13,13 +13,13 @@ import com.jobfind.repositories.CompanyRepository;
 import com.jobfind.repositories.JobSeekerProfileRepository;
 import com.jobfind.repositories.UserRepository;
 import com.jobfind.services.IAuthService;
+import com.jobfind.utils.ValidateField;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -30,50 +30,18 @@ public class AuthServiceImpl implements IAuthService {
     private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final ValidateField validateField;
     @Override
-    public void register(RegistrationRequest registrationRequest) {
-        Map<String, String> infoMessage = new HashMap<>();
-
-        if (StringUtils.isEmpty(registrationRequest.getPhone())) {
-            infoMessage.put("phoneNumber", "Phone mumber must be required.");
+    public void register(RegistrationRequest registrationRequest, BindingResult result) {
+        Map<String,String> errors = validateField.getErrors(result);
+        if (registrationRequest.getRole() == Role.JOBSEEKER) {
+            validateField.getJobSeekerFieldErrors(errors, registrationRequest.getFirstName(), registrationRequest.getLastName(), registrationRequest.getResumePath());
+        } else if (registrationRequest.getRole() == Role.COMPANY) {
+            validateField.getCompanyFieldErrors(errors, registrationRequest.getCompanyName(), registrationRequest.getIndustry(), registrationRequest.getLogoPath());
         }
 
-        if (StringUtils.isEmpty(registrationRequest.getEmail())) {
-            infoMessage.put("email", "Email must be required.");
-        }
-
-        if (StringUtils.isEmpty(registrationRequest.getPassword())) {
-            infoMessage.put("password", "Password must be required.");
-        }
-
-        if (registrationRequest.getRole() == null) {
-            infoMessage.put("role", "Role must be specified (JobSeeker, Company).");
-        }
-
-        if (registrationRequest.getRole() == Role.JobSeeker) {
-            if (StringUtils.isEmpty(registrationRequest.getFirstName())) {
-                infoMessage.put("firstName", "First name must be required.");
-            }
-            if (StringUtils.isEmpty(registrationRequest.getLastName())) {
-                infoMessage.put("lastName", "Last name must be required.");
-            }
-            if (StringUtils.isEmpty(registrationRequest.getResumePath())) {
-                infoMessage.put("resumePath", "Resume path must be required.");
-            }
-        } else if (registrationRequest.getRole() == Role.Company) {
-            if (StringUtils.isEmpty(registrationRequest.getCompanyName())) {
-                infoMessage.put("companyName", "Company name must be required.");
-            }
-            if (StringUtils.isEmpty(registrationRequest.getIndustry())) {
-                infoMessage.put("industry", "Industry must be specified.");
-            }
-            if (StringUtils.isEmpty(registrationRequest.getLogoPath())) {
-                infoMessage.put("logoPath", "Logo Path must be specified.");
-            }
-        }
-
-        if (!infoMessage.isEmpty()){
-            throw new BadRequestException("Please complete all required fields to proceed.", infoMessage);
+        if (!errors.isEmpty()) {
+            throw new BadRequestException("Please complete all required fields to proceed.", errors);
         }
 
         if(userRepository.existsByEmail(registrationRequest.getEmail()))
@@ -92,14 +60,14 @@ public class AuthServiceImpl implements IAuthService {
 
         Boolean isVerified = registrationRequest.getIsVerified() != null && registrationRequest.getIsVerified();
 
-        if (registrationRequest.getRole() == Role.JobSeeker) {
+        if (registrationRequest.getRole() == Role.JOBSEEKER) {
             jobSeekerProfileRepository.save(JobSeekerProfile.builder()
                     .firstName(registrationRequest.getFirstName())
                     .lastName(registrationRequest.getLastName())
                     .resumePath(registrationRequest.getResumePath())
                     .user(user)
                     .build());
-        } else if (registrationRequest.getRole() == Role.Company) {
+        } else if (registrationRequest.getRole() == Role.COMPANY) {
             companyRepository.save(Company.builder()
                     .companyName(registrationRequest.getCompanyName())
                     .industry(registrationRequest.getIndustry())
@@ -113,14 +81,8 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    public AuthResponse login(AuthRequest authRequest) {
-        if (StringUtils.isEmpty(authRequest.getEmail())) {
-            throw new BadRequestException("Email must be required");
-        }
-
-        if (StringUtils.isEmpty(authRequest.getPassword())) {
-            throw new BadRequestException("Password must be required");
-        }
+    public AuthResponse login(AuthRequest authRequest, BindingResult result) {
+        validateField.getErrors(result);
 
         if(!userRepository.existsByEmail(authRequest.getEmail()))
             throw new BadRequestException("Email not exists");
