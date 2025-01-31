@@ -13,6 +13,7 @@ import com.jobfind.repositories.UserRepository;
 import com.jobfind.services.IUserService;
 import com.jobfind.utils.ValidateField;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -22,6 +23,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements IUserService {
+    private final String CHANGE_TYPE_UPDATE = "UPDATE";
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
@@ -31,7 +33,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void updatePersonalInfo(UpdatePersonalInfoRequest request, BindingResult bindingResult) {
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new BadRequestException("User not found"));
-        Map<String,String> errors = validateField.getErrors(bindingResult);
+        Map<String, String> errors = validateField.getErrors(bindingResult);
 
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhoneNumber());
@@ -63,8 +65,27 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public void updatePassword(ResetPasswordRequest changePasswordRequest, BindingResult bindingResult) {
-        User user = userRepository.findByEmail(changePasswordRequest.getEmail()).orElseThrow(() -> new BadRequestException("User not found"));
-        validateField.getErrors(bindingResult);
+        User user = userRepository.findById(changePasswordRequest.getId()).orElseThrow(() -> new BadRequestException("User not found"));
+        Map<String, String> errors = validateField.getErrors(bindingResult);
+
+        if (CHANGE_TYPE_UPDATE.equalsIgnoreCase(changePasswordRequest.getChangeType())) {
+            if (StringUtils.isEmpty(changePasswordRequest.getOldPassword())) {
+                errors.put("oldPassword", "Old password cannot be empty");
+            }
+
+            if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPasswordHash())) {
+                throw new BadRequestException("Old password is incorrect");
+            }
+
+            if (changePasswordRequest.getOldPassword().equals(changePasswordRequest.getNewPassword())) {
+                throw new BadRequestException("New password cannot be the same as the old password");
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            throw new BadRequestException("Please complete all required fields to proceed.", errors);
+        }
+
         String encryptedPassword = passwordEncoder.encode(changePasswordRequest.getNewPassword());
         user.setPasswordHash(encryptedPassword);
 

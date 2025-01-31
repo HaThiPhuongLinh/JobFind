@@ -1,7 +1,5 @@
 package com.jobfind.utils;
 
-import com.jobfind.dto.request.UpdatePersonalInfoRequest;
-import com.jobfind.exception.BadRequestException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
