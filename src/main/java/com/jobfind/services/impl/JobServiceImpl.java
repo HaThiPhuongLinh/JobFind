@@ -1,0 +1,70 @@
+package com.jobfind.services.impl;
+
+import com.jobfind.dto.request.CreateJobRequest;
+import com.jobfind.exception.BadRequestException;
+import com.jobfind.models.Company;
+import com.jobfind.models.Job;
+import com.jobfind.models.JobCategory;
+import com.jobfind.models.Skill;
+import com.jobfind.repositories.CompanyRepository;
+import com.jobfind.repositories.JobCategoryRepository;
+import com.jobfind.repositories.JobRepository;
+import com.jobfind.repositories.SkillRepository;
+import com.jobfind.services.IJobService;
+import com.jobfind.utils.ValidateField;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class JobServiceImpl implements IJobService {
+    private final JobRepository jobRepository;
+    private final CompanyRepository companyRepository;
+    private final SkillRepository skillRepository;
+    private final JobCategoryRepository jobCategoryRepository;
+    private final ValidateField validateField;
+
+    @Override
+    public void createJob(CreateJobRequest request, BindingResult bindingResult) {
+        Map<String, String> errors = validateField.getErrors(bindingResult);
+
+        if (!errors.isEmpty()) {
+            throw new BadRequestException("Please complete all required fields to proceed.", errors);
+        }
+
+        Company company = companyRepository.findById(request.getCompanyId()).orElseThrow(() -> new BadRequestException("Company not found"));
+
+        List<Skill> skills = skillRepository.findAllById(request.getSkillIds());
+        if (skills.size() != request.getSkillIds().size()) {
+            throw new BadRequestException("Some skills are invalid");
+        }
+
+        List<JobCategory> categories = jobCategoryRepository.findAllById(request.getCategoryIds());
+        if (categories.size() != request.getCategoryIds().size()) {
+            throw new BadRequestException("Some categories are invalid");
+        }
+
+        Job job = Job.builder()
+                .company(company)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .requirements(request.getRequirements())
+                .benefits(request.getBenefits())
+                .salaryMin(request.getSalaryMin())
+                .salaryMax(request.getSalaryMax())
+                .jobType(request.getJobType())
+                .location(request.getLocation())
+                .postedAt(request.getPostedAt())
+                .deadline(request.getDeadline())
+                .isActive(true)
+                .skills(skills)
+                .categories(categories)
+                .build();
+
+        jobRepository.save(job);
+    }
+}

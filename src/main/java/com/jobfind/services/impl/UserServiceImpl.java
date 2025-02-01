@@ -35,7 +35,6 @@ public class UserServiceImpl implements IUserService {
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new BadRequestException("User not found"));
         Map<String, String> errors = validateField.getErrors(bindingResult);
 
-        user.setEmail(request.getEmail());
         user.setPhone(request.getPhoneNumber());
 
         if (Role.COMPANY.equals(user.getRole())) {
@@ -65,7 +64,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public void updatePassword(ResetPasswordRequest changePasswordRequest, BindingResult bindingResult) {
-        User user = userRepository.findById(changePasswordRequest.getId()).orElseThrow(() -> new BadRequestException("User not found"));
+        User user = userRepository.findById(changePasswordRequest.getUserId()).orElseThrow(() -> new BadRequestException("User not found"));
         Map<String, String> errors = validateField.getErrors(bindingResult);
 
         if (CHANGE_TYPE_UPDATE.equalsIgnoreCase(changePasswordRequest.getChangeType())) {
