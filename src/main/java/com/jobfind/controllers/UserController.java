@@ -21,7 +21,7 @@ public class UserController {
 
     @PostMapping("/update-profile")
     public ResponseEntity<SuccessResponse> updateProfile(@Valid @RequestBody UpdatePersonalInfoRequest updatePersonalInfoRequest, BindingResult bindingResult) {
-        userServiceImpl.updatePersonalInfo(updatePersonalInfoRequest, bindingResult);
+        userServiceImpl.updateProfileInfo(updatePersonalInfoRequest, bindingResult);
         return ResponseEntity.ok(new SuccessResponse("User profile updated successfully"));
     }
 

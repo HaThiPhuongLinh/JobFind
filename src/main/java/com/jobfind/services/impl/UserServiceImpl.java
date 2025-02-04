@@ -31,7 +31,7 @@ public class UserServiceImpl implements IUserService {
     private final ValidateField validateField;
 
     @Override
-    public void updatePersonalInfo(UpdatePersonalInfoRequest request, BindingResult bindingResult) {
+    public void updateProfileInfo(UpdatePersonalInfoRequest request, BindingResult bindingResult) {
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new BadRequestException("User not found"));
         Map<String, String> errors = validateField.getErrors(bindingResult);
 
@@ -52,6 +52,7 @@ public class UserServiceImpl implements IUserService {
             jobSeekerProfile.setFirstName(request.getFirstName());
             jobSeekerProfile.setLastName(request.getLastName());
             jobSeekerProfile.setResumePath(request.getResumePath());
+            jobSeekerProfile.setAddress(request.getAddress());
             jobSeekerProfileRepository.save(jobSeekerProfile);
         }
 

@@ -12,7 +12,7 @@ public class SkillPopulator {
 
     private final SkillConverter skillConverter;
 
-    public SkillDTO convertToUserDTO(Skill skill) {
+    public SkillDTO convertToSkillDTO(Skill skill) {
         SkillDTO dto = new SkillDTO();
         skillConverter.populate(skill, dto);
         return dto;

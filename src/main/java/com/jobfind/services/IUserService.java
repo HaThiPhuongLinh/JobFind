@@ -7,6 +7,6 @@ import org.springframework.validation.BindingResult;
 
 @Service
 public interface IUserService {
-    void updatePersonalInfo(UpdatePersonalInfoRequest request, BindingResult bindingResult);
+    void updateProfileInfo(UpdatePersonalInfoRequest request, BindingResult bindingResult);
     void updatePassword(ResetPasswordRequest request, BindingResult bindingResult);
 }

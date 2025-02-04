@@ -22,6 +22,7 @@ public class JobSeekerProfile {
     private String lastName;
 
     private String resumePath;
+    private String address;
 
     @OneToOne
     @JoinColumn(name = "user_id")
