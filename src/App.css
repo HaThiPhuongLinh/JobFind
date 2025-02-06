@@ -48,3 +48,10 @@
 .header-button {
   background-color: var(--header-button-dark);
 }
+
+/* footer */
+.col-index li:hover {
+  color: var(--header-primary-color);
+  transition: all;
+  transition-duration: 200ms;
+}

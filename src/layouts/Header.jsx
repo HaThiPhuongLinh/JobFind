@@ -5,7 +5,7 @@ import logo from "../assets/logo.png";
 import navItems from "../data/header_submenu";
 
 const Header = () => {
-  console.log(navItems);
+  // console.log(navItems);
 
   return (
     <div className=" header flex justify-between items-center px-4 font-medium shadow">
