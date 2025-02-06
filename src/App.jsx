@@ -1,13 +1,46 @@
 import "./App.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Home from "./pages/Home/index";
+import CompanyDetail from "./pages/CompanyDetail/index";
+import CompanyList from "./pages/CompanyList/index";
+import JobDetail from "./pages/JobDetail/index";
+import Login from "./pages/Login/index";
+import Signup from "./pages/Signup/index";
+import SearchResult from "./pages/SearchResult/index";
+import TemplateCV from "./pages/TemplateCV/index";
+
+import Header from "./layouts/Header";
+import Footer from "./layouts/Footer";
 
 function App() {
   return (
-    <div>
-      <h1 className="font-bold underline">Hello world</h1>
-      <FontAwesomeIcon icon={faMagnifyingGlass} />
-    </div>
+    <Router>
+      {/* Header */}
+      <Header />
+
+      {/* Content */}
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/company-detail" element={<CompanyDetail />}></Route>
+        <Route path="/company-list" element={<CompanyList />}></Route>
+        <Route path="/job-detail" element={<JobDetail />}></Route>
+        <Route path="/login" element={<Login />}></Route>
+        <Route path="/signup" element={<Signup />}></Route>
+        <Route path="/search-result" element={<SearchResult />}></Route>
+        <Route path="/template-cv" element={<TemplateCV />}></Route>
+
+        {/* 404 thì quay về Home */}
+        <Route path="*" element={<Navigate to="/" replace />}></Route>
+      </Routes>
+
+      {/* Footer */}
+      <Footer />
+    </Router>
   );
 }
 
