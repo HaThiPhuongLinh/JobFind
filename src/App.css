@@ -55,3 +55,15 @@
   transition: all;
   transition-duration: 200ms;
 }
+
+/* home - seach input */
+.btn-search {
+  background-color: var(--header-primary-color);
+  color: white;
+}
+
+.btn-search:hover {
+  background-color: var(--header-primary-color);
+  color: white;
+  opacity: 0.8;
+}
