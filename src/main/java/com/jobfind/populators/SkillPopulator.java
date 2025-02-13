@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Component
 public class SkillPopulator {
-
     private final SkillConverter skillConverter;
 
     public SkillDTO convertToSkillDTO(Skill skill) {

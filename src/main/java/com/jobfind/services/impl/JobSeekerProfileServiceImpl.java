@@ -1,6 +1,8 @@
 package com.jobfind.services.impl;
 
 import com.jobfind.dto.dto.WorkExperienceDTO;
+import com.jobfind.dto.request.CreateWorkExperienceRequest;
+import com.jobfind.dto.request.SkillRequest;
 import com.jobfind.dto.request.UpdateWorkExperienceRequest;
 import com.jobfind.dto.response.JobSeekerProfileResponse;
 import com.jobfind.exception.BadRequestException;
@@ -8,6 +10,7 @@ import com.jobfind.models.JobSeekerProfile;
 import com.jobfind.models.Skill;
 import com.jobfind.models.WorkExperience;
 import com.jobfind.populators.SkillPopulator;
+import com.jobfind.populators.WorkExperiencePopulator;
 import com.jobfind.repositories.*;
 import com.jobfind.services.IJobSeekerProfileService;
 import com.jobfind.utils.ValidateField;
@@ -28,31 +31,83 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     private final JobPositionRepository jobPositionRepository;
     private final SkillRepository skillRepository;
     private final SkillPopulator skillPopulator;
+    private final WorkExperiencePopulator workExperiencePopulator;
     private final ValidateField validateField;
+
+    private JobSeekerProfile getJobSeekerProfile(Integer userId) {
+        return jobSeekerProfileRepository.findByUser_UserId(userId)
+                .orElseThrow(() -> new BadRequestException("JobSeekerProfile not found"));
+    }
+
+    private List<Skill> getSkillsByIds(List<Integer> skillIds) {
+        return skillIds.stream()
+                .map(skillId -> skillRepository.findById(skillId)
+                        .orElseThrow(() -> new BadRequestException("Skill not found")))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public JobSeekerProfileResponse getProfileByUserId(Integer userId) {
-        JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findByUser_UserId(userId)
-                .orElseThrow(() -> new BadRequestException("JobSeekerProfile not found"));
-
-        List<Skill> profileSkills = jobSeekerProfile.getSkills();
+        JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(userId);
 
         List<WorkExperienceDTO> workExperiences = workExperienceRepository.findByUser_UserId(userId).stream()
-                .map(workExperience -> WorkExperienceDTO.builder()
-                        .jobType(workExperience.getJobType())
-                        .description(workExperience.getDescription())
-                        .startDate(workExperience.getStartDate().toString())
-                        .endDate(workExperience.getEndDate().toString())
-                        .companyName(workExperience.getCompany().getCompanyName())
-                        .jobTitle(workExperience.getJobPosition().getName())
-                        .skills(workExperience.getSkills().stream().map(skillPopulator::convertToSkillDTO).collect(Collectors.toList()))
-                        .build())
+                .map(workExperiencePopulator::convertToWorkExperienceDTO)
                 .collect(Collectors.toList());
-
 
         return JobSeekerProfileResponse.builder()
                 .workExperiences(workExperiences)
-                .skills(profileSkills.stream().map(skillPopulator::convertToSkillDTO).collect(Collectors.toList()))
+                .skills(jobSeekerProfile.getSkills().stream()
+                        .map(skillPopulator::convertToSkillDTO)
+                        .collect(Collectors.toList()))
+                .firstName(jobSeekerProfile.getFirstName())
+                .lastName(jobSeekerProfile.getLastName())
+                .email(jobSeekerProfile.getUser().getEmail())
+                .phone(jobSeekerProfile.getUser().getPhone())
+                .resumePath(jobSeekerProfile.getResumePath())
+                .build();
+    }
+
+    @Override
+    public JobSeekerProfileResponse createWorkExperience(Integer userId, CreateWorkExperienceRequest request, BindingResult result) {
+        JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(userId);
+
+        Map<String, String> errors = validateField.getErrors(result);
+        if (!errors.isEmpty()) {
+            throw new BadRequestException("Please complete all required fields to proceed.", errors);
+        }
+
+        boolean exists = workExperienceRepository.existsByUserAndCompanyAndJobPosition(
+                jobSeekerProfile.getUser(),
+                companyRepository.findById(request.getCompanyId()).orElseThrow(() -> new BadRequestException("Company not found")),
+                jobPositionRepository.findById(request.getJobPositionId()).orElseThrow(() -> new BadRequestException("Job position not found"))
+        );
+
+        if (exists) {
+            throw new BadRequestException("Work experience already exists.");
+        }
+
+        WorkExperience workExperience = new WorkExperience();
+        workExperience.setJobType(request.getJobType());
+        workExperience.setDescription(request.getDescription());
+        workExperience.setStartDate(request.getStartDate());
+        workExperience.setEndDate(request.getEndDate());
+
+        workExperience.setCompany(companyRepository.findById(request.getCompanyId())
+                .orElseThrow(() -> new BadRequestException("Company not found")));
+
+        workExperience.setJobPosition(jobPositionRepository.findById(request.getJobPositionId())
+                .orElseThrow(() -> new BadRequestException("Job position not found")));
+
+        workExperience.setSkills(getSkillsByIds(request.getSkills()));
+        workExperience.setUser(jobSeekerProfile.getUser());
+
+        workExperienceRepository.save(workExperience);
+
+        return JobSeekerProfileResponse.builder()
+                .workExperiences(List.of(workExperiencePopulator.convertToWorkExperienceDTO(workExperience)))
+                .skills(jobSeekerProfile.getSkills().stream()
+                        .map(skillPopulator::convertToSkillDTO)
+                        .collect(Collectors.toList()))
                 .firstName(jobSeekerProfile.getFirstName())
                 .lastName(jobSeekerProfile.getLastName())
                 .email(jobSeekerProfile.getUser().getEmail())
@@ -63,56 +118,91 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
 
     @Override
     public JobSeekerProfileResponse updateWorkExperience(Integer userId, UpdateWorkExperienceRequest request, BindingResult result) {
-        JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findByUser_UserId(userId).orElseThrow(() -> new BadRequestException("JobSeekerProfile not found"));
+        JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(userId);
 
         Map<String, String> errors = validateField.getErrors(result);
-
         if (!errors.isEmpty()) {
             throw new BadRequestException("Please complete all required fields to proceed.", errors);
         }
 
-        List<WorkExperience> existingExperiences = workExperienceRepository.findByUser_UserId(userId);
-        Map<Integer, WorkExperience> experienceMap = existingExperiences.stream().collect(Collectors.toMap(WorkExperience::getWorkExperienceId, exp -> exp));
-
-
-        Integer workExpId = request.getWorkExperienceId();
-
-        if (workExpId == null) {
-            throw new BadRequestException("WorkExperience ID is required for update");
-        }
-
-        WorkExperience workExperience = experienceMap.get(workExpId);
-        if (workExperience == null) {
-            throw new BadRequestException("WorkExperience not found with ID: " + workExpId);
-        }
+        WorkExperience workExperience = workExperienceRepository.findById(request.getWorkExperienceId())
+                .orElseThrow(() -> new BadRequestException("WorkExperience not found with ID: " + request.getWorkExperienceId()));
 
         workExperience.setJobType(request.getJobType());
         workExperience.setDescription(request.getDescription());
         workExperience.setStartDate(request.getStartDate());
         workExperience.setEndDate(request.getEndDate());
 
-        workExperience.setCompany(companyRepository.findById(request.getCompanyId()).orElseThrow(() -> new BadRequestException("Company not found with ID: " + request.getCompanyId())));
+        workExperience.setCompany(companyRepository.findById(request.getCompanyId())
+                .orElseThrow(() -> new BadRequestException("Company not found")));
 
-        workExperience.setJobPosition(jobPositionRepository.findById(request.getJobPositionId()).orElseThrow(() -> new BadRequestException("Job position not found with ID: " + request.getJobPositionId())));
+        workExperience.setJobPosition(jobPositionRepository.findById(request.getJobPositionId())
+                .orElseThrow(() -> new BadRequestException("Job position not found")));
 
-        List<Skill> workExpSkills = request.getSkills().stream().map(skillId -> skillRepository.findById(skillId).orElseThrow(() -> new BadRequestException("Skill not found with ID: " + skillId))).collect(Collectors.toList());
-
-        workExperience.setSkills(workExpSkills);
+        workExperience.setSkills(getSkillsByIds(request.getSkills()));
         workExperience.setUser(jobSeekerProfile.getUser());
-
 
         workExperienceRepository.save(workExperience);
 
-        jobSeekerProfileRepository.save(jobSeekerProfile);
-
         return JobSeekerProfileResponse.builder()
-                .workExperiences(existingExperiences.stream().map(exp -> WorkExperienceDTO.builder().jobType(exp.getJobType()).description(exp.getDescription()).startDate(exp.getStartDate().toString()).endDate(exp.getEndDate().toString()).companyName(exp.getCompany().getCompanyName()).jobTitle(exp.getJobPosition().getName()).skills(exp.getSkills().stream().map(skillPopulator::convertToSkillDTO).collect(Collectors.toList())).build()).collect(Collectors.toList()))
-                .skills(jobSeekerProfile.getSkills().stream().map(skillPopulator::convertToSkillDTO).collect(Collectors.toList()))
+                .workExperiences(workExperienceRepository.findByUser_UserId(userId).stream()
+                        .map(workExperiencePopulator::convertToWorkExperienceDTO)
+                        .collect(Collectors.toList()))
+                .skills(jobSeekerProfile.getSkills().stream()
+                        .map(skillPopulator::convertToSkillDTO)
+                        .collect(Collectors.toList()))
                 .firstName(jobSeekerProfile.getFirstName())
                 .lastName(jobSeekerProfile.getLastName())
                 .email(jobSeekerProfile.getUser().getEmail())
                 .phone(jobSeekerProfile.getUser().getPhone())
                 .resumePath(jobSeekerProfile.getResumePath())
+                .build();
+    }
+
+    @Override
+    public JobSeekerProfileResponse createSkills(SkillRequest createSkillsRequest, BindingResult result) {
+        Map<String, String> errors = validateField.getErrors(result);
+        if (!errors.isEmpty()) {
+            throw new BadRequestException("Please complete all required fields to proceed.", errors);
+        }
+
+        JobSeekerProfile profile = getJobSeekerProfile(createSkillsRequest.getProfileId());
+        List<Skill> existingSkills = profile.getSkills();
+        List<Skill> newSkills = getSkillsByIds(createSkillsRequest.getSkills());
+
+        for (Skill skill : newSkills) {
+            if (!existingSkills.contains(skill)) {
+                existingSkills.add(skill);
+            }
+        }
+
+        jobSeekerProfileRepository.save(profile);
+
+        return JobSeekerProfileResponse.builder()
+                .skills(profile.getSkills().stream()
+                        .map(skillPopulator::convertToSkillDTO)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    @Override
+    public JobSeekerProfileResponse updateSkills(SkillRequest skillRequest, BindingResult bindingResult) {
+        Map<String, String> errors = validateField.getErrors(bindingResult);
+        if (!errors.isEmpty()) {
+            throw new BadRequestException("Please complete all required fields to proceed.", errors);
+        }
+
+        JobSeekerProfile profile = getJobSeekerProfile(skillRequest.getProfileId());
+
+        List<Skill> skills = getSkillsByIds(skillRequest.getSkills());
+        profile.setSkills(skills);
+
+        jobSeekerProfileRepository.save(profile);
+
+        return JobSeekerProfileResponse.builder()
+                .skills(profile.getSkills().stream()
+                        .map(skillPopulator::convertToSkillDTO)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }
