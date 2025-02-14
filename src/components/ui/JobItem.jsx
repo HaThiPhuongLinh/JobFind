@@ -2,8 +2,14 @@ import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
+import { useState } from "react";
 
 const JobItem = ({ job }) => {
+  const [isHeart, setIsHeart] = useState(false);
+  const handleHeartClick = () => {
+    setIsHeart(!isHeart);
+  };
+
   return (
     <div className="p-4 rounded-md border border-gray-300 bg-white cursor-pointer border-primary">
       <div className="flex">
@@ -30,11 +36,16 @@ const JobItem = ({ job }) => {
         <div
           className="rounded-full border border-slate-300 p-4 flex justify-center items-center border-primary hover:opacity-30"
           style={{ width: "20px", height: "20px" }}
+          onClick={handleHeartClick}
         >
-          <FontAwesomeIcon
-            icon={faHeartRegular}
-            className="text-lg text-primary"
-          />
+          {isHeart ? (
+            <FontAwesomeIcon icon={faHeart} className="text-lg text-primary" />
+          ) : (
+            <FontAwesomeIcon
+              icon={faHeartRegular}
+              className="text-lg text-primary"
+            />
+          )}
         </div>
       </div>
     </div>

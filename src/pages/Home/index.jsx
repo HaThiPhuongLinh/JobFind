@@ -11,6 +11,7 @@ import background from "../../assets/bg_search_section.jpg";
 import citys from "../../data/citys";
 // import components
 import BestJob from "./BestJob";
+import BestCategory from "./BestCategory";
 
 const Home = () => {
   // track search text
@@ -228,6 +229,10 @@ const Home = () => {
       {/* Start: BestJob recommend section */}
       <BestJob />
       {/* End: BestJob recommend section */}
+
+      {/* Start: BestCategory  */}
+      <BestCategory />
+      {/* End: BestCategory  */}
     </div>
   );
 };

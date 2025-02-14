@@ -91,7 +91,7 @@ const BestJob = () => {
   const jobs = useSelector((state) => state.jobs.jobs);
 
   return (
-    <div className="pt-6" style={{ backgroundColor: "#f3f5f7" }}>
+    <div className="pt-6 pb-6" style={{ backgroundColor: "#f3f5f7" }}>
       <div className="container mx-auto">
         {/* start: header */}
         <div className="flex justify-between items-center">
@@ -209,6 +209,22 @@ const BestJob = () => {
           ))}
         </div>
         {/* end: list job */}
+
+        {/* pagination */}
+        <div
+          className="flex justify-between items-center pt-6 mx-auto"
+          style={{ width: "200px" }}
+        >
+          <FontAwesomeIcon
+            icon={faAngleLeft}
+            className="me-4 btn-circle text-xl"
+          />
+          <p>
+            <span className="text-primary">4</span> /{" "}
+            <span className="text-slate-500">84 trang</span>
+          </p>
+          <FontAwesomeIcon icon={faAngleRight} className="btn-circle text-xl" />
+        </div>
       </div>
     </div>
   );
