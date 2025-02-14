@@ -24,6 +24,14 @@
   color: white;
 }
 
+.border-primary {
+  border: 1px solid #ccc;
+}
+
+.border-primary:hover {
+  border: 1px solid var(--header-primary-color);
+}
+
 /* header */
 .header {
   background-color: var(--header-background-color);
