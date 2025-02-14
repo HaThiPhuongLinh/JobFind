@@ -18,7 +18,6 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer applicationId;
 
-    @Column(columnDefinition = "ENUM('Pending', 'Reviewing', 'Shortlisted', 'Rejected', 'Interviewing', 'Hired') DEFAULT 'Pending'")
     private ApplicationStatus applicationStatus;
 
     private LocalDateTime appliedAt;

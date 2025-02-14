@@ -1,0 +1,30 @@
+package com.jobfind.controllers;
+
+import com.jobfind.dto.request.ApplicationRequest;
+import com.jobfind.dto.response.SuccessResponse;
+import com.jobfind.models.ApplicationStatusHistory;
+import com.jobfind.services.impl.ApplicationServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/application")
+public class ApplicationController {
+    @Autowired
+    private ApplicationServiceImpl applicationServiceImpl;
+
+    @PostMapping("/apply")
+    public ResponseEntity<SuccessResponse> applyForJob(@RequestBody ApplicationRequest request) {
+        applicationServiceImpl.applyForJob(request);
+        return ResponseEntity.ok(new SuccessResponse("Application created successfully"));
+    }
+
+    @GetMapping("/{applicationId}/history")
+    public ResponseEntity<List<ApplicationStatusHistory>> getApplicationHistory(@PathVariable Integer applicationId) {
+        List<ApplicationStatusHistory> history = applicationServiceImpl.getApplicationStatusHistory(applicationId);
+        return ResponseEntity.ok(history);
+    }
+}
