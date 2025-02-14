@@ -4,6 +4,26 @@
   --header-button-dark: #161f29;
 }
 
+/* general */
+.text-primary {
+  color: var(--header-primary-color);
+}
+
+.btn-circle {
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  padding: 8px;
+  border: 1px solid var(--header-primary-color);
+  color: var(--header-primary-color);
+  cursor: pointer;
+}
+
+.btn-circle:hover {
+  background-color: var(--header-primary-color);
+  color: white;
+}
+
 /* header */
 .header {
   background-color: var(--header-background-color);

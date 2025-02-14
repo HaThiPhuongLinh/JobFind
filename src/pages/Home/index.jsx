@@ -9,6 +9,8 @@ import {
 
 import background from "../../assets/bg_search_section.jpg";
 import citys from "../../data/citys";
+// import components
+import BestJob from "./BestJob";
 
 const Home = () => {
   // track search text
@@ -70,151 +72,162 @@ const Home = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div
-      className="flex justify-center items-center py-6 px-4"
-      style={{
-        backgroundImage: `url(${background})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="container flex justify-between items-center rounded-full shadow-lg bg-white">
-        {/* Ô nhập công việc */}
-        <div className="flex grow justify-between items-center bg-white rounded-l-full px-4 py-4 w-3/5">
-          <input
-            type="text"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            placeholder="Nhập công việc..."
-            className="w-full text-gray-800 outline-none"
-          />
-          {searchText && (
-            <button
-              type="button"
-              onClick={() => setSearchText("")}
-              className="text-gray-400"
-            >
-              <FontAwesomeIcon icon={faCircleXmark} className="text-2xl" />
-            </button>
-          )}
-        </div>
-
-        {/* Phân cách */}
-        <div className="border-l h-6 mx-3"></div>
-
-        {/* Chọn địa điểm */}
-        <div className="relative w-1/5">
-          <div
-            onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center text-gray-600 cursor-pointer"
-          >
-            <FontAwesomeIcon
-              icon={faLocationDot}
-              className="text-xl flex-none"
+    <div className="">
+      {/* Start: Search section */}
+      <div
+        className="flex justify-center items-center py-6 px-4"
+        style={{
+          backgroundImage: `url(${background})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="container flex justify-between items-center rounded-full shadow-lg bg-white">
+          {/* Ô nhập công việc */}
+          <div className="flex grow justify-between items-center bg-white rounded-l-full px-4 py-4 w-3/5">
+            <input
+              type="text"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Nhập công việc..."
+              className="w-full text-gray-800 outline-none"
             />
-            <span className="ml-2 flex-none">Địa điểm</span>
-            {/* Biểu tượng mũi tên */}
-            <span className="ml-2 flex-auto text-2xl text-end">
-              &#9662;
-            </span>{" "}
+            {searchText && (
+              <button
+                type="button"
+                onClick={() => setSearchText("")}
+                className="text-gray-400"
+              >
+                <FontAwesomeIcon icon={faCircleXmark} className="text-2xl" />
+              </button>
+            )}
           </div>
 
-          {/* Submenu chọn địa điểm */}
-          {isOpen && (
-            <div className="absolute right-0 mt-2 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <div className="flex justify-between px-4 pt-4 w-full">
-                {/* city selector */}
-                <div className="city pe-4">
-                  {/* search name city */}
-                  <div className="flex justify-between items-center mb-4 rounded-full border border-slate-300 overflow-hidden">
-                    <FontAwesomeIcon
-                      icon={faMagnifyingGlass}
-                      className="px-2 text-xl"
-                    />
-                    <input
-                      type="text"
-                      className="py-2 outline-none"
-                      placeholder="Nhập tỉnh/thành phố"
-                      value={searchCityText}
-                      onChange={changeSearchCityText}
-                    />
-                  </div>
+          {/* Phân cách */}
+          <div className="border-l h-6 mx-3"></div>
 
-                  {/* list city */}
-                  <div className="max-h-40 overflow-y-auto">
-                    {searchCityResult.map((city) => (
-                      <label
-                        key={city.name}
-                        className="flex items-center space-x-2 mb-2 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={citysSelected.includes(city.name)}
-                          onChange={() => toggleCitys(city)}
-                          className="text-xl"
-                          style={{ width: "0.8em", height: "0.8em" }}
-                        />
-                        <span>{city.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+          {/* Chọn địa điểm */}
+          <div className="relative w-1/5">
+            <div
+              onClick={() => setIsOpen(!isOpen)}
+              className="flex items-center text-gray-600 cursor-pointer"
+            >
+              <FontAwesomeIcon
+                icon={faLocationDot}
+                className="text-xl flex-none"
+              />
+              <span className="ml-2 flex-none">Địa điểm</span>
+              {/* Biểu tượng mũi tên */}
+              <span className="ml-2 flex-auto text-2xl text-end">
+                &#9662;
+              </span>{" "}
+            </div>
 
-                {/* district selector */}
-                <div className="district left-0 mt-2 w-64">
-                  <h3 className="font-semibold mb-2">Chọn Quận/Huyện</h3>
+            {/* Submenu chọn địa điểm */}
+            {isOpen && (
+              <div className="absolute right-0 mt-2 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
+                <div className="flex justify-between px-4 pt-4 w-full">
+                  {/* city selector */}
+                  <div className="city pe-4">
+                    {/* search name city */}
+                    <div className="flex justify-between items-center mb-4 rounded-full border border-slate-300 overflow-hidden">
+                      <FontAwesomeIcon
+                        icon={faMagnifyingGlass}
+                        className="px-2 text-xl"
+                      />
+                      <input
+                        type="text"
+                        className="py-2 outline-none"
+                        placeholder="Nhập tỉnh/thành phố"
+                        value={searchCityText}
+                        onChange={changeSearchCityText}
+                      />
+                    </div>
 
-                  {/* list district */}
-                  {citySelectedCurrent && (
+                    {/* list city */}
                     <div className="max-h-40 overflow-y-auto">
-                      {citySelectedCurrent.districts.map((district) => (
+                      {searchCityResult.map((city) => (
                         <label
-                          key={district}
+                          key={city.name}
                           className="flex items-center space-x-2 mb-2 cursor-pointer"
                         >
                           <input
                             type="checkbox"
+                            checked={citysSelected.includes(city.name)}
+                            onChange={() => toggleCitys(city)}
                             className="text-xl"
-                            checked={districtsSelected.includes(district)}
-                            onChange={() => toggleDistrict(district)}
                             style={{ width: "0.8em", height: "0.8em" }}
                           />
-                          <span>{district}</span>
+                          <span>{city.name}</span>
                         </label>
                       ))}
                     </div>
-                  )}
+                  </div>
+
+                  {/* district selector */}
+                  <div className="district left-0 mt-2 w-64">
+                    <h3 className="font-semibold mb-2">Chọn Quận/Huyện</h3>
+
+                    {/* list district */}
+                    {citySelectedCurrent && (
+                      <div className="max-h-40 overflow-y-auto">
+                        {citySelectedCurrent.districts.map((district) => (
+                          <label
+                            key={district}
+                            className="flex items-center space-x-2 mb-2 cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              className="text-xl"
+                              checked={districtsSelected.includes(district)}
+                              onChange={() => toggleDistrict(district)}
+                              style={{ width: "0.8em", height: "0.8em" }}
+                            />
+                            <span>{district}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* footer location selector */}
+                <div className="flex justify-between shadow-inner p-4">
+                  <button
+                    className="text-slate-400"
+                    onClick={() => uncheckAll()}
+                  >
+                    Bỏ chọn tất cả
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-green-500 text-white rounded-full"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Áp dụng
+                  </button>
                 </div>
               </div>
+            )}
+          </div>
 
-              {/* footer location selector */}
-              <div className="flex justify-between shadow-inner p-4">
-                <button className="text-slate-400" onClick={() => uncheckAll()}>
-                  Bỏ chọn tất cả
-                </button>
-                <button
-                  className="px-4 py-2 bg-green-500 text-white rounded-full"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Áp dụng
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Phân cách */}
+          <div className="border-l h-6 mx-3"></div>
+
+          {/* Nút tìm kiếm */}
+          <button
+            className="btn-search text-white flex items-center justify-center py-2 rounded-full me-3"
+            style={{ width: "10%" }}
+          >
+            <FontAwesomeIcon icon={faMagnifyingGlass} className="pe-2" />
+            Tìm kiếm
+          </button>
         </div>
-
-        {/* Phân cách */}
-        <div className="border-l h-6 mx-3"></div>
-
-        {/* Nút tìm kiếm */}
-        <button
-          className="btn-search text-white flex items-center justify-center py-2 rounded-full me-3"
-          style={{ width: "10%" }}
-        >
-          <FontAwesomeIcon icon={faMagnifyingGlass} className="pe-2" />
-          Tìm kiếm
-        </button>
       </div>
+      {/* End: Search section */}
+
+      {/* Start: BestJob recommend section */}
+      <BestJob />
+      {/* End: BestJob recommend section */}
     </div>
   );
 };
