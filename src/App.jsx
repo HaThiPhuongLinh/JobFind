@@ -1,10 +1,5 @@
 import "./App.css";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Home from "./pages/Home/index";
 import CompanyDetail from "./pages/CompanyDetail/index";
 import CompanyList from "./pages/CompanyList/index";
@@ -17,36 +12,33 @@ import TemplateCV from "./pages/TemplateCV/index";
 import Header from "./layouts/Header";
 import Footer from "./layouts/Footer";
 
-// redux toolkit
-import { Provider } from "react-redux";
-import store from "./redux/store";
-
 function App() {
+  const location = useLocation();
+  const hideHeaderFooter = ["/login", "/signup"].includes(location.pathname);
+
   return (
-    <Provider store={store}>
-      <Router>
-        {/* Header */}
-        <Header />
+    <>
+      {/* Header */}
+      {!hideHeaderFooter && <Header />}
 
-        {/* Content */}
-        <Routes>
-          <Route path="/" element={<Home />}></Route>
-          <Route path="/company-detail" element={<CompanyDetail />}></Route>
-          <Route path="/company-list" element={<CompanyList />}></Route>
-          <Route path="/job-detail" element={<JobDetail />}></Route>
-          <Route path="/login" element={<Login />}></Route>
-          <Route path="/signup" element={<Signup />}></Route>
-          <Route path="/search-result" element={<SearchResult />}></Route>
-          <Route path="/template-cv" element={<TemplateCV />}></Route>
+      {/* Content */}
+      <Routes>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/company-detail" element={<CompanyDetail />}></Route>
+        <Route path="/company-list" element={<CompanyList />}></Route>
+        <Route path="/job-detail" element={<JobDetail />}></Route>
+        <Route path="/login" element={<Login />}></Route>
+        <Route path="/signup" element={<Signup />}></Route>
+        <Route path="/search-result" element={<SearchResult />}></Route>
+        <Route path="/template-cv" element={<TemplateCV />}></Route>
 
-          {/* 404 thì quay về Home */}
-          <Route path="*" element={<Navigate to="/" replace />}></Route>
-        </Routes>
+        {/* 404 thì quay về Home */}
+        <Route path="*" element={<Navigate to="/" replace />}></Route>
+      </Routes>
 
-        {/* Footer */}
-        <Footer />
-      </Router>
-    </Provider>
+      {/* Footer */}
+      {!hideHeaderFooter && <Footer />}
+    </>
   );
 }
 

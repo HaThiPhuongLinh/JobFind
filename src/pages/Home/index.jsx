@@ -8,37 +8,40 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import background from "../../assets/bg_search_section.jpg";
-import citys from "../../data/citys";
 // import components
 import BestJob from "./BestJob";
 import BestCategory from "./BestCategory";
+
+// redux toolkit
+import { useSelector, useDispatch } from "react-redux";
+import {
+  searchLocation,
+  selectSearchLocations,
+} from "../../redux/slices/locationsSlice";
 
 const Home = () => {
   // track search text
   const [searchText, setSearchText] = useState("kế toán");
 
   // track list city selected + current city selected
-  const [citysSelected, setCitysSelected] = useState([]);
-  const [citySelectedCurrent, setCitySelectedCurrent] = useState();
-
-  const toggleCitys = (city) => {
-    if (citysSelected.includes(city.name)) {
-      // if city is selected
-      setCitysSelected(citysSelected.filter((c) => c !== city.name));
-      setDistrictsSelected(
-        districtsSelected.filter((d) => !city.districts.includes(d))
-      );
-    } else {
-      // if city is not selected
-      setCitysSelected([...citysSelected, city.name]);
-      setDistrictsSelected([...districtsSelected, ...city.districts]);
-    }
-
-    setCitySelectedCurrent(city);
+  const dispatch = useDispatch();
+  const locations = useSelector(selectSearchLocations);
+  // Tìm kiếm theo tên thành phố
+  const [searchCityText, setSearchCityText] = useState("");
+  // Theo dõi sự thay đổi trong ô input
+  const changeSearchCityText = (e) => {
+    const text = e.target.value;
+    setSearchCityText(text);
+    dispatch(searchLocation(text));
   };
 
-  // track districts selected
+  // Lưu các thành phố đang được chọn
+  const [citysSelected, setCitysSelected] = useState([]);
+  // Lưu thành phố đang focus hiện tại để hiện danh sách quận huyện ra
+  const [citySelectedCurrent, setCitySelectedCurrent] = useState();
+  // Lưu các quận huyện đang được chọn
   const [districtsSelected, setDistrictsSelected] = useState([]);
+  // Hàm thực hiện lưu quận huyện vào mảng districtsSelected
   const toggleDistrict = (district) => {
     if (districtsSelected.includes(district)) {
       setDistrictsSelected(districtsSelected.filter((d) => d !== district));
@@ -46,30 +49,38 @@ const Home = () => {
       setDistrictsSelected([...districtsSelected, district]);
     }
   };
+  // Hàm thực hiện lưu tỉnh thành vào mảng citysSelected
+  const toggleCitys = (city) => {
+    if (citysSelected.includes(city.name)) {
+      // Nếu city đã có trong danh sách thì bỏ ra
+      setCitysSelected(citysSelected.filter((c) => c !== city.name));
+      setDistrictsSelected(
+        districtsSelected.filter((d) => !city.districts.includes(d))
+      );
+    } else {
+      // Nếu city chưa có trong DS thì thêm vào
+      setCitysSelected([...citysSelected, city.name]);
+      setDistrictsSelected([...districtsSelected, ...city.districts]);
+    }
 
-  // search city by name
-  const [searchCityText, setSearchCityText] = useState("");
-  const [searchCityResult, setSearchCityResult] = useState(citys);
-
-  const changeSearchCityText = (e) => {
-    const text = e.target.value;
-
-    setSearchCityText(text);
-    setSearchCityResult(searchCity(text));
+    setCitySelectedCurrent(city);
   };
 
-  const searchCity = (name) => {
-    return citys.filter((city) => city.name === name);
-  };
-
-  // unchecked all
+  // Unchecked tất cả ô chọn trong model địa điểm
   const uncheckAll = () => {
     setCitysSelected([]);
     setDistrictsSelected([]);
     setCitySelectedCurrent(null);
   };
 
-  // toggle open model location selector
+  // Khi bấm nút Áp dụng thì đóng model và hiện thành phố được chọn trong input
+  // const [isApply, setIsApply] = useState(false);
+  // const applyLocation = () => {
+  //   setIsOpen(false);
+  //   setIsApply(true);
+  // };
+
+  // Mở/Tắt model chọn tỉnh thành quận huyện
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -117,7 +128,11 @@ const Home = () => {
                 icon={faLocationDot}
                 className="text-xl flex-none"
               />
-              <span className="ml-2 flex-none">Địa điểm</span>
+              <span className="ml-2 flex-none">
+                {citysSelected.length == 0
+                  ? "Địa điểm"
+                  : citysSelected[0] + " +(" + citysSelected.length + ")"}
+              </span>
               {/* Biểu tượng mũi tên */}
               <span className="ml-2 flex-auto text-2xl text-end">
                 &#9662;
@@ -145,9 +160,9 @@ const Home = () => {
                       />
                     </div>
 
-                    {/* list city */}
+                    {/* Danh sách tỉnh/thành phố */}
                     <div className="max-h-40 overflow-y-auto">
-                      {searchCityResult.map((city) => (
+                      {locations.map((city) => (
                         <label
                           key={city.name}
                           className="flex items-center space-x-2 mb-2 cursor-pointer"
@@ -165,7 +180,7 @@ const Home = () => {
                     </div>
                   </div>
 
-                  {/* district selector */}
+                  {/* Danh sách quận huyện của tỉnh/thành đang được chọn */}
                   <div className="district left-0 mt-2 w-64">
                     <h3 className="font-semibold mb-2">Chọn Quận/Huyện</h3>
 
