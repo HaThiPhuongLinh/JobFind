@@ -25,10 +25,14 @@
 }
 
 .border-primary {
+  border: 1px solid var(--header-primary-color);
+}
+
+.border-base {
   border: 1px solid #ccc;
 }
 
-.border-primary:hover {
+.border-base:hover {
   border: 1px solid var(--header-primary-color);
 }
 

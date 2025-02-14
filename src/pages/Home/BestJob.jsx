@@ -8,6 +8,9 @@ import {
   faAngleDown,
 } from "@fortawesome/free-solid-svg-icons";
 
+import JobItem from "../../components/ui/JobItem";
+import { useSelector } from "react-redux";
+
 const filters = [
   {
     key: "Địa điểm",
@@ -83,6 +86,9 @@ const BestJob = () => {
       listFilterRef.current.scrollLeft += 100;
     }
   };
+
+  // get job list
+  const jobs = useSelector((state) => state.jobs.jobs);
 
   return (
     <div className="pt-6" style={{ backgroundColor: "#f3f5f7" }}>
@@ -195,6 +201,14 @@ const BestJob = () => {
           {/* end: list filter */}
         </div>
         {/* end: filter */}
+
+        {/* start: list job */}
+        <div className="pt-6 grid grid-cols-3 gap-4">
+          {jobs.map((job) => (
+            <JobItem key={job.id} job={job} />
+          ))}
+        </div>
+        {/* end: list job */}
       </div>
     </div>
   );
