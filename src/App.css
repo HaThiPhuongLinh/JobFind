@@ -1,12 +1,16 @@
 :root {
   --header-backgrond-color: #fff;
-  --header-primary-color: #00b14f;
+  --primary-color: #00b14f;
   --header-button-dark: #161f29;
 }
 
 /* general */
 .text-primary {
-  color: var(--header-primary-color);
+  color: var(--primary-color);
+}
+
+.bg-primary {
+  background-color: var(--primary-color);
 }
 
 .btn-circle {
@@ -14,18 +18,18 @@
   width: 20px;
   height: 20px;
   padding: 8px;
-  border: 1px solid var(--header-primary-color);
-  color: var(--header-primary-color);
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
   cursor: pointer;
 }
 
 .btn-circle:hover {
-  background-color: var(--header-primary-color);
+  background-color: var(--primary-color);
   color: white;
 }
 
 .border-primary {
-  border: 1px solid var(--header-primary-color);
+  border: 1px solid var(--primary-color);
 }
 
 .border-base {
@@ -33,7 +37,7 @@
 }
 
 .border-base:hover {
-  border: 1px solid var(--header-primary-color);
+  border: 1px solid var(--primary-color);
 }
 
 /* header */
@@ -48,7 +52,7 @@
 }
 
 .nav-tab:hover > button {
-  color: var(--header-primary-color);
+  color: var(--primary-color);
   cursor: pointer;
 }
 
@@ -59,7 +63,7 @@
 }
 
 .submenu-item > li:hover {
-  color: var(--header-primary-color);
+  color: var(--primary-color);
 }
 
 .btn-login:hover,
@@ -69,12 +73,12 @@
 }
 
 .btn-login {
-  border-color: var(--header-primary-color);
-  color: var(--header-primary-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .btn-signup {
-  background-color: var(--header-primary-color);
+  background-color: var(--primary-color);
 }
 
 .header-button {
@@ -83,19 +87,19 @@
 
 /* footer */
 .col-index li:hover {
-  color: var(--header-primary-color);
+  color: var(--primary-color);
   transition: all;
   transition-duration: 200ms;
 }
 
 /* home - seach input */
 .btn-search {
-  background-color: var(--header-primary-color);
+  background-color: var(--primary-color);
   color: white;
 }
 
 .btn-search:hover {
-  background-color: var(--header-primary-color);
+  background-color: var(--primary-color);
   color: white;
   opacity: 0.8;
 }

@@ -14,19 +14,32 @@ import { useSelector } from "react-redux";
 const filters = [
   {
     key: "Địa điểm",
-    list: ["Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng"],
+    list: ["Tất cả", "Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng"],
   },
   {
     key: "Mức lương",
-    list: ["Dưới 5 triệu", "5 - 10 triệu", "10 - 20 triệu", "Trên 20 triệu"],
+    list: [
+      "Tất cả",
+      "Dưới 5 triệu",
+      "5 - 10 triệu",
+      "10 - 20 triệu",
+      "Trên 20 triệu",
+    ],
   },
   {
     key: "Kinh nghiệm",
-    list: ["Chưa có kinh nghiệm", "Dưới 1 năm", "1 - 2 năm", "Trên 2 năm"],
+    list: [
+      "Tất cả",
+      "Chưa có kinh nghiệm",
+      "Dưới 1 năm",
+      "1 - 2 năm",
+      "Trên 2 năm",
+    ],
   },
   {
     key: "Ngành nghề",
     list: [
+      "Tất cả",
       "IT - Phần mềm",
       "IT - Phần cứng",
       "Kinh doanh",
@@ -35,10 +48,10 @@ const filters = [
       " Phần cứng",
       "K doanh",
       "Mketing",
-      "IT ",
-      " Phần cứng",
-      "K doanh",
-      "Mketing",
+      "Dev java",
+      " Python",
+      "React",
+      "Mobile",
     ],
   },
 ];
@@ -86,6 +99,14 @@ const BestJob = () => {
       listFilterRef.current.scrollLeft += 100;
     }
   };
+
+  // Chọn 1 filter item
+  const [filterItemSelected, setFilterItemSelected] = useState(null);
+  const toggleFilterItem = (item) => {
+    setFilterItemSelected(item);
+  };
+
+  // Lọc danh sách job theo filter đã chọn
 
   // get job list
   const jobs = useSelector((state) => state.jobs.jobs);
@@ -165,7 +186,7 @@ const BestJob = () => {
             {/* end: model selector */}
           </div>
 
-          {/* list filter */}
+          {/* filter item */}
           <div className="flex justify-between items-center">
             <FontAwesomeIcon
               icon={faAngleLeft}
@@ -185,7 +206,12 @@ const BestJob = () => {
               {filterSelected.list.map((v, index) => (
                 <div
                   key={index}
-                  className="rounded-full bg-slate-200 py-2 px-4 mx-1 cursor-pointer border-primary"
+                  className={`rounded-full py-2 px-4 mx-1 cursor-pointer border-base ${
+                    filterItemSelected === v
+                      ? "bg-primary text-white"
+                      : "bg-slate-200"
+                  }`}
+                  onClick={() => toggleFilterItem(v)}
                 >
                   <span className="text-sm">{v}</span>
                 </div>
