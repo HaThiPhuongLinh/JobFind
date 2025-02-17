@@ -11,6 +11,7 @@ import TemplateCV from "./pages/TemplateCV/index";
 
 import Header from "./layouts/Header";
 import Footer from "./layouts/Footer";
+import SearchBar from "./layouts/SearchBar";
 
 function App() {
   const location = useLocation();
@@ -20,6 +21,9 @@ function App() {
     <>
       {/* Header */}
       {!hideHeaderFooter && <Header />}
+
+      {/* Search bar */}
+      <SearchBar />
 
       {/* Content */}
       <Routes>

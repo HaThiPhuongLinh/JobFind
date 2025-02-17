@@ -7,15 +7,14 @@ import {
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 
-import background from "../../assets/bg_search_section.jpg";
-// import components
+import background from "../assets/bg_search_section.jpg";
 
 // redux toolkit
 import { useSelector, useDispatch } from "react-redux";
 import {
   searchLocation,
   selectSearchLocations,
-} from "../../redux/slices/locationsSlice";
+} from "../redux/slices/locationsSlice";
 
 const SearchBar = () => {
   // track search text

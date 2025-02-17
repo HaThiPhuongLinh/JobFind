@@ -9,9 +9,9 @@ const Header = () => {
 
   return (
     <div className=" header flex justify-between items-center px-4 font-medium shadow">
-      <div className="h-full">
+      <Link to="/" className="h-full">
         <img src={logo} alt="logo" className="h-full" />
-      </div>
+      </Link>
 
       <ul className="flex grow justify-start items-center px-3">
         {navItems.map((item, index) => (
