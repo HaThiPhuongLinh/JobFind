@@ -1,11 +1,11 @@
-package com.jobfind.converters;
+package com.jobfind.populators;
 
 import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.dto.dto.SkillDTO;
 import com.jobfind.models.Job;
 import com.jobfind.models.JobCategory;
-import com.jobfind.populators.CompanyConverter;
-import com.jobfind.populators.SkillConverter;
+import com.jobfind.converters.CompanyConverter;
+import com.jobfind.converters.SkillConverter;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 

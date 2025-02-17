@@ -1,4 +1,4 @@
-package com.jobfind.populators;
+package com.jobfind.converters;
 
 import com.jobfind.dto.dto.SkillDTO;
 import com.jobfind.models.Skill;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Component
 public class SkillConverter {
-    private final com.jobfind.converters.SkillPopulator skillPopulator;
+    private final com.jobfind.populators.SkillPopulator skillPopulator;
 
     public SkillDTO convertToSkillDTO(Skill skill) {
         SkillDTO dto = new SkillDTO();

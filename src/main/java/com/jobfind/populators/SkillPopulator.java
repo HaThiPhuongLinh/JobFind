@@ -1,4 +1,4 @@
-package com.jobfind.converters;
+package com.jobfind.populators;
 
 import com.jobfind.dto.dto.SkillDTO;
 import com.jobfind.models.Skill;

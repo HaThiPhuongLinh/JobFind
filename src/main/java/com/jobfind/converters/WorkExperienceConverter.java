@@ -1,4 +1,4 @@
-package com.jobfind.populators;
+package com.jobfind.converters;
 
 import com.jobfind.dto.dto.WorkExperienceDTO;
 import com.jobfind.models.WorkExperience;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Component
 public class WorkExperienceConverter {
-    private final com.jobfind.converters.WorkExperiencePopulator workExperiencePopulator;
+    private final com.jobfind.populators.WorkExperiencePopulator workExperiencePopulator;
 
     public WorkExperienceDTO convertToWorkExperienceDTO(WorkExperience workExperience) {
         WorkExperienceDTO dto = new WorkExperienceDTO();

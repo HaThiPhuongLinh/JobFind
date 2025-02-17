@@ -9,8 +9,8 @@ import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.JobSeekerProfile;
 import com.jobfind.models.Skill;
 import com.jobfind.models.WorkExperience;
-import com.jobfind.populators.SkillConverter;
-import com.jobfind.populators.WorkExperienceConverter;
+import com.jobfind.converters.SkillConverter;
+import com.jobfind.converters.WorkExperienceConverter;
 import com.jobfind.repositories.*;
 import com.jobfind.services.IJobSeekerProfileService;
 import com.jobfind.utils.ValidateField;
@@ -55,6 +55,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
                 .collect(Collectors.toList());
 
         return JobSeekerProfileResponse.builder()
+                .resumeList(jobSeekerProfile.getResumes())
                 .workExperiences(workExperiences)
                 .skills(jobSeekerProfile.getSkills().stream()
                         .map(skillConverter::convertToSkillDTO)
@@ -63,7 +64,6 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
                 .lastName(jobSeekerProfile.getLastName())
                 .email(jobSeekerProfile.getUser().getEmail())
                 .phone(jobSeekerProfile.getUser().getPhone())
-                .resumePath(jobSeekerProfile.getResumePath())
                 .build();
     }
 
@@ -104,6 +104,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
         workExperienceRepository.save(workExperience);
 
         return JobSeekerProfileResponse.builder()
+                .resumeList(jobSeekerProfile.getResumes())
                 .workExperiences(List.of(workExperienceConverter.convertToWorkExperienceDTO(workExperience)))
                 .skills(jobSeekerProfile.getSkills().stream()
                         .map(skillConverter::convertToSkillDTO)
@@ -112,7 +113,6 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
                 .lastName(jobSeekerProfile.getLastName())
                 .email(jobSeekerProfile.getUser().getEmail())
                 .phone(jobSeekerProfile.getUser().getPhone())
-                .resumePath(jobSeekerProfile.getResumePath())
                 .build();
     }
 
@@ -145,6 +145,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
         workExperienceRepository.save(workExperience);
 
         return JobSeekerProfileResponse.builder()
+                .resumeList(jobSeekerProfile.getResumes())
                 .workExperiences(workExperienceRepository.findByUser_UserId(userId).stream()
                         .map(workExperienceConverter::convertToWorkExperienceDTO)
                         .collect(Collectors.toList()))
@@ -155,7 +156,6 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
                 .lastName(jobSeekerProfile.getLastName())
                 .email(jobSeekerProfile.getUser().getEmail())
                 .phone(jobSeekerProfile.getUser().getPhone())
-                .resumePath(jobSeekerProfile.getResumePath())
                 .build();
     }
 

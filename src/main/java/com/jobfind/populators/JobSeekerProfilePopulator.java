@@ -1,8 +1,8 @@
-package com.jobfind.converters;
+package com.jobfind.populators;
 
 import com.jobfind.dto.dto.JobSeekerProfileDTO;
 import com.jobfind.models.JobSeekerProfile;
-import com.jobfind.populators.SkillConverter;
+import com.jobfind.converters.SkillConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ public class JobSeekerProfilePopulator {
         target.setProfileId(source.getProfileId());
         target.setFirstName(source.getFirstName());
         target.setLastName(source.getLastName());
-        target.setResumePath(source.getResumePath());
+        target.setResumeList(source.getResumes());
         target.setAddress(source.getAddress());
         target.setEmail(source.getUser().getEmail());
         target.setPhone(source.getUser().getPhone());

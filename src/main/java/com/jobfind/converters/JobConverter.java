@@ -1,4 +1,4 @@
-package com.jobfind.populators;
+package com.jobfind.converters;
 
 import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.models.Job;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Component
 public class JobConverter {
-    private final com.jobfind.converters.JobPopulator jobPopulator;
+    private final com.jobfind.populators.JobPopulator jobPopulator;
 
     public JobDTO convertToJobDTO(Job job) {
         JobDTO dto = new JobDTO();

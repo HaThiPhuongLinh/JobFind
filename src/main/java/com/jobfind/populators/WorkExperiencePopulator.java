@@ -1,8 +1,8 @@
-package com.jobfind.converters;
+package com.jobfind.populators;
 
 import com.jobfind.dto.dto.WorkExperienceDTO;
 import com.jobfind.models.WorkExperience;
-import com.jobfind.populators.SkillConverter;
+import com.jobfind.converters.SkillConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

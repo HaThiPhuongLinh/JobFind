@@ -7,7 +7,7 @@ import com.jobfind.models.Company;
 import com.jobfind.models.Job;
 import com.jobfind.models.JobCategory;
 import com.jobfind.models.Skill;
-import com.jobfind.populators.JobConverter;
+import com.jobfind.converters.JobConverter;
 import com.jobfind.repositories.CompanyRepository;
 import com.jobfind.repositories.JobCategoryRepository;
 import com.jobfind.repositories.JobRepository;

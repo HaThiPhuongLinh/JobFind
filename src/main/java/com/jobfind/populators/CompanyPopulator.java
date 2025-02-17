@@ -1,4 +1,4 @@
-package com.jobfind.converters;
+package com.jobfind.populators;
 
 import com.jobfind.dto.dto.CompanyDTO;
 import com.jobfind.models.Company;

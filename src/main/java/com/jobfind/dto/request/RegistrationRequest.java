@@ -25,7 +25,6 @@ public class RegistrationRequest {
     private String phone;
     private String firstName;
     private String lastName;
-    private String resumePath;
 
     private String companyName;
     private String industry;

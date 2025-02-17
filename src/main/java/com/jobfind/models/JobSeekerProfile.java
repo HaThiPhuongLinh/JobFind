@@ -20,8 +20,6 @@ public class JobSeekerProfile {
     private String firstName;
 
     private String lastName;
-
-    private String resumePath;
     private String address;
 
     @OneToOne
@@ -35,4 +33,8 @@ public class JobSeekerProfile {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private List<Skill> skills;
+
+    @OneToMany(mappedBy = "jobSeekerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Resume> resumes;
+
 }

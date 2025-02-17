@@ -18,7 +18,6 @@ public class UpdatePersonalInfoRequest {
     private String phoneNumber;
     private String firstName;
     private String lastName;
-    private String resumePath;
     private String address;
     private String companyName;
     private String logoPath;
