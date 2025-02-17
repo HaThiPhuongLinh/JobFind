@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const JobItem = ({ job }) => {
   const [isHeart, setIsHeart] = useState(false);
@@ -11,7 +12,11 @@ const JobItem = ({ job }) => {
   };
 
   return (
-    <div className="p-4 rounded-md border border-gray-300 bg-white cursor-pointer border-primary">
+    <Link
+      to="/job-detail"
+      target="_blank"
+      className="p-4 rounded-md border border-gray-300 bg-white cursor-pointer border-primary"
+    >
       <div className="flex">
         <div
           className="border border-slate-300 rounded-lg p-1"
@@ -48,7 +53,7 @@ const JobItem = ({ job }) => {
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 JobItem.propTypes = {

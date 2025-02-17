@@ -73,13 +73,6 @@ const Home = () => {
     setCitySelectedCurrent(null);
   };
 
-  // Khi bấm nút Áp dụng thì đóng model và hiện thành phố được chọn trong input
-  // const [isApply, setIsApply] = useState(false);
-  // const applyLocation = () => {
-  //   setIsOpen(false);
-  //   setIsApply(true);
-  // };
-
   // Mở/Tắt model chọn tỉnh thành quận huyện
   const [isOpen, setIsOpen] = useState(false);
 

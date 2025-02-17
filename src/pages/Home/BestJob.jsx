@@ -9,7 +9,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import JobItem from "../../components/ui/JobItem";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { filterJob } from "../../redux/slices/jobSlice";
 
 const filters = [
   {
@@ -44,7 +45,7 @@ const filters = [
       "IT - Phần cứng",
       "Kinh doanh",
       "Marketing",
-      "IT ",
+      "IT",
       " Phần cứng",
       "K doanh",
       "Mketing",
@@ -57,13 +58,13 @@ const filters = [
 ];
 
 const BestJob = () => {
-  // open filter modal
+  // Mở model bộ lọc
   const [isOpenFilter, setIsOpenFilter] = useState(false);
   const toggleFilterModal = () => {
     setIsOpenFilter(!isOpenFilter);
   };
 
-  // close filter modal when click outside
+  // Đóng model bộ lọc khi click bên ngoài
   const ref = useRef(null);
 
   useEffect(() => {
@@ -78,14 +79,30 @@ const BestJob = () => {
     };
   }, []);
 
-  // track filter selected
+  // Theo dõi sự thay đổi bộ lọc
   const [filterSelected, setFilterSelected] = useState(filters[0]);
   const toggleFilter = (filter) => {
     setFilterSelected(filter);
+    setFilterItemSelected("Tất cả");
     setIsOpenFilter(false);
   };
 
-  // scroll list filter
+  // Lọc danh sách job theo filter đã chọn
+  const dispatch = useDispatch();
+  const filterJobs = useSelector((state) => state.jobs.filterJobs);
+
+  // Chọn 1 giá trị của bộ lọc
+  const [filterItemSelected, setFilterItemSelected] = useState("Tất cả");
+  const toggleFilterItem = (item) => {
+    setFilterItemSelected(item);
+  };
+
+  // Dùng useEffect để lọc danh sách job khi filterItemSelected thay đổi
+  useEffect(() => {
+    dispatch(filterJob({ key: filterSelected.key, value: filterItemSelected }));
+  }, [filterItemSelected, dispatch, filterSelected.key]);
+
+  // Nếu value của bộ lọc quá nhiều thì cho phép cuộn sang trái phải
   const listFilterRef = useRef(null);
 
   const scrollLeft = () => {
@@ -100,16 +117,8 @@ const BestJob = () => {
     }
   };
 
-  // Chọn 1 filter item
-  const [filterItemSelected, setFilterItemSelected] = useState(null);
-  const toggleFilterItem = (item) => {
-    setFilterItemSelected(item);
-  };
-
-  // Lọc danh sách job theo filter đã chọn
-
   // get job list
-  const jobs = useSelector((state) => state.jobs.jobs);
+  // const jobs = useSelector((state) => state.jobs.jobs);
 
   return (
     <div className="pt-6 pb-6" style={{ backgroundColor: "#f3f5f7" }}>
@@ -229,10 +238,14 @@ const BestJob = () => {
         {/* end: filter */}
 
         {/* start: list job */}
-        <div className="pt-6 grid grid-cols-3 gap-4">
-          {jobs.map((job) => (
-            <JobItem key={job.id} job={job} />
-          ))}
+        <div className={filterJobs.length > 0 && `pt-6 grid grid-cols-3 gap-4`}>
+          {filterJobs.length !== 0 ? (
+            filterJobs.map((job) => <JobItem key={job.id} job={job} />)
+          ) : (
+            <p className="text-center block text-2xl text-slate-400 py-6">
+              Không tìm thấy job nào huhu
+            </p>
+          )}
         </div>
         {/* end: list job */}
 
@@ -246,7 +259,7 @@ const BestJob = () => {
             className="me-4 btn-circle text-xl"
           />
           <p>
-            <span className="text-primary">4</span> /{" "}
+            <span className="text-primary">1</span> /{" "}
             <span className="text-slate-500">84 trang</span>
           </p>
           <FontAwesomeIcon icon={faAngleRight} className="btn-circle text-xl" />

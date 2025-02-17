@@ -64,20 +64,46 @@ const jobSlice = createSlice({
   name: "jobs",
   initialState: { ...initState, filterJobs: initState.jobs },
   reducers: {
-    // filterJob: (state, action) => {
-    //   const { location, salary, experience, category, filterItem } =
-    //     action.payload;
-    //   state.filterJobs = state.jobs.filter((job) => {
-    //     const matchLocation = location ? job.location.includes(location) : true;
-    //     const matchSalary = salary ? job.salary.includes(location) : true;
-    //     const matchExperience = experience
-    //       ? job.experience.includes(location)
-    //       : true;
-    //     const matchCategory = category ? job.category.includes(category) : true;
-    //   });
-    //   return matchLocation && matchSalary && matchExperience && matchCategory;
-    // },
+    filterJob: (state, action) => {
+      const { key, value } = action.payload;
+      state.filterJobs = state.jobs.filter((job) => {
+        if (key === "Địa điểm") {
+          return value === "Tất cả" ? true : job.location === value;
+        }
+        if (key === "Mức lương") {
+          return value === "Tất cả"
+            ? true
+            : value === "Dưới 5 triệu"
+            ? job.salary.includes("tr") && parseInt(job.salary) < 5
+            : value === "5 - 10 triệu"
+            ? job.salary.includes("tr") &&
+              parseInt(job.salary) >= 5 &&
+              parseInt(job.salary) <= 10
+            : value === "10 - 20 triệu"
+            ? job.salary.includes("tr") &&
+              parseInt(job.salary) >= 10 &&
+              parseInt(job.salary) <= 20
+            : job.salary.includes("tr") && parseInt(job.salary) > 20;
+        }
+        if (key === "Kinh nghiệm") {
+          return value === "Tất cả"
+            ? true
+            : value === "Chưa có kinh nghiệm"
+            ? job.experience === 0
+            : value === "Dưới 1 năm"
+            ? job.experience > 0 && job.experience < 1
+            : value === "1 - 2 năm"
+            ? job.experience >= 1 && job.experience <= 2
+            : job.experience > 2;
+        }
+        if (key === "Ngành nghề") {
+          return value === "Tất cả" ? true : job.category === value;
+        }
+        return true;
+      });
+    },
   },
 });
 
+export const { filterJob } = jobSlice.actions;
 export default jobSlice.reducer;
