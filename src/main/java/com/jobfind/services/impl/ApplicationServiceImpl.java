@@ -31,7 +31,6 @@ public class ApplicationServiceImpl implements IApplicationService {
     private final JobRepository jobRepository;
     private final ApplicationStatusHistoryRepository historyRepository;
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
-    private final CompanyConverter companyConverter;
     private final JobSeekerProfileConverter jobSeekerProfileConverter;
     private final JobConverter jobConverter;
 
@@ -65,7 +64,6 @@ public class ApplicationServiceImpl implements IApplicationService {
 
         return ApplicationStatusResponse.builder()
                 .job(jobConverter.convertToJobDTO(list.get(0).getApplication().getJob()))
-                .company(companyConverter.convertToCompanyDTO(list.get(0).getApplication().getJob().getCompany()))
                 .jobSeekerProfile(jobSeekerProfileConverter.convertToJobSeekerProfileDTO(list.get(0).getApplication().getJobSeekerProfile()))
                 .statusDTOList(
                         list.stream().map(

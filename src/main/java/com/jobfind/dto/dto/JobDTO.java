@@ -11,6 +11,7 @@ import java.util.List;
 @Data
 public class JobDTO {
     private Integer jobId;
+    private CompanyDTO company;
     private String title;
     private String description;
     private String requirements;

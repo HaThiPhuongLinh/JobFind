@@ -1,11 +1,13 @@
 package com.jobfind.services.impl;
 
+import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.dto.request.CreateJobRequest;
 import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.Company;
 import com.jobfind.models.Job;
 import com.jobfind.models.JobCategory;
 import com.jobfind.models.Skill;
+import com.jobfind.populators.JobConverter;
 import com.jobfind.repositories.CompanyRepository;
 import com.jobfind.repositories.JobCategoryRepository;
 import com.jobfind.repositories.JobRepository;
@@ -27,6 +29,7 @@ public class JobServiceImpl implements IJobService {
     private final SkillRepository skillRepository;
     private final JobCategoryRepository jobCategoryRepository;
     private final ValidateField validateField;
+    private final JobConverter jobConverter;
 
     @Override
     public void createJob(CreateJobRequest request, BindingResult bindingResult) {
@@ -66,5 +69,13 @@ public class JobServiceImpl implements IJobService {
                 .build();
 
         jobRepository.save(job);
+    }
+
+    @Override
+    public JobDTO getJobByID(Integer jobId) {
+        Job job = jobRepository.findById(jobId).orElseThrow(() ->
+                new BadRequestException("Job not found"));
+
+        return jobConverter.convertToJobDTO(job);
     }
 }

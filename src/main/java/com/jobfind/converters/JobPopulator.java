@@ -4,6 +4,7 @@ import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.dto.dto.SkillDTO;
 import com.jobfind.models.Job;
 import com.jobfind.models.JobCategory;
+import com.jobfind.populators.CompanyConverter;
 import com.jobfind.populators.SkillConverter;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,8 +15,10 @@ import java.util.stream.Collectors;
 @Component
 public class JobPopulator {
     private final SkillConverter skillConverter;
+    private final CompanyConverter companyConverter;
     public void populate(Job source, JobDTO target) {
         target.setJobId(source.getJobId());
+        target.setCompany(companyConverter.convertToCompanyDTO(source.getCompany()));
         target.setTitle(source.getTitle());
         target.setDescription(source.getDescription());
         target.setRequirements(source.getRequirements());

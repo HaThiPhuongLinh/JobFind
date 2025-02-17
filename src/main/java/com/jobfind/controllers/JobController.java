@@ -1,5 +1,6 @@
 package com.jobfind.controllers;
 
+import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.dto.request.CreateJobRequest;
 import com.jobfind.dto.response.SuccessResponse;
 import com.jobfind.services.IJobService;
@@ -7,10 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/job")
@@ -22,5 +20,11 @@ public class JobController {
     public ResponseEntity<SuccessResponse> createJob(@Valid @RequestBody CreateJobRequest request, BindingResult bindingResult) {
         jobServiceImpl.createJob(request, bindingResult);
         return ResponseEntity.ok(new SuccessResponse("Job created successfully"));
+    }
+
+    @GetMapping ("/getJobById/{id}")
+    public ResponseEntity<JobDTO> getJobById(@PathVariable Integer id) {
+        JobDTO job = jobServiceImpl.getJobByID(id);
+        return ResponseEntity.ok(job);
     }
 }
