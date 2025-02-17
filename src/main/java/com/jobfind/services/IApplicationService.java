@@ -1,11 +1,9 @@
 package com.jobfind.services;
 
 import com.jobfind.dto.request.ApplicationRequest;
-import com.jobfind.models.ApplicationStatusHistory;
-
-import java.util.List;
+import com.jobfind.dto.response.ApplicationStatusResponse;
 
 public interface IApplicationService {
     void applyForJob(ApplicationRequest request);
-    List<ApplicationStatusHistory> getApplicationStatusHistory(Integer applicationId);
+    ApplicationStatusResponse getApplicationStatusHistory(Integer applicationId);
 }

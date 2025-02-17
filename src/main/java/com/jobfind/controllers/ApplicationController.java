@@ -1,14 +1,12 @@
 package com.jobfind.controllers;
 
 import com.jobfind.dto.request.ApplicationRequest;
+import com.jobfind.dto.response.ApplicationStatusResponse;
 import com.jobfind.dto.response.SuccessResponse;
-import com.jobfind.models.ApplicationStatusHistory;
 import com.jobfind.services.impl.ApplicationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/application")
@@ -23,8 +21,8 @@ public class ApplicationController {
     }
 
     @GetMapping("/{applicationId}/history")
-    public ResponseEntity<List<ApplicationStatusHistory>> getApplicationHistory(@PathVariable Integer applicationId) {
-        List<ApplicationStatusHistory> history = applicationServiceImpl.getApplicationStatusHistory(applicationId);
+    public ResponseEntity<ApplicationStatusResponse> getApplicationHistory(@PathVariable Integer applicationId) {
+        ApplicationStatusResponse history = applicationServiceImpl.getApplicationStatusHistory(applicationId);
         return ResponseEntity.ok(history);
     }
 }

@@ -9,8 +9,8 @@ import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.JobSeekerProfile;
 import com.jobfind.models.Skill;
 import com.jobfind.models.WorkExperience;
-import com.jobfind.populators.SkillPopulator;
-import com.jobfind.populators.WorkExperiencePopulator;
+import com.jobfind.populators.SkillConverter;
+import com.jobfind.populators.WorkExperienceConverter;
 import com.jobfind.repositories.*;
 import com.jobfind.services.IJobSeekerProfileService;
 import com.jobfind.utils.ValidateField;
@@ -30,8 +30,8 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     private final CompanyRepository companyRepository;
     private final JobPositionRepository jobPositionRepository;
     private final SkillRepository skillRepository;
-    private final SkillPopulator skillPopulator;
-    private final WorkExperiencePopulator workExperiencePopulator;
+    private final SkillConverter skillConverter;
+    private final WorkExperienceConverter workExperienceConverter;
     private final ValidateField validateField;
 
     private JobSeekerProfile getJobSeekerProfile(Integer userId) {
@@ -51,13 +51,13 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
         JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(userId);
 
         List<WorkExperienceDTO> workExperiences = workExperienceRepository.findByUser_UserId(userId).stream()
-                .map(workExperiencePopulator::convertToWorkExperienceDTO)
+                .map(workExperienceConverter::convertToWorkExperienceDTO)
                 .collect(Collectors.toList());
 
         return JobSeekerProfileResponse.builder()
                 .workExperiences(workExperiences)
                 .skills(jobSeekerProfile.getSkills().stream()
-                        .map(skillPopulator::convertToSkillDTO)
+                        .map(skillConverter::convertToSkillDTO)
                         .collect(Collectors.toList()))
                 .firstName(jobSeekerProfile.getFirstName())
                 .lastName(jobSeekerProfile.getLastName())
@@ -104,9 +104,9 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
         workExperienceRepository.save(workExperience);
 
         return JobSeekerProfileResponse.builder()
-                .workExperiences(List.of(workExperiencePopulator.convertToWorkExperienceDTO(workExperience)))
+                .workExperiences(List.of(workExperienceConverter.convertToWorkExperienceDTO(workExperience)))
                 .skills(jobSeekerProfile.getSkills().stream()
-                        .map(skillPopulator::convertToSkillDTO)
+                        .map(skillConverter::convertToSkillDTO)
                         .collect(Collectors.toList()))
                 .firstName(jobSeekerProfile.getFirstName())
                 .lastName(jobSeekerProfile.getLastName())
@@ -146,10 +146,10 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
 
         return JobSeekerProfileResponse.builder()
                 .workExperiences(workExperienceRepository.findByUser_UserId(userId).stream()
-                        .map(workExperiencePopulator::convertToWorkExperienceDTO)
+                        .map(workExperienceConverter::convertToWorkExperienceDTO)
                         .collect(Collectors.toList()))
                 .skills(jobSeekerProfile.getSkills().stream()
-                        .map(skillPopulator::convertToSkillDTO)
+                        .map(skillConverter::convertToSkillDTO)
                         .collect(Collectors.toList()))
                 .firstName(jobSeekerProfile.getFirstName())
                 .lastName(jobSeekerProfile.getLastName())
@@ -180,7 +180,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
 
         return JobSeekerProfileResponse.builder()
                 .skills(profile.getSkills().stream()
-                        .map(skillPopulator::convertToSkillDTO)
+                        .map(skillConverter::convertToSkillDTO)
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -201,7 +201,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
 
         return JobSeekerProfileResponse.builder()
                 .skills(profile.getSkills().stream()
-                        .map(skillPopulator::convertToSkillDTO)
+                        .map(skillConverter::convertToSkillDTO)
                         .collect(Collectors.toList()))
                 .build();
     }

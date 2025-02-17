@@ -5,8 +5,8 @@ import com.jobfind.models.Skill;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SkillConverter {
-    public void populate(Skill source, SkillDTO targer) {
-        targer.setName(source.getName());
+public class SkillPopulator {
+    public void populate(Skill source, SkillDTO target) {
+        target.setName(source.getName());
     }
 }
