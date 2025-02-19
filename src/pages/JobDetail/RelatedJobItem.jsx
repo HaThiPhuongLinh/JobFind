@@ -8,6 +8,8 @@ import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+import formatSalary from "../../untils/formatSalary";
+
 const JobItem = ({ job }) => {
   const [isHeart, setIsHeart] = useState(false);
   const handleHeartClick = () => {
@@ -46,7 +48,7 @@ const JobItem = ({ job }) => {
         {/* Lương */}
         <div className="flex items-center text-primary font-bold">
           <FontAwesomeIcon icon={faCircleDollarToSlot} className="pe-4" />
-          <p className="">{job.salary}</p>
+          <p className="">{formatSalary(job.salary)}</p>
         </div>
 
         {/* Nút ứng tuyển */}
@@ -79,7 +81,7 @@ JobItem.propTypes = {
     title: PropTypes.string.isRequired,
     company: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,
-    salary: PropTypes.string.isRequired,
+    salary: PropTypes.array.isRequired,
     description: PropTypes.string.isRequired,
     date: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,

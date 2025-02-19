@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import JobInfo from "./JobInfo";
 import JobDescription from "./JobDescriptio";
-import JobItem from "./JobItem";
-
+import JobItem from "./RelatedJobItem";
+import InfoCompany from "./InfoCompany";
 import { useSelector } from "react-redux";
 
 const JobDetail = () => {
@@ -49,10 +49,10 @@ const JobDetail = () => {
 
           {/* Thông tin chung - thông tin công ty */}
           <div className="ms-6" style={{ width: "30%" }}>
-            Been phai
+            <InfoCompany />
           </div>
+          {/* End: body */}
         </div>
-        {/* End: body */}
       </div>
     </div>
   );

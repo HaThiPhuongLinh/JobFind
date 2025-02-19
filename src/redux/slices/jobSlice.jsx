@@ -18,34 +18,42 @@ const jobSlice = createSlice({
     filterJob: (state, action) => {
       const { key, value } = action.payload;
       state.filterJobs = state.jobs.filter((job) => {
+        // lọc lương
+        const salary = job.salary;
+        const duoi5tr = salary[0] <= 5 && true;
+        const tu5toi10tr =
+          ((salary[0] <= 5 && salary[1] >= 5) ||
+            (salary[0] >= 5 && salary[0] <= 10)) &&
+          true;
+        const tu10den15tr =
+          ((salary[0] <= 10 && salary[1] >= 10) ||
+            (salary[0] >= 10 && salary[0] <= 15)) &&
+          true;
+        const tu15den20tr =
+          ((salary[0] <= 15 && salary[1] >= 15) ||
+            (salary[0] >= 15 && salary[0] <= 20)) &&
+          true;
+        const tren20tr = (salary[0] >= 20 || salary[1] >= 20) && true;
+
         if (key === "Địa điểm") {
           return value === "Tất cả" ? true : job.location === value;
         }
         if (key === "Mức lương") {
-          return value === "Tất cả"
-            ? true
-            : value === "Dưới 5 triệu"
-            ? job.salary.includes("tr") && parseInt(job.salary) < 5
-            : value === "5 - 10 triệu"
-            ? job.salary.includes("tr") &&
-              parseInt(job.salary) >= 5 &&
-              parseInt(job.salary) <= 10
-            : value === "10 - 20 triệu"
-            ? job.salary.includes("tr") &&
-              parseInt(job.salary) >= 10 &&
-              parseInt(job.salary) <= 20
-            : job.salary.includes("tr") && parseInt(job.salary) > 20;
+          if (value === "Tất cả") return true;
+          if (value === "Dưới 5 triệu") return duoi5tr;
+          if (value === "5 - 10 triệu") return tu5toi10tr;
+          if (value === "10 - 15 triệu") return tu10den15tr;
+          if (value === "15 - 20 triệu") return tu15den20tr;
+          if (value === "Trên 20 triệu") return tren20tr;
         }
         if (key === "Kinh nghiệm") {
-          return value === "Tất cả"
-            ? true
-            : value === "Chưa có kinh nghiệm"
-            ? job.experience === 0
-            : value === "Dưới 1 năm"
-            ? job.experience > 0 && job.experience < 1
-            : value === "1 - 2 năm"
-            ? job.experience >= 1 && job.experience <= 2
-            : job.experience > 2;
+          if (value === "Tất cả") return true;
+          if (value === "Chưa có kinh nghiệm") return job.experience === 0;
+          if (value === "1 năm") return job.experience === 1;
+          if (value === "2 năm") return job.experience === 2;
+          if (value === "3 năm") return job.experience === 3;
+          if (value === "4 năm") return job.experience === 4;
+          if (value === "5 năm") return job.experience >= 5;
         }
         if (key === "Ngành nghề") {
           return value === "Tất cả" ? true : job.category === value;

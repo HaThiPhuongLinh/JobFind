@@ -10,57 +10,12 @@ import {
 
 import JobItem from "../../components/ui/JobItem";
 import { useSelector, useDispatch } from "react-redux";
+import { filterJob, paginateJobs, maxPage } from "../../redux/slices/jobSlice";
+import filters from "../../data/filters";
 import {
-  filterJob,
-  countJob,
-  paginateJobs,
-  maxPage,
-} from "../../redux/slices/jobSlice";
-
-const filters = [
-  {
-    key: "Địa điểm",
-    list: ["Tất cả", "Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng"],
-  },
-  {
-    key: "Mức lương",
-    list: [
-      "Tất cả",
-      "Dưới 5 triệu",
-      "5 - 10 triệu",
-      "10 - 20 triệu",
-      "Trên 20 triệu",
-    ],
-  },
-  {
-    key: "Kinh nghiệm",
-    list: [
-      "Tất cả",
-      "Chưa có kinh nghiệm",
-      "Dưới 1 năm",
-      "1 - 2 năm",
-      "Trên 2 năm",
-    ],
-  },
-  {
-    key: "Ngành nghề",
-    list: [
-      "Tất cả",
-      "IT - Phần mềm",
-      "IT - Phần cứng",
-      "Kinh doanh",
-      "Marketing",
-      "IT",
-      " Phần cứng",
-      "K doanh",
-      "Mketing",
-      "Dev java",
-      " Python",
-      "React",
-      "Mobile",
-    ],
-  },
-];
+  convertSalaryDisplay,
+  convertExperienceDisplay,
+} from "../../untils/convertSalaryDisplay";
 
 const BestJob = () => {
   // Mở model bộ lọc
@@ -122,13 +77,21 @@ const BestJob = () => {
     }
   };
 
-  // get job list
-  // const jobs = useSelector((state) => state.jobs.jobs);
+  // format lại cho đẹp để hiển thị danh sách filter item
+  const formatedFilterItems = () => {
+    if (filterSelected.key === "Mức lương") {
+      return convertSalaryDisplay(filterSelected.list);
+    } else if (filterSelected.key === "Kinh nghiệm") {
+      return convertExperienceDisplay(filterSelected.list);
+    } else {
+      return filterSelected.list;
+    }
+  };
+
+  // console.log(formatedFilterItems());
 
   // Phân trang
   const [pagination, setPagination] = useState(1);
-  // Số lượng job
-  const jobCount = useSelector(countJob);
   const maxPageCount = useSelector(maxPage);
   const paginationJobs = useSelector((state) => state.jobs.paginationJobs);
 
@@ -149,8 +112,6 @@ const BestJob = () => {
     dispatch(paginateJobs(pagination));
   }, [pagination, dispatch]);
 
-  // Lấy danh sách job theo phân trang
-
   return (
     <div className="pt-6 pb-6" style={{ backgroundColor: "#f3f5f7" }}>
       <div className="container mx-auto">
@@ -161,16 +122,6 @@ const BestJob = () => {
             <p className="pe-4 underline text-sm cursor-pointer hover:no-underline">
               Xem tất cả
             </p>
-            <div className="">
-              <FontAwesomeIcon
-                icon={faAngleLeft}
-                className="me-4 btn-circle text-xl"
-              />
-              <FontAwesomeIcon
-                icon={faAngleRight}
-                className="btn-circle text-xl"
-              />
-            </div>
           </div>
         </div>
         {/* end: header */}
@@ -214,7 +165,7 @@ const BestJob = () => {
                   >
                     <span
                       className={
-                        filterSelected.key == filter.key && "text-primary"
+                        filterSelected.key == filter.key ? "text-primary" : ""
                       }
                     >
                       {filter.key}
@@ -226,7 +177,7 @@ const BestJob = () => {
             {/* end: model selector */}
           </div>
 
-          {/* filter item */}
+          {/* filter item list */}
           <div className="flex justify-between items-center">
             <FontAwesomeIcon
               icon={faAngleLeft}
@@ -243,7 +194,7 @@ const BestJob = () => {
               }}
               ref={listFilterRef}
             >
-              {filterSelected.list.map((v, index) => (
+              {formatedFilterItems().map((v, index) => (
                 <div
                   key={index}
                   className={`rounded-full py-2 px-4 mx-1 cursor-pointer border-base ${
@@ -271,8 +222,9 @@ const BestJob = () => {
         {/* start: list job */}
         <div
           className={
-            filterJobs.length > 0 &&
-            `pt-6 grid grid-cols-3 gap-4 grid-rows-2 overflow-hidden`
+            filterJobs.length > 0
+              ? `pt-6 grid grid-cols-3 gap-4 grid-rows-2 overflow-hidden`
+              : ""
           }
         >
           {paginationJobs.length !== 0 ? (
