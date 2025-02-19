@@ -10,7 +10,12 @@ import {
 
 import JobItem from "../../components/ui/JobItem";
 import { useSelector, useDispatch } from "react-redux";
-import { filterJob } from "../../redux/slices/jobSlice";
+import {
+  filterJob,
+  countJob,
+  paginateJobs,
+  maxPage,
+} from "../../redux/slices/jobSlice";
 
 const filters = [
   {
@@ -119,6 +124,32 @@ const BestJob = () => {
 
   // get job list
   // const jobs = useSelector((state) => state.jobs.jobs);
+
+  // Phân trang
+  const [pagination, setPagination] = useState(1);
+  // Số lượng job
+  const jobCount = useSelector(countJob);
+  const maxPageCount = useSelector(maxPage);
+  const paginationJobs = useSelector((state) => state.jobs.paginationJobs);
+
+  // Tăng giảm phân trang
+  const increasePagination = () => {
+    if (pagination < maxPageCount) {
+      setPagination(pagination + 1);
+    }
+  };
+
+  const decreasePagination = () => {
+    if (pagination > 1) {
+      setPagination(pagination - 1);
+    }
+  };
+
+  useEffect(() => {
+    dispatch(paginateJobs(pagination));
+  }, [pagination, dispatch]);
+
+  // Lấy danh sách job theo phân trang
 
   return (
     <div className="pt-6 pb-6" style={{ backgroundColor: "#f3f5f7" }}>
@@ -238,9 +269,14 @@ const BestJob = () => {
         {/* end: filter */}
 
         {/* start: list job */}
-        <div className={filterJobs.length > 0 && `pt-6 grid grid-cols-3 gap-4`}>
-          {filterJobs.length !== 0 ? (
-            filterJobs.map((job) => <JobItem key={job.id} job={job} />)
+        <div
+          className={
+            filterJobs.length > 0 &&
+            `pt-6 grid grid-cols-3 gap-4 grid-rows-2 overflow-hidden`
+          }
+        >
+          {paginationJobs.length !== 0 ? (
+            paginationJobs.map((job) => <JobItem key={job.id} job={job} />)
           ) : (
             <p className="text-center block text-2xl text-slate-400 py-6">
               Không tìm thấy job nào huhu
@@ -256,13 +292,22 @@ const BestJob = () => {
         >
           <FontAwesomeIcon
             icon={faAngleLeft}
-            className="me-4 btn-circle text-xl"
+            className={
+              pagination > 1
+                ? "me-4 btn-circle text-xl"
+                : "me-4 btn-circle text-xl opacity-50"
+            }
+            onClick={() => decreasePagination()}
           />
           <p>
-            <span className="text-primary">1</span> /{" "}
-            <span className="text-slate-500">84 trang</span>
+            <span className="text-primary">{pagination}</span> /{" "}
+            <span className="text-slate-500">{maxPageCount} trang</span>
           </p>
-          <FontAwesomeIcon icon={faAngleRight} className="btn-circle text-xl" />
+          <FontAwesomeIcon
+            icon={faAngleRight}
+            className="btn-circle text-xl"
+            onClick={() => increasePagination()}
+          />
         </div>
       </div>
     </div>
