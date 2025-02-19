@@ -16,13 +16,13 @@ public class ResumeController {
 
     private final IResumeService resumeServiceImpl;
 
-    @PostMapping("/{profileId}")
+    @PostMapping("create/{profileId}")
     public ResponseEntity<SuccessResponse> createResume(@PathVariable Integer profileId, @Valid @RequestBody ResumeRequest request, BindingResult result) {
         resumeServiceImpl.createResume(profileId, request, result);
         return ResponseEntity.ok(new SuccessResponse("Create resume successfully"));
     }
 
-    @DeleteMapping("/{resumeId}")
+    @DeleteMapping("delete/{resumeId}")
     public ResponseEntity<SuccessResponse> deleteResume(@PathVariable Integer resumeId) {
         resumeServiceImpl.deleteResume(resumeId);
         return ResponseEntity.ok(new SuccessResponse("Delete resume successfully"));

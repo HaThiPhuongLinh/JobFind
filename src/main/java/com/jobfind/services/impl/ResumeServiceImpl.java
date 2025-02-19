@@ -20,6 +20,7 @@ public class ResumeServiceImpl implements IResumeService {
     private final ResumeRepository resumeRepository;
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
     private final ValidateField validateField;
+
     @Override
     public void createResume(Integer profileId, ResumeRequest request, BindingResult result) {
         Map<String, String> errors = validateField.getErrors(result);
