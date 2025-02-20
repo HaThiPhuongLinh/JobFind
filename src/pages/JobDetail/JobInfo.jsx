@@ -6,18 +6,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const JobInfo = () => {
+const JobInfo = ({ job }) => {
+  // console.log(job);
+  const { title, salary, location, experience, deadline } = job;
   return (
     <>
       {/* Thông tin job */}
       <div className="p-4 rounded-lg bg-white ">
         {/* Tên công việc */}
-        <p className="text-2xl font-bold pb-4">
-          Giám sát bán hàng/Sale Supervisior
-        </p>
+        <p className="text-2xl font-bold pb-4">{title}</p>
 
         {/* Lương - Địa điểm - Kinh nghiệm */}
         <div className="grid grid-cols-3 gap-4">
@@ -31,7 +32,9 @@ const JobInfo = () => {
             </div>
             <div className="ps-4">
               <p className="text-sm text-slate-500">Thu nhập</p>
-              <p className="font-bold">12 - 20tr</p>
+              <p className="font-bold">
+                {salary[0]} - {salary[1]} tr
+              </p>
             </div>
           </div>
 
@@ -45,7 +48,7 @@ const JobInfo = () => {
             </div>
             <div className="ps-4">
               <p className="text-sm text-slate-500">Địa điểm</p>
-              <p className="font-bold">Hà Nội</p>
+              <p className="font-bold">{location}</p>
             </div>
           </div>
 
@@ -59,7 +62,7 @@ const JobInfo = () => {
             </div>
             <div className="ps-4">
               <p className="text-sm text-slate-500">Kinh nghiệm</p>
-              <p className="font-bold">5 năm</p>
+              <p className="font-bold">{experience} năm</p>
             </div>
           </div>
         </div>
@@ -72,7 +75,7 @@ const JobInfo = () => {
         >
           <FontAwesomeIcon icon={faClock} className="pe-2" />
           <p className="pe-2">Hạn nộp hồ sơ:</p>
-          <p>16/03/2025</p>
+          <p>{deadline}</p>
         </div>
         {/* end: Hạn nộp */}
 
@@ -97,6 +100,15 @@ const JobInfo = () => {
       {/* end: thông tin job */}
     </>
   );
+};
+JobInfo.propTypes = {
+  job: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    salary: PropTypes.array.isRequired,
+    location: PropTypes.string.isRequired,
+    experience: PropTypes.number.isRequired,
+    deadline: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default JobInfo;
