@@ -23,7 +23,7 @@ function App() {
       {!hideHeaderFooter && <Header />}
 
       {/* Search bar */}
-      <SearchBar />
+      {!hideHeaderFooter && <SearchBar />}
 
       {/* Content */}
       <Routes>

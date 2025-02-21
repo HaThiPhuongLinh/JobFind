@@ -59,7 +59,7 @@ const JobDetail = () => {
 
           {/* Thông tin chung - thông tin công ty */}
           <div className="ms-6" style={{ width: "30%" }}>
-            <InfoCompany />
+            <InfoCompany job={job} />
           </div>
           {/* End: body */}
         </div>

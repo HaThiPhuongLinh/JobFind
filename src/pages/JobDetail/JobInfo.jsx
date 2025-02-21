@@ -3,16 +3,22 @@ import {
   faClock,
   faDollarSign,
   faPaperPlane,
+  faHeart as faHeartSolid,
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
+import { useState } from "react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const JobInfo = ({ job }) => {
   // console.log(job);
   const { title, salary, location, experience, deadline } = job;
+
+  // Lưu tin icon change
+  const [isSave, setIsSave] = useState(false);
+
   return (
     <>
       {/* Thông tin job */}
@@ -89,10 +95,13 @@ const JobInfo = ({ job }) => {
           </button>
 
           <button className=" text-slate-600 rounded-md px-6 py-3 ms-2 mt-4 bg-white border border-primary">
-            <Link to="#" className="text-primary">
-              <FontAwesomeIcon icon={faHeart} className="pe-2" />
+            <div onClick={() => setIsSave(!isSave)} className="text-primary">
+              <FontAwesomeIcon
+                icon={isSave ? faHeartSolid : faHeart}
+                className="pe-2"
+              />
               Lưu tin
-            </Link>
+            </div>
           </button>
         </div>
         {/* end: ứng tuyển ngay - lưu tin */}

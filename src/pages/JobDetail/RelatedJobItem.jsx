@@ -22,6 +22,7 @@ const JobItem = ({ job }) => {
   };
 
   const navigateToJobDetail = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     dispatch(setSelectedJob(job));
     navigate(`/job-detail/${job.id}`, { state: job });
   };
