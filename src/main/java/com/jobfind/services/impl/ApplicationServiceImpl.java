@@ -40,8 +40,11 @@ public class ApplicationServiceImpl implements IApplicationService {
         JobSeekerProfile jobSeeker = jobSeekerProfileRepository.findById(request.getJobSeekerProfileId())
                 .orElseThrow(() -> new BadRequestException("Job seeker profile not found"));
 
-        applicationRepository.findByJobJobIdAndJobSeekerProfileProfileId(request.getJobId(), request.getJobSeekerProfileId())
-                .orElseThrow(() ->  new BadRequestException("Application already exist"));
+        boolean existedApp = applicationRepository.existsByJobJobIdAndJobSeekerProfileProfileId(request.getJobId(), request.getJobSeekerProfileId());
+
+        if(existedApp){
+            throw new BadRequestException("Application already exists");
+        }
 
         Application application = Application.builder()
                 .job(job)

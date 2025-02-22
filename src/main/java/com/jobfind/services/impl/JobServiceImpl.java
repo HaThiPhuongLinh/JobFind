@@ -15,6 +15,7 @@ import com.jobfind.repositories.SkillRepository;
 import com.jobfind.services.IJobService;
 import com.jobfind.utils.ValidateField;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
@@ -77,5 +78,16 @@ public class JobServiceImpl implements IJobService {
                 new BadRequestException("Job not found"));
 
         return jobConverter.convertToJobDTO(job);
+    }
+
+    @Override
+    public List<JobDTO> searchJobs(String keyword, String location) {
+
+        if(StringUtils.isEmpty(keyword) && StringUtils.isEmpty(location)) {
+            return jobRepository.findAll().stream().map(jobConverter::convertToJobDTO).toList();
+        }
+
+        List<Job> jobs = jobRepository.searchJobs(keyword, location);
+        return jobs.stream().map(jobConverter::convertToJobDTO).toList();
     }
 }
