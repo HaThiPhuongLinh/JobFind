@@ -10,4 +10,5 @@ public interface IJobService {
     void createJob(CreateJobRequest request, BindingResult bindingResult);
     JobDTO getJobByID(Integer jobId);
     List<JobDTO> searchJobs(String keyword, String location);
+    List<JobDTO> getJobsByCompanyId(Integer companyId);
 }

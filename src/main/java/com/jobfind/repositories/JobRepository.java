@@ -23,4 +23,6 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "LOWER(j.requirements) LIKE LOWER(CONCAT('%', :keyword, '%')) THEN 3 ELSE 4 END")
     List<Job> searchJobs(@Param("keyword") String keyword,
                          @Param("location") String location);
+
+    List<Job> findByCompanyCompanyId(Integer companyId);
 }

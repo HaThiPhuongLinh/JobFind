@@ -90,4 +90,9 @@ public class JobServiceImpl implements IJobService {
         List<Job> jobs = jobRepository.searchJobs(keyword, location);
         return jobs.stream().map(jobConverter::convertToJobDTO).toList();
     }
+
+    @Override
+    public List<JobDTO> getJobsByCompanyId(Integer companyId) {
+        return jobRepository.findByCompanyCompanyId(companyId).stream().map(jobConverter::convertToJobDTO).toList();
+    }
 }
