@@ -8,8 +8,8 @@ import org.springframework.validation.BindingResult;
 
 public interface IJobSeekerProfileService {
     JobSeekerProfileResponse getProfileByUserId(Integer userId);
-    JobSeekerProfileResponse createWorkExperience(Integer userId, CreateWorkExperienceRequest request, BindingResult result);
-    JobSeekerProfileResponse updateWorkExperience(Integer userId, UpdateWorkExperienceRequest request, BindingResult result);
-    JobSeekerProfileResponse createSkills(SkillRequest createSkillsRequest, BindingResult result);
-    JobSeekerProfileResponse updateSkills(SkillRequest skillRequest, BindingResult bindingResult);
+    void addWorkExperience(Integer userId, CreateWorkExperienceRequest request, BindingResult result);
+    void updateWorkExperience(Integer userId, UpdateWorkExperienceRequest request, BindingResult result);
+    void addSkills(SkillRequest createSkillsRequest, BindingResult result);
+    void updateSkills(SkillRequest skillRequest, BindingResult bindingResult);
 }

@@ -4,17 +4,11 @@ import com.jobfind.dto.dto.ApplicationStatusDTO;
 import com.jobfind.dto.request.ApplicationRequest;
 import com.jobfind.dto.response.ApplicationStatusResponse;
 import com.jobfind.exception.BadRequestException;
-import com.jobfind.models.Application;
-import com.jobfind.models.ApplicationStatusHistory;
-import com.jobfind.models.Job;
-import com.jobfind.models.JobSeekerProfile;
+import com.jobfind.models.*;
 import com.jobfind.models.enums.ApplicationStatus;
 import com.jobfind.converters.JobConverter;
 import com.jobfind.converters.JobSeekerProfileConverter;
-import com.jobfind.repositories.ApplicationRepository;
-import com.jobfind.repositories.ApplicationStatusHistoryRepository;
-import com.jobfind.repositories.JobRepository;
-import com.jobfind.repositories.JobSeekerProfileRepository;
+import com.jobfind.repositories.*;
 import com.jobfind.services.IApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +24,7 @@ public class ApplicationServiceImpl implements IApplicationService {
     private final JobRepository jobRepository;
     private final ApplicationStatusHistoryRepository historyRepository;
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
+    private final ResumeRepository resumeRepository;
     private final JobSeekerProfileConverter jobSeekerProfileConverter;
     private final JobConverter jobConverter;
 
@@ -40,15 +35,21 @@ public class ApplicationServiceImpl implements IApplicationService {
         JobSeekerProfile jobSeeker = jobSeekerProfileRepository.findById(request.getJobSeekerProfileId())
                 .orElseThrow(() -> new BadRequestException("Job seeker profile not found"));
 
-        boolean existedApp = applicationRepository.existsByJobJobIdAndJobSeekerProfileProfileId(request.getJobId(), request.getJobSeekerProfileId());
+        Resume resume = resumeRepository.findById(request.getResumeId())
+                .orElseThrow(() -> new BadRequestException("Resume not found"));
 
-        if(existedApp){
+        List<Application> existingApplications = applicationRepository.findByJobJobIdAndJobSeekerProfileProfileId(
+                request.getJobId(), request.getJobSeekerProfileId()
+        );
+
+        if (!existingApplications.isEmpty()) {
             throw new BadRequestException("Application already exists");
         }
 
         Application application = Application.builder()
                 .job(job)
                 .jobSeekerProfile(jobSeeker)
+                .resume(resume)
                 .appliedAt(LocalDateTime.now())
                 .applicationStatus(ApplicationStatus.PENDING)
                 .build();

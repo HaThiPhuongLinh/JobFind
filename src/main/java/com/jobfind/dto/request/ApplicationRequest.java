@@ -6,4 +6,5 @@ import lombok.Data;
 public class ApplicationRequest {
     private Integer jobId;
     private Integer jobSeekerProfileId;
+    private Integer resumeId;
 }

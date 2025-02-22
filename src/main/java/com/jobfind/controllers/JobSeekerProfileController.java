@@ -4,6 +4,7 @@ import com.jobfind.dto.request.CreateWorkExperienceRequest;
 import com.jobfind.dto.request.SkillRequest;
 import com.jobfind.dto.request.UpdateWorkExperienceRequest;
 import com.jobfind.dto.response.JobSeekerProfileResponse;
+import com.jobfind.dto.response.SuccessResponse;
 import com.jobfind.services.IJobSeekerProfileService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,23 +23,27 @@ public class JobSeekerProfileController {
         return ResponseEntity.ok(jobSeekerProfileServiceImpl.getProfileByUserId(userId));
     }
 
-    @PostMapping("/createWorkExperience")
-    public ResponseEntity<JobSeekerProfileResponse> createWorkExperience(@RequestParam Integer userId, @Valid @RequestBody CreateWorkExperienceRequest createWorkExperienceRequest, BindingResult result) {
-        return ResponseEntity.ok(jobSeekerProfileServiceImpl.createWorkExperience(userId, createWorkExperienceRequest, result));
+    @PostMapping("/addWorkExperience")
+    public ResponseEntity<SuccessResponse> createWorkExperience(@RequestParam Integer userId, @Valid @RequestBody CreateWorkExperienceRequest createWorkExperienceRequest, BindingResult result) {
+        jobSeekerProfileServiceImpl.addWorkExperience(userId, createWorkExperienceRequest, result);
+        return ResponseEntity.ok(new SuccessResponse("Work Experience created successfully"));
     }
 
     @PostMapping("/updateWorkExperience")
-    public ResponseEntity<JobSeekerProfileResponse> updateWorkExperience(@RequestParam Integer userId, @Valid @RequestBody UpdateWorkExperienceRequest updateWorkExperienceRequest, BindingResult result) {
-        return ResponseEntity.ok(jobSeekerProfileServiceImpl.updateWorkExperience(userId, updateWorkExperienceRequest, result));
+    public ResponseEntity<SuccessResponse> updateWorkExperience(@RequestParam Integer userId, @Valid @RequestBody UpdateWorkExperienceRequest updateWorkExperienceRequest, BindingResult result) {
+        jobSeekerProfileServiceImpl.updateWorkExperience(userId, updateWorkExperienceRequest, result);
+        return ResponseEntity.ok(new SuccessResponse("Work Experience updated successfully"));
     }
 
-    @PostMapping("/createSkill")
-    public ResponseEntity<JobSeekerProfileResponse> createSkills(@Valid @RequestBody SkillRequest createSkillsRequest, BindingResult result) {
-        return ResponseEntity.ok(jobSeekerProfileServiceImpl.createSkills(createSkillsRequest, result));
+    @PostMapping("/addSkill")
+    public ResponseEntity<SuccessResponse> createSkills(@Valid @RequestBody SkillRequest createSkillsRequest, BindingResult result) {
+        jobSeekerProfileServiceImpl.addSkills(createSkillsRequest, result);
+        return ResponseEntity.ok(new SuccessResponse("Skill created successfully"));
     }
 
     @PostMapping("/updateSkill")
-    public ResponseEntity<JobSeekerProfileResponse> updateSkills(@Valid @RequestBody SkillRequest skillRequest, BindingResult bindingResult) {
-        return ResponseEntity.ok(jobSeekerProfileServiceImpl.updateSkills(skillRequest, bindingResult));
+    public ResponseEntity<SuccessResponse> updateSkills(@Valid @RequestBody SkillRequest skillRequest, BindingResult bindingResult) {
+        jobSeekerProfileServiceImpl.updateSkills(skillRequest, bindingResult);
+        return ResponseEntity.ok(new SuccessResponse("Skill updated successfully"));
     }
 }

@@ -68,7 +68,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     }
 
     @Override
-    public JobSeekerProfileResponse createWorkExperience(Integer userId, CreateWorkExperienceRequest request, BindingResult result) {
+    public void addWorkExperience(Integer userId, CreateWorkExperienceRequest request, BindingResult result) {
         JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(userId);
 
         Map<String, String> errors = validateField.getErrors(result);
@@ -86,38 +86,24 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
             throw new BadRequestException("Work experience already exists.");
         }
 
-        WorkExperience workExperience = new WorkExperience();
-        workExperience.setJobType(request.getJobType());
-        workExperience.setDescription(request.getDescription());
-        workExperience.setStartDate(request.getStartDate());
-        workExperience.setEndDate(request.getEndDate());
-
-        workExperience.setCompany(companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new BadRequestException("Company not found")));
-
-        workExperience.setJobPosition(jobPositionRepository.findById(request.getJobPositionId())
-                .orElseThrow(() -> new BadRequestException("Job position not found")));
-
-        workExperience.setSkills(getSkillsByIds(request.getSkills()));
-        workExperience.setUser(jobSeekerProfile.getUser());
+        WorkExperience workExperience = WorkExperience.builder()
+                .jobType(request.getJobType())
+                .description(request.getDescription())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .company(companyRepository.findById(request.getCompanyId())
+                        .orElseThrow(() -> new BadRequestException("Company not found")))
+                .jobPosition(jobPositionRepository.findById(request.getJobPositionId())
+                        .orElseThrow(() -> new BadRequestException("Job position not found")))
+                .skills(getSkillsByIds(request.getSkills()))
+                .user(jobSeekerProfile.getUser())
+                .build();
 
         workExperienceRepository.save(workExperience);
-
-        return JobSeekerProfileResponse.builder()
-                .resumeList(jobSeekerProfile.getResumes())
-                .workExperiences(List.of(workExperienceConverter.convertToWorkExperienceDTO(workExperience)))
-                .skills(jobSeekerProfile.getSkills().stream()
-                        .map(skillConverter::convertToSkillDTO)
-                        .collect(Collectors.toList()))
-                .firstName(jobSeekerProfile.getFirstName())
-                .lastName(jobSeekerProfile.getLastName())
-                .email(jobSeekerProfile.getUser().getEmail())
-                .phone(jobSeekerProfile.getUser().getPhone())
-                .build();
     }
 
     @Override
-    public JobSeekerProfileResponse updateWorkExperience(Integer userId, UpdateWorkExperienceRequest request, BindingResult result) {
+    public void updateWorkExperience(Integer userId, UpdateWorkExperienceRequest request, BindingResult result) {
         JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(userId);
 
         Map<String, String> errors = validateField.getErrors(result);
@@ -143,24 +129,10 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
         workExperience.setUser(jobSeekerProfile.getUser());
 
         workExperienceRepository.save(workExperience);
-
-        return JobSeekerProfileResponse.builder()
-                .resumeList(jobSeekerProfile.getResumes())
-                .workExperiences(workExperienceRepository.findByUser_UserId(userId).stream()
-                        .map(workExperienceConverter::convertToWorkExperienceDTO)
-                        .collect(Collectors.toList()))
-                .skills(jobSeekerProfile.getSkills().stream()
-                        .map(skillConverter::convertToSkillDTO)
-                        .collect(Collectors.toList()))
-                .firstName(jobSeekerProfile.getFirstName())
-                .lastName(jobSeekerProfile.getLastName())
-                .email(jobSeekerProfile.getUser().getEmail())
-                .phone(jobSeekerProfile.getUser().getPhone())
-                .build();
     }
 
     @Override
-    public JobSeekerProfileResponse createSkills(SkillRequest createSkillsRequest, BindingResult result) {
+    public void addSkills(SkillRequest createSkillsRequest, BindingResult result) {
         Map<String, String> errors = validateField.getErrors(result);
         if (!errors.isEmpty()) {
             throw new BadRequestException("Please complete all required fields to proceed.", errors);
@@ -177,16 +149,10 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
         }
 
         jobSeekerProfileRepository.save(profile);
-
-        return JobSeekerProfileResponse.builder()
-                .skills(profile.getSkills().stream()
-                        .map(skillConverter::convertToSkillDTO)
-                        .collect(Collectors.toList()))
-                .build();
     }
 
     @Override
-    public JobSeekerProfileResponse updateSkills(SkillRequest skillRequest, BindingResult bindingResult) {
+    public void updateSkills(SkillRequest skillRequest, BindingResult bindingResult) {
         Map<String, String> errors = validateField.getErrors(bindingResult);
         if (!errors.isEmpty()) {
             throw new BadRequestException("Please complete all required fields to proceed.", errors);
@@ -198,11 +164,5 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
         profile.setSkills(skills);
 
         jobSeekerProfileRepository.save(profile);
-
-        return JobSeekerProfileResponse.builder()
-                .skills(profile.getSkills().stream()
-                        .map(skillConverter::convertToSkillDTO)
-                        .collect(Collectors.toList()))
-                .build();
     }
 }

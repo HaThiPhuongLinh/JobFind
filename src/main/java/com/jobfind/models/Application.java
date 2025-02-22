@@ -29,4 +29,8 @@ public class Application {
     @ManyToOne
     @JoinColumn(name = "job_seeker_profile_id")
     private JobSeekerProfile jobSeekerProfile;
+
+    @ManyToOne
+    @JoinColumn(name = "resume_id")
+    private Resume resume;
 }
