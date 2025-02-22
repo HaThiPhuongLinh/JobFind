@@ -1,5 +1,6 @@
 package com.jobfind.controllers;
 
+import com.jobfind.dto.dto.JobSeekerProfileDTO;
 import com.jobfind.dto.request.CreateWorkExperienceRequest;
 import com.jobfind.dto.request.SkillRequest;
 import com.jobfind.dto.request.UpdateWorkExperienceRequest;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/jobseeker")
@@ -45,5 +48,13 @@ public class JobSeekerProfileController {
     public ResponseEntity<SuccessResponse> updateSkills(@Valid @RequestBody SkillRequest skillRequest, BindingResult bindingResult) {
         jobSeekerProfileServiceImpl.updateSkills(skillRequest, bindingResult);
         return ResponseEntity.ok(new SuccessResponse("Skill updated successfully"));
+    }
+
+    @GetMapping("/search-jobseekers")
+    public ResponseEntity<List<JobSeekerProfileDTO>> searchJobSeekers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam Integer jobCategoryId) {
+        List<JobSeekerProfileDTO> jobSeekers = jobSeekerProfileServiceImpl.searchJobSeekers(keyword, jobCategoryId);
+        return ResponseEntity.ok(jobSeekers);
     }
 }

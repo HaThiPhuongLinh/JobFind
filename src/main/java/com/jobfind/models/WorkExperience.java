@@ -28,8 +28,8 @@ public class WorkExperience {
     private LocalDate endDate;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "profile_id")
+    private JobSeekerProfile jobSeekerProfile;
 
     @ManyToOne
     @JoinColumn(name = "company_id")
@@ -46,4 +46,12 @@ public class WorkExperience {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private List<Skill> skills;
+
+    @ManyToMany
+    @JoinTable(
+            name = "WorkExperience_JobCategory",
+            joinColumns = @JoinColumn(name = "workExperience_id"),
+            inverseJoinColumns = @JoinColumn(name = "job_category_id")
+    )
+    private List<JobCategory> categories;
 }

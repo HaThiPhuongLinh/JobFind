@@ -2,9 +2,29 @@ package com.jobfind.repositories;
 
 import com.jobfind.models.JobSeekerProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfile, Integer> {
     Optional<JobSeekerProfile> findByUser_UserId(Integer userId);
+    @Query("SELECT DISTINCT j FROM JobSeekerProfile j " +
+            "JOIN j.workExperiences we " +
+            "LEFT JOIN we.skills wes " +
+            "LEFT JOIN we.company c " +
+            "LEFT JOIN we.jobPosition jp " +
+            "LEFT JOIN j.skills js " +
+            "JOIN we.categories jc " +
+            "WHERE (:jobCategoryId IS NOT NULL AND jc.jobCategoryId = :jobCategoryId) " +
+            "AND (:keyword IS NULL OR " +
+            "       LOWER(wes.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "       LOWER(js.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "       LOWER(c.companyName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "       LOWER(jp.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            " )")
+    List<JobSeekerProfile> searchJobSeekers(
+            @Param("keyword") String keyword,
+            @Param("jobCategoryId") Integer jobCategoryId);
 }

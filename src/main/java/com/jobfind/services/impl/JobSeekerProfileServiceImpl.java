@@ -1,5 +1,8 @@
 package com.jobfind.services.impl;
 
+import com.jobfind.converters.JobSeekerProfileConverter;
+import com.jobfind.converters.ResumeConverter;
+import com.jobfind.dto.dto.JobSeekerProfileDTO;
 import com.jobfind.dto.dto.WorkExperienceDTO;
 import com.jobfind.dto.request.CreateWorkExperienceRequest;
 import com.jobfind.dto.request.SkillRequest;
@@ -18,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,6 +36,8 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     private final SkillRepository skillRepository;
     private final SkillConverter skillConverter;
     private final WorkExperienceConverter workExperienceConverter;
+    private final JobSeekerProfileConverter jobSeekerProfileConverter;
+    private final ResumeConverter resumeConverter;
     private final ValidateField validateField;
 
     private JobSeekerProfile getJobSeekerProfile(Integer userId) {
@@ -50,12 +56,14 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     public JobSeekerProfileResponse getProfileByUserId(Integer userId) {
         JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(userId);
 
-        List<WorkExperienceDTO> workExperiences = workExperienceRepository.findByUser_UserId(userId).stream()
+        List<WorkExperienceDTO> workExperiences = jobSeekerProfile.getWorkExperiences().stream()
                 .map(workExperienceConverter::convertToWorkExperienceDTO)
                 .collect(Collectors.toList());
 
         return JobSeekerProfileResponse.builder()
-                .resumeList(jobSeekerProfile.getResumes())
+                .resumeList(jobSeekerProfile.getResumes().stream()
+                        .map(resumeConverter::convertToResumeDTO)
+                        .collect(Collectors.toList()))
                 .workExperiences(workExperiences)
                 .skills(jobSeekerProfile.getSkills().stream()
                         .map(skillConverter::convertToSkillDTO)
@@ -76,8 +84,8 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
             throw new BadRequestException("Please complete all required fields to proceed.", errors);
         }
 
-        boolean exists = workExperienceRepository.existsByUserAndCompanyAndJobPosition(
-                jobSeekerProfile.getUser(),
+        boolean exists = workExperienceRepository.existsByJobSeekerProfileAndCompanyAndJobPosition(
+                jobSeekerProfile,
                 companyRepository.findById(request.getCompanyId()).orElseThrow(() -> new BadRequestException("Company not found")),
                 jobPositionRepository.findById(request.getJobPositionId()).orElseThrow(() -> new BadRequestException("Job position not found"))
         );
@@ -96,7 +104,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
                 .jobPosition(jobPositionRepository.findById(request.getJobPositionId())
                         .orElseThrow(() -> new BadRequestException("Job position not found")))
                 .skills(getSkillsByIds(request.getSkills()))
-                .user(jobSeekerProfile.getUser())
+                .jobSeekerProfile(jobSeekerProfile)
                 .build();
 
         workExperienceRepository.save(workExperience);
@@ -126,7 +134,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
                 .orElseThrow(() -> new BadRequestException("Job position not found")));
 
         workExperience.setSkills(getSkillsByIds(request.getSkills()));
-        workExperience.setUser(jobSeekerProfile.getUser());
+        workExperience.setJobSeekerProfile(jobSeekerProfile);
 
         workExperienceRepository.save(workExperience);
     }
@@ -164,5 +172,15 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
         profile.setSkills(skills);
 
         jobSeekerProfileRepository.save(profile);
+    }
+
+    @Override
+    public List<JobSeekerProfileDTO> searchJobSeekers(String keyword, Integer jobCategoryId) {
+        if (jobCategoryId == null) {
+            return new ArrayList<>();
+        }
+        return jobSeekerProfileRepository.searchJobSeekers(keyword, jobCategoryId).stream()
+                .map(jobSeekerProfileConverter::convertToJobSeekerProfileDTO)
+                .collect(Collectors.toList());
     }
 }

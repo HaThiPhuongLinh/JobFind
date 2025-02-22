@@ -46,6 +46,9 @@ public class Job {
 
     @Column(columnDefinition = "boolean default true")
     private Boolean isActive;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isDeleted;
     @ManyToMany
     @JoinTable(name = "Job_Skill", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private List<Skill> skills;

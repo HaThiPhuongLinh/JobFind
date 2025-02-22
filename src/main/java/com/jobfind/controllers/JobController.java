@@ -2,6 +2,7 @@ package com.jobfind.controllers;
 
 import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.dto.request.CreateJobRequest;
+import com.jobfind.dto.request.UpdateJobRequest;
 import com.jobfind.dto.response.SuccessResponse;
 import com.jobfind.services.IJobService;
 import jakarta.validation.Valid;
@@ -22,6 +23,18 @@ public class JobController {
     public ResponseEntity<SuccessResponse> createJob(@Valid @RequestBody CreateJobRequest request, BindingResult bindingResult) {
         jobServiceImpl.createJob(request, bindingResult);
         return ResponseEntity.ok(new SuccessResponse("Job created successfully"));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<String> updateJob(@Valid @RequestBody UpdateJobRequest request, BindingResult bindingResult) {
+        jobServiceImpl.updateJob(request, bindingResult);
+        return ResponseEntity.ok("Job updated successfully.");
+    }
+
+    @DeleteMapping("delete/{jobId}")
+    public ResponseEntity<String> deleteJob(@PathVariable Integer jobId) {
+        jobServiceImpl.deleteJob(jobId);
+        return ResponseEntity.ok("Job deleted successfully.");
     }
 
     @GetMapping("/searchJobs")
