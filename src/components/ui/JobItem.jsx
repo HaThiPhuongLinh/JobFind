@@ -7,7 +7,7 @@ import formatSalary from "../../untils/formatSalary";
 import { useNavigate } from "react-router-dom";
 import createSlug from "../../untils/createSlug";
 import { useDispatch } from "react-redux";
-import { setSelectedJob } from "../../redux/slices/jobSlice";
+import { setSelectedJob, likeJob } from "../../redux/slices/jobSlice";
 
 const JobItem = ({ job }) => {
   const navigate = useNavigate();
@@ -22,6 +22,12 @@ const JobItem = ({ job }) => {
   const navigateToJobDetail = () => {
     dispatch(setSelectedJob(job));
     navigate(`/job-detail/${createSlug(job.title)}`, { state: job });
+  };
+
+  // Save Job khi click vào trái tim
+  const handleClickIconHeart = () => {
+    // console.log(job); // in ra dc
+    dispatch(likeJob(job));
   };
 
   return (
@@ -52,14 +58,11 @@ const JobItem = ({ job }) => {
           style={{ width: "20px", height: "20px" }}
           onClick={handleHeartClick}
         >
-          {isHeart ? (
-            <FontAwesomeIcon icon={faHeart} className="text-lg text-primary" />
-          ) : (
-            <FontAwesomeIcon
-              icon={faHeartRegular}
-              className="text-lg text-primary"
-            />
-          )}
+          <FontAwesomeIcon
+            icon={isHeart ? faHeart : faHeartRegular}
+            className="text-lg text-primary"
+            onClick={handleClickIconHeart}
+          />
         </div>
       </div>
     </div>

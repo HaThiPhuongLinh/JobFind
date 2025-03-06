@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import itemsUserMenu from "../../data/itemsUserMenu";
 import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
 const DropDownUserMenu = ({ user }) => {
   const dispatch = useDispatch();
@@ -31,16 +32,17 @@ const DropDownUserMenu = ({ user }) => {
       {/* body */}
       <div>
         {itemsUserMenu.map((item) => (
-          <div
+          <Link
             key={item.title}
             className="flex items-center py-4 px-4 rounded-lg mb-4 bg-slate-100"
+            to={item.path}
           >
             <FontAwesomeIcon
               icon={item.icon}
               className="pe-4 text-lg text-primary"
             />
             <p>{item.title}</p>
-          </div>
+          </Link>
         ))}
 
         {/* Đăgn xuất */}

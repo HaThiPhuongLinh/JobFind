@@ -18,15 +18,14 @@ import { useSelector } from "react-redux";
 const Header = () => {
   // lấy token user từ localstorage
   // dùng useSelector để theo dõi sự thay đổi user khi logout
-  const user = useSelector((state) => state.auths.user);
+  const storedUser = JSON.parse(localStorage.getItem("user")); // Lấy user từ localStorage nếu có
+  const user = useSelector((state) => state.auths.user) || storedUser;
   const token = useSelector((state) => state.auths.token);
   const [isLogin, setIsLogin] = useState(!!token);
 
   useEffect(() => {
     setIsLogin(!!token); // Cập nhật trạng thái khi user hoặc token thay đổi
   }, [user, token]);
-
-  // console.log(user); in ra dc
 
   // Bật / tắt model thông báo
   const [isOpenModelNotification, setIsOpenModelNotification] = useState(false);
@@ -55,6 +54,8 @@ const Header = () => {
     setIsOpenDropDownUserMenu(!isOpenDropDownUserMenu);
   };
 
+  // console.log(navItems);
+
   return (
     <div className=" header flex justify-between items-center px-4 font-medium shadow">
       <Link to="/" className="h-full">
@@ -67,7 +68,7 @@ const Header = () => {
             <button className="">{item.title}</button>
 
             {/* Submenu khi hover vào tab */}
-            <ul className="submenu-item absolute left-0 top-full opacity-0 invisible group-hover:opacity-100 group-hover:visible bg-white shadow-lg transition-all duration-200">
+            <ul className="submenu-item absolute left-0 top-full opacity-0 invisible group-hover:opacity-100 group-hover:visible bg-white shadow-lg transition-all duration-200 z-[999]">
               {item.subItems.map((subItem, index) => (
                 <li
                   key={index}

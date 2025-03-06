@@ -11,6 +11,7 @@ import {
 
 import background from "../assets/bg_search_section.jpg";
 import MenuLocation from "../components/ui/MenuLocation";
+import MenuCategory from "../components/ui/MenuCategory";
 import { useSelector } from "react-redux";
 
 const SearchBar = () => {
@@ -37,26 +38,58 @@ const SearchBar = () => {
     };
   }, []);
 
+  // Đóng/mở menu categories
+  const [isOpenCategory, setIsOpenCategory] = useState(false);
+  const refCategory = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (refCategory.current && !refCategory.current.contains(event.target)) {
+        setIsOpenCategory(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div
-      className="flex justify-center items-center py-6 px-4 z-0"
+      className="flex justify-center items-center py-6 px-4 z-50"
       style={{
         backgroundImage: `url(${background})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <div className="container flex justify-between items-center rounded-full shadow-lg bg-white">
+      <div
+        className="relative container flex justify-between items-center rounded-full shadow-lg bg-white"
+        ref={refCategory}
+      >
         {/* Danh mục nghề */}
         <div
-          className="ps-4 flex items-center justify-between flex-nowrap me-4 bg-slate-200 cursor-pointer py-4 pe-4 rounded-s-full"
-          style={{ width: "250px" }}
+          className="relative"
+          onClick={() => setIsOpenCategory(!isOpenCategory)}
         >
-          <FontAwesomeIcon icon={faList} />
-          <p>Danh mục nghề</p>
-          <FontAwesomeIcon icon={faAngleDown} />
+          {/* Label danh mục nghề */}
+          <div
+            className="ps-4 flex items-center justify-between flex-nowrap me-4 bg-slate-200 cursor-pointer py-4 pe-4 rounded-s-full"
+            style={{ width: "250px" }}
+          >
+            <FontAwesomeIcon icon={faList} />
+            <p>Danh mục nghề</p>
+            <FontAwesomeIcon icon={faAngleDown} />
+          </div>
+          {/* end: label danh mục nghề */}
         </div>
         {/* end: danh mục nghề */}
+
+        {/* Menu danh mục nghề */}
+        <div className="w-1/2 absolute top-full left-0 mt-4 bg-white shadow-md rounded-lg">
+          {isOpenCategory && <MenuCategory />}
+        </div>
+        {/* end: Menu danh mục nghề */}
 
         {/* Ô nhập công việc */}
         <div className="flex grow justify-between items-center bg-white rounded-l-full px-4 py-3 w-3/5">
@@ -84,7 +117,8 @@ const SearchBar = () => {
         <div className="border-l h-6 mx-3"></div>
 
         {/* Chọn địa điểm */}
-        <div className="relative w-1/5">
+        <div className="relative w-1/5" ref={ref}>
+          {/* label chọn đại điểm */}
           <div
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center justify-between text-gray-600 cursor-pointer"
@@ -103,14 +137,16 @@ const SearchBar = () => {
             {/* Biểu tượng mũi tên */}
             <FontAwesomeIcon icon={faAngleDown} className="" />
           </div>
+          {/* end: label chọn địa điểm */}
 
           {/* Submenu chọn địa điểm */}
           {isOpen && (
-            <div className="absolute top-10 right-0" ref={ref}>
+            <div className="absolute top-10 right-0">
               <MenuLocation setIsOpen={setIsOpen} />
             </div>
           )}
         </div>
+        {/* end: Chọn địa điểm */}
 
         {/* Phân cách */}
         <div className="border-l h-6 mx-3"></div>
