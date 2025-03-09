@@ -6,7 +6,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import vina68 from "../../assets/images/image_products/vina68.webp";
 import { Link } from "react-router-dom";
-import PropTypes from "prop-types";
+import jobPropTypes from "../../untils/propTypes/jobPropTypes";
 
 const InfoCompany = ({ job }) => {
   return (
@@ -69,7 +69,7 @@ const InfoCompany = ({ job }) => {
           </div>
           <div>
             <p className="text-slate-500">Hình thức làm việc</p>
-            <p className="font-bold">Toàn thời gian</p>
+            <p className="font-bold">{job.workType}</p>
           </div>
         </div>
         {/* end: Hình thức làm việc */}
@@ -80,11 +80,14 @@ const InfoCompany = ({ job }) => {
             className="bg-primary flex justify-center items-center rounded-full me-4"
             style={{ width: "40px", height: "40px" }}
           >
-            <FontAwesomeIcon icon={faUsers} className="text-lg text-white" />
+            <FontAwesomeIcon
+              icon={faLocationDot}
+              className="text-lg text-white"
+            />
           </div>
           <div>
             <p className="text-slate-500">Vị trí</p>
-            <p className="font-bold">Nhân Viên</p>
+            <p className="font-bold">{job.position}</p>
           </div>
         </div>
         {/* end: Vị trí */}
@@ -93,10 +96,7 @@ const InfoCompany = ({ job }) => {
   );
 };
 InfoCompany.propTypes = {
-  job: PropTypes.shape({
-    company: PropTypes.string.isRequired,
-    location: PropTypes.string.isRequired,
-  }).isRequired,
+  job: jobPropTypes.isRequired,
 };
 
 export default InfoCompany;

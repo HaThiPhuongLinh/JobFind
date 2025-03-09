@@ -15,6 +15,9 @@ const cvSlice = createSlice({
     addCV: (state, action) => {
       state.cvList.push(action.payload);
     },
+    removeCV: (state, action) => {
+      state.cvList = state.cvList.filter((cv) => cv.name !== action.payload);
+    },
     // test
     submitCV: (state) => {
       state.isSubmit = true;
@@ -22,5 +25,5 @@ const cvSlice = createSlice({
   },
 });
 
-export const { addCV, submitCV } = cvSlice.actions;
+export const { addCV, submitCV, removeCV } = cvSlice.actions;
 export default cvSlice.reducer;

@@ -84,7 +84,7 @@ const JobInfo = ({ job }) => {
         {/* Ứng tuyển ngay - Lưu tin */}
         <div className="pt-6 flex items-center mt-4" style={{ height: "72px" }}>
           <div className="w-full h-full">
-            <ButtonApply />
+            <ButtonApply isApply={false} />
           </div>
 
           <div className="ps-4">
