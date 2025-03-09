@@ -128,13 +128,13 @@ public class JobServiceImpl implements IJobService {
     }
 
     @Override
-    public List<JobDTO> searchJobs(String keyword, String location) {
+    public List<JobDTO> searchJobs(String keyword, String location, Integer jobCategoryId) {
 
         if(StringUtils.isEmpty(keyword) && StringUtils.isEmpty(location)) {
             return jobRepository.findAll().stream().map(jobConverter::convertToJobDTO).toList();
         }
 
-        List<Job> jobs = jobRepository.searchJobs(keyword, location);
+        List<Job> jobs = jobRepository.searchJobs(keyword, location, jobCategoryId);
         return jobs.stream().map(jobConverter::convertToJobDTO).toList();
     }
 

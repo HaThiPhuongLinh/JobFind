@@ -38,8 +38,8 @@ public class JobController {
     }
 
     @GetMapping("/searchJobs")
-    public ResponseEntity<List<JobDTO>> searchJobs(@RequestParam(required = false) String keyword, @RequestParam(required = false) String location) {
-        List<JobDTO> jobs = jobServiceImpl.searchJobs(keyword, location);
+    public ResponseEntity<List<JobDTO>> searchJobs(@RequestParam(required = false) String keyword, @RequestParam(required = false) String location, @RequestParam(required = false) Integer jobCategoryId) {
+        List<JobDTO> jobs = jobServiceImpl.searchJobs(keyword, location, jobCategoryId);
         return ResponseEntity.ok(jobs);
     }
 
