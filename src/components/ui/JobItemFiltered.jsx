@@ -9,7 +9,7 @@ import formarSalary from "../../untils/formatSalary";
 import ButtonApply from "../button/ButtonApply";
 import ButtonSave from "../button/ButtonSave";
 
-const JobItemSaved = ({ job }) => {
+const JobItemSaved = ({ job, iconHeart, isApply }) => {
   return (
     <div className="flex justify-between items-center border border-slate-200 rounded-lg p-4 mb-4 h-40">
       <div className="">
@@ -40,8 +40,8 @@ const JobItemSaved = ({ job }) => {
       <div className="flex flex-col justify-between items-end h-full">
         <p className="text-primary font-bold">{formarSalary(job.salary)}</p>
         <div className="flex justify-between items-center">
-          <ButtonApply />
-          <ButtonSave job={job} />
+          <ButtonApply isApply={isApply} />
+          {iconHeart && <ButtonSave job={job} />}
         </div>
       </div>
     </div>
@@ -49,6 +49,8 @@ const JobItemSaved = ({ job }) => {
 };
 
 JobItemSaved.propTypes = {
+  iconHeart: PropTypes.bool,
+  isApply: PropTypes.bool,
   job: PropTypes.shape({
     id: PropTypes.string.isRequired,
     image: PropTypes.string.isRequired,

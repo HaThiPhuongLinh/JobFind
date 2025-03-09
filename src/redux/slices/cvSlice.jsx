@@ -4,6 +4,8 @@ const initialState = {
   cvList: [],
   status: "idle",
   error: null,
+  // test
+  isSubmit: false,
 };
 
 const cvSlice = createSlice({
@@ -13,8 +15,12 @@ const cvSlice = createSlice({
     addCV: (state, action) => {
       state.cvList.push(action.payload);
     },
+    // test
+    submitCV: (state) => {
+      state.isSubmit = true;
+    },
   },
 });
 
-export const { addCV } = cvSlice.actions;
+export const { addCV, submitCV } = cvSlice.actions;
 export default cvSlice.reducer;

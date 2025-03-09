@@ -32,7 +32,7 @@ const ButtonSave = ({ job }) => {
 
   return (
     <div
-      className={`rounded-full border border-slate-300 p-4 cursor-pointer flex justify-center items-center border-primary active:opacity-30`}
+      className={`rounded-full ms-4 border border-slate-300 p-4 cursor-pointer flex justify-center items-center border-primary active:opacity-30`}
       style={{ width: "20px", height: "20px" }}
       onClick={handleHeartClick}
     >
