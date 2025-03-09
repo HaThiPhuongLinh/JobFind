@@ -5,10 +5,7 @@ import com.jobfind.dto.response.SuccessResponse;
 import com.jobfind.services.ISavedJobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,19 +16,19 @@ public class SavedJobController {
     private final ISavedJobService savedJobServiceImpl;
 
     @PostMapping("/save")
-    public ResponseEntity<SuccessResponse> saveJob(Integer jobId, Integer userId) {
-        savedJobServiceImpl.saveJob(jobId, userId);
+    public ResponseEntity<SuccessResponse> saveJob(@RequestParam Integer jobId, @RequestParam Integer jobSeekerProfileId) {
+        savedJobServiceImpl.saveJob(jobId, jobSeekerProfileId);
         return ResponseEntity.ok(new SuccessResponse("Job saved successfully"));
     }
 
     @PostMapping("/unsave")
-    public ResponseEntity<SuccessResponse> unsaveJob(Integer jobId, Integer userId) {
-        savedJobServiceImpl.unsaveJob(jobId, userId);
+    public ResponseEntity<SuccessResponse> unsaveJob(@RequestParam Integer jobId, @RequestParam Integer jobSeekerProfileId) {
+        savedJobServiceImpl.unsaveJob(jobId, jobSeekerProfileId);
         return ResponseEntity.ok(new SuccessResponse("Job unsaved successfully"));
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<SavedJobResponse>> getListSavedJobs(Integer userId) {
-        return ResponseEntity.ok(savedJobServiceImpl.getListSavedJobs(userId));
+    @GetMapping("/listSavedJobs")
+    public ResponseEntity<List<SavedJobResponse>> getListSavedJobs(@RequestParam Integer jobSeekerProfileId) {
+        return ResponseEntity.ok(savedJobServiceImpl.getListSavedJobs(jobSeekerProfileId));
     }
 }

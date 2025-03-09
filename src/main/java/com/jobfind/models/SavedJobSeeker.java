@@ -12,18 +12,18 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SavedJob {
+public class SavedJobSeeker {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer savedJobId;
+    private Integer savedJobSeekerId;
 
     private LocalDate savedAt;
 
     @ManyToOne
-    @JoinColumn(name = "job_seeker_profile_id")
-    private JobSeekerProfile jobSeekerProfile;
+    @JoinColumn(name = "company_id")
+    private Company company;
 
     @ManyToOne
-    @JoinColumn(name = "job_id")
-    private Job job;
+    @JoinColumn(name = "job_seeker_profile_id")
+    private JobSeekerProfile jobSeekerProfile;
 }

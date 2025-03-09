@@ -5,7 +5,7 @@ import com.jobfind.dto.response.SavedJobResponse;
 import java.util.List;
 
 public interface ISavedJobService {
-    void saveJob(Integer jobId, Integer userId);
-    void unsaveJob(Integer jobId, Integer userId);
-    List<SavedJobResponse> getListSavedJobs(Integer userId);
+    void saveJob(Integer jobId, Integer jobSeekerProfileId);
+    void unsaveJob(Integer jobId, Integer jobSeekerProfileId);
+    List<SavedJobResponse> getListSavedJobs(Integer jobSeekerProfileId);
 }

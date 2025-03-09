@@ -3,11 +3,11 @@ package com.jobfind.services.impl;
 import com.jobfind.dto.response.SavedJobResponse;
 import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.Job;
+import com.jobfind.models.JobSeekerProfile;
 import com.jobfind.models.SavedJob;
-import com.jobfind.models.User;
 import com.jobfind.repositories.JobRepository;
+import com.jobfind.repositories.JobSeekerProfileRepository;
 import com.jobfind.repositories.SavedJobRepository;
-import com.jobfind.repositories.UserRepository;
 import com.jobfind.services.ISavedJobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,23 +20,23 @@ import java.util.List;
 public class SavedJobServiceImpl implements ISavedJobService {
     private final SavedJobRepository savedJobRepository;
     private final JobRepository jobRepository;
-    private final UserRepository userRepository;
+    private final JobSeekerProfileRepository jobSeekerProfileRepository;
 
     @Override
-    public void saveJob(Integer jobId, Integer userId) {
-        if (savedJobRepository.findByJobJobIdAndUserUserId(jobId, userId).isPresent()) {
+    public void saveJob(Integer jobId, Integer jobSeekerProfileId) {
+        if (savedJobRepository.findByJobJobIdAndJobSeekerProfileProfileId(jobId, jobSeekerProfileId).isPresent()) {
             throw new BadRequestException("Job already saved");
         }
 
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new BadRequestException("Job not found"));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+        JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findById(jobSeekerProfileId)
+                .orElseThrow(() -> new BadRequestException("JobSeekerProfile not found"));
 
         SavedJob savedJob = SavedJob.builder()
                 .job(job)
-                .user(user)
+                .jobSeekerProfile(jobSeekerProfile)
                 .savedAt(LocalDate.now())
                 .build();
 
@@ -44,16 +44,16 @@ public class SavedJobServiceImpl implements ISavedJobService {
     }
 
     @Override
-    public void unsaveJob(Integer jobId, Integer userId) {
-        SavedJob savedJob = savedJobRepository.findByJobJobIdAndUserUserId(jobId, userId)
+    public void unsaveJob(Integer jobId, Integer jobSeekerProfileId) {
+        SavedJob savedJob = savedJobRepository.findByJobJobIdAndJobSeekerProfileProfileId(jobId, jobSeekerProfileId)
                 .orElseThrow(() -> new BadRequestException("Saved job not found"));
 
         savedJobRepository.delete(savedJob);
     }
 
     @Override
-    public List<SavedJobResponse> getListSavedJobs(Integer userId) {
-        List<SavedJob> list = savedJobRepository.findByUserUserId(userId);
+    public List<SavedJobResponse> getListSavedJobs(Integer jobSeekerProfileId) {
+        List<SavedJob> list = savedJobRepository.findByJobSeekerProfileProfileId(jobSeekerProfileId);
 
         return list.stream()
                 .map(savedJob -> SavedJobResponse.builder()
