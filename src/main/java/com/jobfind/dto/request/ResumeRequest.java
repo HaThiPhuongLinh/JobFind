@@ -4,14 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
+import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 @Builder
 public class ResumeRequest {
     @NotBlank(message = "Resume name cannot be empty")
-    private String fileName;
-    private String filePath;
-    private LocalDateTime uploadedAt;
+    private String resumeName;
+    private MultipartFile resume;
 }

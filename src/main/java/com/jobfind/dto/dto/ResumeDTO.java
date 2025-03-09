@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class ResumeDTO {
     private Integer resumeId;
-    private String fileName;
-    private String filePath;
+    private String resumeName;
+    private String resumePath;
     private LocalDateTime uploadedAt;
 }

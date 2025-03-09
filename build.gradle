@@ -41,6 +41,10 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.2'
+    implementation 'software.amazon.awssdk:s3:2.30.25'
+    implementation 'org.apache.commons:commons-fileupload2-javax:2.0.0-M2'
+    implementation 'org.springframework.retry:spring-retry:2.0.11'
+    implementation 'com.amazonaws:aws-java-sdk:1.12.782'
 }
 
 tasks.named('test') {

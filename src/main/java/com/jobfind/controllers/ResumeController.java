@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/resume")
 @RequiredArgsConstructor
@@ -17,7 +19,7 @@ public class ResumeController {
     private final IResumeService resumeServiceImpl;
 
     @PostMapping("create/{profileId}")
-    public ResponseEntity<SuccessResponse> createResume(@PathVariable Integer profileId, @Valid @RequestBody ResumeRequest request, BindingResult result) {
+    public ResponseEntity<SuccessResponse> createResume(@PathVariable Integer profileId, @Valid @ModelAttribute ResumeRequest request, BindingResult result) throws IOException {
         resumeServiceImpl.createResume(profileId, request, result);
         return ResponseEntity.ok(new SuccessResponse("Create resume successfully"));
     }

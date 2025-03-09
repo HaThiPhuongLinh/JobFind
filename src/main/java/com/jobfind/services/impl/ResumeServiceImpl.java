@@ -1,5 +1,6 @@
 package com.jobfind.services.impl;
 
+import com.jobfind.config.AwsS3Service;
 import com.jobfind.dto.request.ResumeRequest;
 import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.JobSeekerProfile;
@@ -12,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Service
@@ -20,8 +24,9 @@ public class ResumeServiceImpl implements IResumeService {
     private final ResumeRepository resumeRepository;
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
     private final ValidateField validateField;
+    private final AwsS3Service awsS3Service;
     @Override
-    public void createResume(Integer profileId, ResumeRequest request, BindingResult result) {
+    public void createResume(Integer profileId, ResumeRequest request, BindingResult result) throws IOException {
         Map<String, String> errors = validateField.getErrors(result);
 
         if (!errors.isEmpty()) {
@@ -31,15 +36,25 @@ public class ResumeServiceImpl implements IResumeService {
         JobSeekerProfile profile = jobSeekerProfileRepository.findById(profileId)
                 .orElseThrow(() -> new BadRequestException("Profile not found"));
 
-        if(resumeRepository.existsByFileName(request.getFileName())){
+        boolean isResumeExist = resumeRepository.existsByResumeNameAndJobSeekerProfileProfileId(request.getResumeName(), profile.getProfileId());
+
+        if (isResumeExist) {
             throw new BadRequestException("Resume name has been used");
         }
 
+        String resumeFileName = request.getResume().getOriginalFilename();
+        InputStream inputStream = request.getResume().getInputStream();
+        String contentType = request.getResume().getContentType();
+        String extension = resumeFileName.substring(resumeFileName.lastIndexOf("."));
+        String baseName = resumeFileName.substring(0, resumeFileName.lastIndexOf("."));
+        String s3Key = baseName + "_" + System.currentTimeMillis() + extension;
+        String s3Url = awsS3Service.uploadFileToS3(inputStream, s3Key, contentType);
+
         Resume resume = Resume.builder()
                 .jobSeekerProfile(profile)
-                .fileName(request.getFileName())
-                .filePath(request.getFilePath())
-                .uploadedAt(request.getUploadedAt())
+                .resumeName(request.getResumeName())
+                .resumePath(s3Url)
+                .uploadedAt(LocalDateTime.now())
                 .build();
 
         resumeRepository.save(resume);

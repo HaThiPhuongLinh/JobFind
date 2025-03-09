@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 public class ResumePopulator {
     public void populate(Resume source, ResumeDTO target) {
         source.setResumeId(target.getResumeId());
-        source.setFileName(target.getFileName());
-        source.setFilePath(target.getFilePath());
+        source.setResumeName(target.getResumeName());
+        source.setResumePath(target.getResumePath());
         source.setUploadedAt(target.getUploadedAt());
     }
 }

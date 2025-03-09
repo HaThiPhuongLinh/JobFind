@@ -16,8 +16,8 @@ public class Resume {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer resumeId;
 
-    private String fileName;
-    private String filePath;
+    private String resumeName;
+    private String resumePath;
     private LocalDateTime uploadedAt;
 
     @ManyToOne
