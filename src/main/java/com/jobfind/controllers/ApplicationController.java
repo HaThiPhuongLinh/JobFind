@@ -25,4 +25,10 @@ public class ApplicationController {
         ApplicationStatusResponse history = applicationServiceImpl.getApplicationStatusHistory(applicationId);
         return ResponseEntity.ok(history);
     }
+
+    @PutMapping("updateStatus/{applicationId}")
+    public ResponseEntity<SuccessResponse> updateApplicationStatus(@PathVariable Integer applicationId, @RequestParam String status) {
+        applicationServiceImpl.updateApplicationStatus(applicationId, status);
+        return ResponseEntity.ok(new SuccessResponse("Application status updated successfully"));
+    }
 }

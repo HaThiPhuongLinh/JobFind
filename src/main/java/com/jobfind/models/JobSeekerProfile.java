@@ -39,4 +39,7 @@ public class JobSeekerProfile {
 
     @OneToMany(mappedBy = "jobSeekerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorkExperience> workExperiences;
+
+    @OneToMany(mappedBy = "jobSeekerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Application> applications;
 }

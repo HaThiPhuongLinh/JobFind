@@ -6,4 +6,5 @@ import com.jobfind.dto.response.ApplicationStatusResponse;
 public interface IApplicationService {
     void applyForJob(ApplicationRequest request);
     ApplicationStatusResponse getApplicationStatusHistory(Integer applicationId);
+    void updateApplicationStatus(Integer applicationId, String status);
 }

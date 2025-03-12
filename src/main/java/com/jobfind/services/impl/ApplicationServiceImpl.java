@@ -32,7 +32,7 @@ public class ApplicationServiceImpl implements IApplicationService {
         Job job = jobRepository.findById(request.getJobId())
                 .orElseThrow(() -> new BadRequestException("Job not found"));
 
-        if(job.getIsActive() || job.getIsDeleted() || job.getIsApproved()){
+        if(!job.getIsActive() || job.getIsDeleted() || !job.getIsApproved()){
             throw new BadRequestException("Job is not available for application");
         }
 
@@ -81,6 +81,18 @@ public class ApplicationServiceImpl implements IApplicationService {
                                 .collect(Collectors.toList())
                         )
                 .build();
+    }
+
+    @Override
+    public void updateApplicationStatus(Integer applicationId, String status) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new BadRequestException("Application not found"));
+
+        ApplicationStatus newStatus = ApplicationStatus.valueOf(status);
+        application.setApplicationStatus(newStatus);
+        applicationRepository.save(application);
+
+        saveApplicationStatusHistory(application, newStatus);
     }
 
     private void saveApplicationStatusHistory(Application application, ApplicationStatus status) {
