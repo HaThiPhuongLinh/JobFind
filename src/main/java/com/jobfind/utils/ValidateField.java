@@ -29,12 +29,15 @@ public class ValidateField {
         }
     }
 
-    public void getJobSeekerFieldErrors(Map<String, String> errors, String firstName, String lastName) {
+    public void getJobSeekerFieldErrors(Map<String, String> errors, String firstName, String lastName, String address) {
         if (StringUtils.isEmpty(firstName)) {
             errors.put("firstName", "First name must be required.");
         }
         if (StringUtils.isEmpty(lastName)) {
             errors.put("lastName", "Last name must be required.");
+        }
+        if (StringUtils.isEmpty(address)) {
+            errors.put("address", "Address must be required.");
         }
     }
 }

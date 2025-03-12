@@ -35,7 +35,7 @@ public class AuthServiceImpl implements IAuthService {
     public void register(RegistrationRequest registrationRequest, BindingResult result) {
         Map<String,String> errors = validateField.getErrors(result);
         if (registrationRequest.getRole() == Role.JOBSEEKER) {
-            validateField.getJobSeekerFieldErrors(errors, registrationRequest.getFirstName(), registrationRequest.getLastName());
+            validateField.getJobSeekerFieldErrors(errors, registrationRequest.getFirstName(), registrationRequest.getLastName(), registrationRequest.getAddress());
         } else if (registrationRequest.getRole() == Role.COMPANY) {
             validateField.getCompanyFieldErrors(errors, registrationRequest.getCompanyName(), registrationRequest.getIndustry(), registrationRequest.getLogoPath());
         }

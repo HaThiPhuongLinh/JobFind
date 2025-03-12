@@ -43,6 +43,10 @@ public class JobServiceImpl implements IJobService {
 
         Company company = companyRepository.findById(request.getCompanyId()).orElseThrow(() -> new BadRequestException("Company not found"));
 
+        if(!company.getIsVerified()){
+            throw new BadRequestException("Company must be verified to post a job");
+        }
+
         List<Skill> skills = skillRepository.findAllById(request.getSkillIds());
         if (skills.size() != request.getSkillIds().size()) {
             throw new BadRequestException("Some skills are invalid");
@@ -66,8 +70,10 @@ public class JobServiceImpl implements IJobService {
                 .postedAt(request.getPostedAt())
                 .deadline(request.getDeadline())
                 .isActive(true)
+                .isDeleted(false)
                 .skills(skills)
                 .categories(categories)
+                .isApproved(false)
                 .build();
 
         jobRepository.save(job);
@@ -106,6 +112,7 @@ public class JobServiceImpl implements IJobService {
         job.setIsActive(request.getIsActive());
         job.setSkills(skills);
         job.setCategories(categories);
+        job.setIsApproved(false);
 
         jobRepository.save(job);
     }
@@ -124,6 +131,10 @@ public class JobServiceImpl implements IJobService {
         Job job = jobRepository.findById(jobId).orElseThrow(() ->
                 new BadRequestException("Job not found"));
 
+        if(job.getIsDeleted() || !job.getIsActive() || !job.getIsApproved()){
+            throw new BadRequestException("Job is not available");
+        }
+
         return jobConverter.convertToJobDTO(job);
     }
 
@@ -135,11 +146,16 @@ public class JobServiceImpl implements IJobService {
         }
 
         List<Job> jobs = jobRepository.searchJobs(keyword, location, jobCategoryId);
+        jobs = jobs.stream().filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved()).toList();
+
         return jobs.stream().map(jobConverter::convertToJobDTO).toList();
     }
 
     @Override
     public List<JobDTO> getJobsByCompanyId(Integer companyId) {
-        return jobRepository.findByCompanyCompanyId(companyId).stream().map(jobConverter::convertToJobDTO).toList();
+        List<Job> list = jobRepository.findByCompanyCompanyId(companyId);
+        list = list.stream().filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved()).toList();
+
+        return list.stream().map(jobConverter::convertToJobDTO).toList();
     }
 }

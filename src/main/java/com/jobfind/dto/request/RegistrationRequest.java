@@ -31,6 +31,7 @@ public class RegistrationRequest {
     private String logoPath;
     private String website;
     private String description;
+    private String address;
 
     private Boolean isVerified;
     @NotNull(message = "Role cannot be null")

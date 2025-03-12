@@ -55,4 +55,7 @@ public class Job {
     @ManyToMany
     @JoinTable(name = "Job_JobCategory", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "job_category_id"))
     private List<JobCategory> categories;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isApproved;
 }

@@ -32,6 +32,10 @@ public class ApplicationServiceImpl implements IApplicationService {
         Job job = jobRepository.findById(request.getJobId())
                 .orElseThrow(() -> new BadRequestException("Job not found"));
 
+        if(job.getIsActive() || job.getIsDeleted() || job.getIsApproved()){
+            throw new BadRequestException("Job is not available for application");
+        }
+
         JobSeekerProfile jobSeeker = jobSeekerProfileRepository.findById(request.getJobSeekerProfileId())
                 .orElseThrow(() -> new BadRequestException("Job seeker profile not found"));
 

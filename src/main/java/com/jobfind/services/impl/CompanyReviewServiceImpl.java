@@ -43,6 +43,7 @@ public class CompanyReviewServiceImpl implements ICompanyReviewService {
                 .rating(addCompanyReviewRequest.getRating())
                 .reviewText(addCompanyReviewRequest.getReview())
                 .reviewDate(LocalDateTime.now())
+                .isApproved(false)
                 .build();
 
         companyReviewRepository.save(review);
@@ -56,6 +57,7 @@ public class CompanyReviewServiceImpl implements ICompanyReviewService {
         review.setRating(updateCompanyReviewRequest.getRating());
         review.setReviewText(updateCompanyReviewRequest.getReviewText());
         review.setReviewDate(LocalDateTime.now());
+        review.setIsApproved(false);
 
         companyReviewRepository.save(review);
     }
@@ -70,6 +72,10 @@ public class CompanyReviewServiceImpl implements ICompanyReviewService {
     @Override
     public List<CompanyReviewResponse> getCompanyReviews(Integer companyId) {
         List<CompanyReview> reviews = companyReviewRepository.findByCompanyCompanyId(companyId);
+
+        //only return approved reviews
+        reviews = reviews.stream().filter(CompanyReview::getIsApproved).collect(Collectors.toList());
+
         return reviews.stream()
                 .map(review -> CompanyReviewResponse.builder()
                         .reviewId(review.getReviewId())
