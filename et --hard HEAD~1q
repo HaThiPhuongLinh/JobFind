@@ -1,0 +1,197 @@
+[33mcommit 2d81e8893cd42ee44af67136eed46c2cfca55285[m[33m ([m[1;36mHEAD -> [m[1;32mnhat[m[33m)[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Thu Mar 13 18:34:40 2025 +0700
+
+    save localstorage searchData
+
+[33mcommit 2916fb8c8fed69370d20c9b9245b025ac71b87b0[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Thu Mar 13 18:09:08 2025 +0700
+
+    remove district
+
+[33mcommit 11406d0e8ba0932fa7a3c899f2f5f2bdbe00ba8d[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Mon Mar 10 13:49:13 2025 +0700
+
+    fix MenuCategory
+
+[33mcommit b1e6d522f2910e3c8b9105e0afb176b7f0d88f49[m[33m ([m[1;31morigin/nhat[m[33m)[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Sun Mar 9 20:59:23 2025 +0700
+
+    fix data + UI Home
+
+[33mcommit 7314115b92807f5a000741adeb7c02781490a74e[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Sun Mar 9 17:09:52 2025 +0700
+
+    UI job applied
+
+[33mcommit dc4dd7cb3f31cd612d903e7383c68ff85603f703[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Sat Mar 8 16:55:11 2025 +0700
+
+    create cvSlice
+
+[33mcommit 3013b70c949cf455c346f6e5022f87a41c5a421a[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Sat Mar 8 16:39:05 2025 +0700
+
+    handle function upload CV
+
+[33mcommit 9d1f65ba26506bd0a4ff2b35f8a32e23b435ab80[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Sat Mar 8 16:27:43 2025 +0700
+
+    fix close Menu user when click outside
+
+[33mcommit 11bddfd559a3aa67a04cffddeaf76522610fc92c[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Sat Mar 8 13:36:49 2025 +0700
+
+    page mycv
+
+[33mcommit a5c40bb0f5253c410838ca82e4f9300629951861[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Sat Mar 8 13:15:58 2025 +0700
+
+    page info user
+
+[33mcommit 796fccde477106077723675e9e4cdc639d087411[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Sat Mar 8 08:47:32 2025 +0700
+
+    handle filterSideBar
+
+[33mcommit 9de5246261c6c4e1b71b98826a2f3e487b89c5c7[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Fri Mar 7 17:58:59 2025 +0700
+
+    filter by category
+
+[33mcommit ad13a4e971014b3817823c039b1a3b6e73a17378[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Thu Mar 6 19:27:13 2025 +0700
+
+    Notification when like without login
+
+[33mcommit dbe687a41fd809a6fdedea3cd09090cf832841ac[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Thu Mar 6 19:17:11 2025 +0700
+
+    component MenuCategories + handle function
+
+[33mcommit b721cb592eb70a1a75bcaf50449da513c067537e[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Thu Mar 6 18:05:00 2025 +0700
+
+    handle save job function + fix login function
+
+[33mcommit dc7560dfb4537c998263dc8a7ed7198d78f0c109[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Sat Feb 22 20:50:45 2025 +0700
+
+    update + fix searchbar
+
+[33mcommit 89ad0ba9752d1feb9fa85da41b2d15cc4e68837d[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Fri Feb 21 17:13:02 2025 +0700
+
+    header: GUI header after login + popup notification
+
+[33mcommit ffbe19484b22f9646073793e42037c164f31a2a6[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Thu Feb 20 08:32:59 2025 +0700
+
+    navigate to JobDetail when click JobItem
+
+[33mcommit 654465f7950b629ca08bde1aa817fd4e42687dad[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Wed Feb 19 20:43:38 2025 +0700
+
+    home: fix filter with salary - experience
+
+[33mcommit 82e42d3964791714aa6c3164569a1351571951df[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Wed Feb 19 17:35:04 2025 +0700
+
+    pagination job
+
+[33mcommit a6736f7f9cb3fac8e31a4be3f3a6797c1026c599[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Mon Feb 17 19:07:36 2025 +0700
+
+    job detail: info job
+
+[33mcommit 0a1292d2ae1e04f19b28555843d5afdca26a8b5b[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Mon Feb 17 17:48:30 2025 +0700
+
+    Home: filter job
+
+[33mcommit a2c890bc0161085d52830102b5a5355cea3c5988[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Sun Feb 16 18:16:43 2025 +0700
+
+    login/signup form
+
+[33mcommit 84dee8cd9926e34dbae2e54c800491851ae0ee94[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Fri Feb 14 18:43:32 2025 +0700
+
+    fix model location selector
+
+[33mcommit 4838e87c22bc76ac693f428f56edf4c95d053a8c[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Fri Feb 14 14:47:17 2025 +0700
+
+    best category
+
+[33mcommit 42a2a5c041523acbf25a3c00bdbf18058bd90b51[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Fri Feb 14 14:04:42 2025 +0700
+
+    Job List
+
+[33mcommit 51daef44926b1338603a30a058cecc2da8bfd871[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Fri Feb 14 10:15:55 2025 +0700
+
+    list filter
+
+[33mcommit ed92e8a2c3d2dc17e5907fc225f3ee8a1442fc0b[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Fri Feb 14 08:33:51 2025 +0700
+
+    page Home: BestJob header
+
+[33mcommit 82af6aa911adc59abd933909c5eff8862e4a2eb6[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Tue Feb 11 17:18:15 2025 +0700
+
+    model location selector
+
+[33mcommit 49bd7b6094dc8c522aa1807fcc2215886cd9be21[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Thu Feb 6 20:17:19 2025 +0700
+
+    layout: footer
+
+[33mcommit 69a264259064b816acf50d2a2a48b20b7881f4a8[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Thu Feb 6 18:55:56 2025 +0700
+
+    layout: header
+
+[33mcommit 5663dbafa72a6ab30b2391acf334eece1c528efe[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Wed Feb 5 18:51:46 2025 +0700
+
+    setup structure project
+
+[33mcommit 664f9b89305d93e4e9f91ef146828934f73554e6[m
+Author: NguyenMinhNhat843 <NhatNguyen15062019@gmail.com>
+Date:   Wed Feb 5 10:25:42 2025 +0700
+
+    setup client with vite + tailwind + react
