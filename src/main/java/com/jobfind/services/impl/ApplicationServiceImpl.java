@@ -1,5 +1,6 @@
 package com.jobfind.services.impl;
 
+import com.jobfind.converters.ResumeConverter;
 import com.jobfind.dto.dto.ApplicationStatusDTO;
 import com.jobfind.dto.request.ApplicationRequest;
 import com.jobfind.dto.response.ApplicationStatusResponse;
@@ -26,6 +27,7 @@ public class ApplicationServiceImpl implements IApplicationService {
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
     private final ResumeRepository resumeRepository;
     private final JobSeekerProfileConverter jobSeekerProfileConverter;
+    private final ResumeConverter resumeConverter;
     private final JobConverter jobConverter;
 
     public void applyForJob(ApplicationRequest request) {
@@ -72,6 +74,7 @@ public class ApplicationServiceImpl implements IApplicationService {
         return ApplicationStatusResponse.builder()
                 .job(jobConverter.convertToJobDTO(list.get(0).getApplication().getJob()))
                 .jobSeekerProfile(jobSeekerProfileConverter.convertToJobSeekerProfileDTO(list.get(0).getApplication().getJobSeekerProfile()))
+                .resumeApplied(resumeConverter.convertToResumeDTO(list.get(0).getApplication().getResume()))
                 .statusDTOList(
                         list.stream().map(
                                 history -> ApplicationStatusDTO.builder()

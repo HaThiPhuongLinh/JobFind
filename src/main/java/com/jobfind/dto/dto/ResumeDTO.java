@@ -1,11 +1,13 @@
 package com.jobfind.dto.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+@Builder
+@Getter
+@Setter
 @NoArgsConstructor
-@Data
+@AllArgsConstructor
 public class ResumeDTO {
     private Integer resumeId;
     private String resumeName;

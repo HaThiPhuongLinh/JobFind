@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class ApplicationStatusHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

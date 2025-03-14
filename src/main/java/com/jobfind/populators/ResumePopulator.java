@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResumePopulator {
     public void populate(Resume source, ResumeDTO target) {
-        source.setResumeId(target.getResumeId());
-        source.setResumeName(target.getResumeName());
-        source.setResumePath(target.getResumePath());
-        source.setUploadedAt(target.getUploadedAt());
+        target.setResumeId(source.getResumeId());
+        target.setResumeName(source.getResumeName());
+        target.setResumePath(source.getResumePath());
+        target.setUploadedAt(source.getUploadedAt());
     }
 }
