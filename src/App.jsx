@@ -20,6 +20,7 @@ import Header from "./layouts/Header";
 import Footer from "./layouts/Footer";
 import SearchBar from "./layouts/SearchBar";
 import { ToastContainer } from "react-toastify";
+import RoleBasedRedirect from "./components/RoleBaseRedirect";
 
 function App() {
   const location = useLocation();
@@ -43,6 +44,9 @@ function App() {
       {/* Content */}
       <div className="flex-grow">
         <Routes>
+          {/* Role-based redirect route */}
+          <Route path="/redirect" element={<RoleBasedRedirect />} />
+
           {/* Các route dùng chung cho mọi user */}
           {publicRoutes.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />

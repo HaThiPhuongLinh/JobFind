@@ -20,6 +20,7 @@ const PrivateRoute = ({ children, allowedRoles }) => {
   // Nếu hợp lệ, cho vào trang
   return children;
 };
+
 PrivateRoute.propTypes = {
   children: PropTypes.node.isRequired,
   allowedRoles: PropTypes.arrayOf(PropTypes.number),
