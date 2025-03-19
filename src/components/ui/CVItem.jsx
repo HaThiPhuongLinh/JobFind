@@ -4,10 +4,26 @@ import PropTypes from "prop-types";
 
 // component
 import ButtonSaveJobSeeker from "../button/ButtonSaveJobSeeker";
+import { Link, useNavigate } from "react-router-dom";
 
 const CVItem = ({ profile }) => {
-  const { name, job, experience, salary_min, salary_max, location, education } =
-    profile;
+  const navigate = useNavigate();
+
+  const {
+    id,
+    name,
+    job,
+    experience,
+    salary_min,
+    salary_max,
+    location,
+    education,
+  } = profile;
+
+  const handleClickProfileDetailButton = () => {
+    navigate(`/job-seeker-profile/${id}`);
+  };
+
   return (
     <div className="rounded-md border border-green-600 p-4 bg-white">
       {/* Thông tin sơ lược CV */}
@@ -28,9 +44,13 @@ const CVItem = ({ profile }) => {
             {/* Name + Button save + button chat */}
             <div>
               <ButtonSaveJobSeeker />
-              <button type="button" className="cursor-pointer">
-                <FontAwesomeIcon icon={faMessage} className="h-6 w-6" />
-              </button>
+              {/* Button chat */}
+              <Link to={"/"} className="cursor-pointer">
+                <FontAwesomeIcon
+                  icon={faMessage}
+                  className="h-6 w-6 text-green-600"
+                />
+              </Link>
             </div>
             {/* END: Nme + Button save + button chat */}
           </div>
@@ -60,8 +80,11 @@ const CVItem = ({ profile }) => {
       </div>
       {/* END: Tag list */}
 
-      {/* Button Xem chi tiết - Lưu ứng viên - Chat */}
-      <div className="pt-4 flex items-center gap-4">
+      {/* Button Xem chi tiết */}
+      <div
+        className="pt-4 flex items-center gap-4"
+        onClick={handleClickProfileDetailButton}
+      >
         <button
           type="button"
           className="py-2 px-4 rounded-md bg-primary text-white cursor-pointer font-semibold w-full"
@@ -69,12 +92,13 @@ const CVItem = ({ profile }) => {
           Xem chi tiết
         </button>
       </div>
-      {/* End: Button Xem chi tiết - Lưu ứng viên - Chat */}
+      {/* End: Button Xem chi tiết */}
     </div>
   );
 };
 CVItem.propTypes = {
   profile: PropTypes.shape({
+    id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     job: PropTypes.string.isRequired,
     experience: PropTypes.number.isRequired,
