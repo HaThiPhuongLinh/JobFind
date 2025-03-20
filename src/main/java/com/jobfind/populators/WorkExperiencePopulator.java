@@ -1,11 +1,13 @@
 package com.jobfind.populators;
 
 import com.jobfind.dto.dto.WorkExperienceDTO;
+import com.jobfind.models.JobCategory;
 import com.jobfind.models.WorkExperience;
 import com.jobfind.converters.SkillConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -22,5 +24,12 @@ public class WorkExperiencePopulator {
         target.setSkills(source.getSkills().stream()
                 .map(skillConverter::convertToSkillDTO)
                 .collect(Collectors.toList()));
+        List<JobCategory> categoryDTOList = source.getCategories().stream()
+                .map(category -> JobCategory.builder()
+                        .jobCategoryId(category.getJobCategoryId())
+                        .name(category.getName())
+                        .build())
+                .collect(Collectors.toList());
+        target.setCategories(categoryDTOList);
     }
 }

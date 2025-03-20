@@ -18,4 +18,5 @@ public class JobSeekerProfileDTO {
     private String phone;
     private List<SkillDTO> skills;
     private List<ResumeDTO> resumeList;
+    private List<WorkExperienceDTO> workExperiences;
 }

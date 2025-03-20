@@ -18,12 +18,27 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
             "LEFT JOIN j.skills js " +
             "JOIN we.categories jc " +
             "WHERE (:jobCategoryId IS NOT NULL AND jc.jobCategoryId = :jobCategoryId) " +
-            "AND (:keyword IS NULL OR " +
-            "       LOWER(wes.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "       LOWER(js.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "       LOWER(c.companyName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "       LOWER(jp.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            " )")
+            "AND (" +
+            "       (:keyword IS NOT NULL AND EXISTS (" +
+            "           SELECT 1 FROM WorkExperience we2 " +
+            "           JOIN we2.skills wes2 " +
+            "           WHERE we2.jobSeekerProfile = j " +
+            "           AND LOWER(wes2.name) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
+            "       )) " +
+            "       OR (" +
+            "           :keyword IS NOT NULL AND NOT EXISTS (" +
+            "               SELECT 1 FROM WorkExperience we3 " +
+            "               JOIN we3.skills wes3 " +
+            "               WHERE we3.jobSeekerProfile = j " +
+            "               AND LOWER(wes3.name) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
+            "           ) " +
+            "           AND EXISTS (" +
+            "               SELECT 1 FROM JobSeekerProfile j2 " +
+            "               JOIN j2.skills js2 " +
+            "               WHERE j2 = j AND LOWER(js2.name) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
+            "           )" +
+            "       )" +
+            ")")
     List<JobSeekerProfile> searchJobSeekers(
             @Param("keyword") String keyword,
             @Param("jobCategoryId") Integer jobCategoryId);

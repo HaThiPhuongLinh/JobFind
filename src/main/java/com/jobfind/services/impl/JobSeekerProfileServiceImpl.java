@@ -9,6 +9,7 @@ import com.jobfind.dto.request.SkillRequest;
 import com.jobfind.dto.request.UpdateWorkExperienceRequest;
 import com.jobfind.dto.response.JobSeekerProfileResponse;
 import com.jobfind.exception.BadRequestException;
+import com.jobfind.models.JobCategory;
 import com.jobfind.models.JobSeekerProfile;
 import com.jobfind.models.Skill;
 import com.jobfind.models.WorkExperience;
@@ -33,6 +34,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     private final WorkExperienceRepository workExperienceRepository;
     private final CompanyRepository companyRepository;
     private final JobPositionRepository jobPositionRepository;
+    private final JobCategoryRepository jobCategoryRepository;
     private final SkillRepository skillRepository;
     private final SkillConverter skillConverter;
     private final WorkExperienceConverter workExperienceConverter;
@@ -49,6 +51,13 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
         return skillIds.stream()
                 .map(skillId -> skillRepository.findById(skillId)
                         .orElseThrow(() -> new BadRequestException("Skill not found")))
+                .collect(Collectors.toList());
+    }
+
+    private List<JobCategory> getJobCategoriesByIds(List<Integer> categoryIds) {
+        return categoryIds.stream()
+                .map(categoryId -> jobCategoryRepository.findById(categoryId)
+                        .orElseThrow(() -> new BadRequestException("Job Category not found")))
                 .collect(Collectors.toList());
     }
 
@@ -104,6 +113,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
                 .jobPosition(jobPositionRepository.findById(request.getJobPositionId())
                         .orElseThrow(() -> new BadRequestException("Job position not found")))
                 .skills(getSkillsByIds(request.getSkills()))
+                .categories(getJobCategoriesByIds(request.getCategories()))
                 .jobSeekerProfile(jobSeekerProfile)
                 .build();
 
@@ -134,6 +144,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
                 .orElseThrow(() -> new BadRequestException("Job position not found")));
 
         workExperience.setSkills(getSkillsByIds(request.getSkills()));
+        workExperience.setCategories(getJobCategoriesByIds(request.getCategories()));
         workExperience.setJobSeekerProfile(jobSeekerProfile);
 
         workExperienceRepository.save(workExperience);

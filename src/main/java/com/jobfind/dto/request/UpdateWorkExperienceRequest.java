@@ -33,4 +33,5 @@ public class UpdateWorkExperienceRequest {
     @PastOrPresent(message = "End Date must not be in the future")
     private LocalDate endDate;
     private List<Integer> skills;
+    private List<Integer> categories;
 }

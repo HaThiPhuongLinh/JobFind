@@ -1,5 +1,6 @@
 package com.jobfind.dto.dto;
 
+import com.jobfind.models.JobCategory;
 import com.jobfind.models.enums.JobType;
 import lombok.*;
 
@@ -18,4 +19,5 @@ public class WorkExperienceDTO {
     private String startDate;
     private String endDate;
     private List<SkillDTO> skills;
+    private List<JobCategory> categories;
 }
