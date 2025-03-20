@@ -14,4 +14,5 @@ public interface IJobService {
     List<JobDTO> getJobsByCompanyId(Integer companyId);
     void updateJob(UpdateJobRequest request, BindingResult bindingResult);
     void deleteJob(Integer jobId);
+    void approveJob(Integer jobId);
 }

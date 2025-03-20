@@ -8,7 +8,7 @@ import com.jobfind.models.Industry;
 import com.jobfind.models.JobSeekerProfile;
 import com.jobfind.models.User;
 import com.jobfind.models.enums.Role;
-import com.jobfind.repositories.CompanyIndustryRepository;
+import com.jobfind.repositories.IndustryRepository;
 import com.jobfind.repositories.CompanyRepository;
 import com.jobfind.repositories.JobSeekerProfileRepository;
 import com.jobfind.repositories.UserRepository;
@@ -31,7 +31,7 @@ public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
-    private final CompanyIndustryRepository companyIndustryRepository;
+    private final IndustryRepository industryRepository;
     private final PasswordEncoder passwordEncoder;
     private final ValidateField validateField;
 
@@ -48,7 +48,7 @@ public class UserServiceImpl implements IUserService {
             company.setCompanyName(request.getCompanyName());
             company.setLogoPath(request.getLogoPath());
             if (request.getIndustryIds() != null && !request.getIndustryIds().isEmpty()) {
-                List<Industry> industries = companyIndustryRepository.findAllById(request.getIndustryIds());
+                List<Industry> industries = industryRepository.findAllById(request.getIndustryIds());
                 company.setIndustry(industries);
             } else {
                 company.setIndustry(new ArrayList<>());

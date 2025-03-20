@@ -127,6 +127,15 @@ public class JobServiceImpl implements IJobService {
     }
 
     @Override
+    public void approveJob(Integer jobId) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new BadRequestException("Job not found"));
+
+        job.setIsApproved(true);
+        jobRepository.save(job);
+    }
+
+    @Override
     public JobDTO getJobByID(Integer jobId) {
         Job job = jobRepository.findById(jobId).orElseThrow(() ->
                 new BadRequestException("Job not found"));

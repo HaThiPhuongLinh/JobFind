@@ -53,4 +53,10 @@ public class JobController {
         JobDTO job = jobServiceImpl.getJobByID(id);
         return ResponseEntity.ok(job);
     }
+
+    @PutMapping("/approve/{jobId}")
+    public ResponseEntity<String> approveJob(@PathVariable Integer jobId) {
+        jobServiceImpl.approveJob(jobId);
+        return ResponseEntity.ok("Job approved successfully.");
+    }
 }
