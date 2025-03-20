@@ -17,12 +17,9 @@ public class ValidateField {
         return errors;
     }
 
-    public void getCompanyFieldErrors(Map<String, String> errors, String companyName, String industry, String logoPath) {
+    public void getCompanyFieldErrors(Map<String, String> errors, String companyName, String logoPath) {
         if (StringUtils.isEmpty(companyName)) {
             errors.put("companyName", "Company name must be required.");
-        }
-        if (StringUtils.isEmpty(industry)) {
-            errors.put("industry", "Industry must be specified.");
         }
         if (StringUtils.isEmpty(logoPath)) {
             errors.put("logoPath", "Logo Path must be specified.");

@@ -6,6 +6,7 @@ import com.jobfind.dto.request.RegistrationRequest;
 import com.jobfind.dto.response.AuthResponse;
 import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.Company;
+import com.jobfind.models.Industry;
 import com.jobfind.models.JobSeekerProfile;
 import com.jobfind.models.User;
 import com.jobfind.models.enums.Role;
@@ -21,6 +22,7 @@ import org.springframework.validation.BindingResult;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class AuthServiceImpl implements IAuthService {
         if (registrationRequest.getRole() == Role.JOBSEEKER) {
             validateField.getJobSeekerFieldErrors(errors, registrationRequest.getFirstName(), registrationRequest.getLastName(), registrationRequest.getAddress());
         } else if (registrationRequest.getRole() == Role.COMPANY) {
-            validateField.getCompanyFieldErrors(errors, registrationRequest.getCompanyName(), registrationRequest.getIndustry(), registrationRequest.getLogoPath());
+            validateField.getCompanyFieldErrors(errors, registrationRequest.getCompanyName(), registrationRequest.getLogoPath());
         }
 
         if (!errors.isEmpty()) {
@@ -69,7 +71,10 @@ public class AuthServiceImpl implements IAuthService {
         } else if (registrationRequest.getRole() == Role.COMPANY) {
             companyRepository.save(Company.builder()
                     .companyName(registrationRequest.getCompanyName())
-                    .industry(registrationRequest.getIndustry())
+                    .industry(registrationRequest.getIndustryIds()
+                            .stream()
+                            .map(industryId -> Industry.builder().industryId(industryId).build())
+                            .collect(Collectors.toList()))
                     .logoPath(registrationRequest.getLogoPath())
                     .website(registrationRequest.getWebsite())
                     .description(registrationRequest.getDescription())

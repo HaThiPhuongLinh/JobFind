@@ -4,9 +4,11 @@ import com.jobfind.dto.request.ResetPasswordRequest;
 import com.jobfind.dto.request.UpdatePersonalInfoRequest;
 import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.Company;
+import com.jobfind.models.Industry;
 import com.jobfind.models.JobSeekerProfile;
 import com.jobfind.models.User;
 import com.jobfind.models.enums.Role;
+import com.jobfind.repositories.CompanyIndustryRepository;
 import com.jobfind.repositories.CompanyRepository;
 import com.jobfind.repositories.JobSeekerProfileRepository;
 import com.jobfind.repositories.UserRepository;
@@ -18,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -27,6 +31,7 @@ public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
+    private final CompanyIndustryRepository companyIndustryRepository;
     private final PasswordEncoder passwordEncoder;
     private final ValidateField validateField;
 
@@ -39,10 +44,15 @@ public class UserServiceImpl implements IUserService {
 
         if (Role.COMPANY.equals(user.getRole())) {
             Company company = companyRepository.findByUser_UserId(user.getUserId()).orElseThrow(() -> new BadRequestException("Company not found with this user id"));
-            validateField.getCompanyFieldErrors(errors, request.getCompanyName(), request.getIndustry(), request.getLogoPath());
+            validateField.getCompanyFieldErrors(errors, request.getCompanyName(), request.getLogoPath());
             company.setCompanyName(request.getCompanyName());
             company.setLogoPath(request.getLogoPath());
-            company.setIndustry(request.getIndustry());
+            if (request.getIndustryIds() != null && !request.getIndustryIds().isEmpty()) {
+                List<Industry> industries = companyIndustryRepository.findAllById(request.getIndustryIds());
+                company.setIndustry(industries);
+            } else {
+                company.setIndustry(new ArrayList<>());
+            }
             company.setWebsite(request.getWebsite());
             company.setDescription(request.getDescription());
             companyRepository.save(company);

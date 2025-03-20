@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/job/getJobById/**").permitAll()
                         .requestMatchers("/job/searchJobs").permitAll()
                         .requestMatchers("/job/{companyId}/jobs").permitAll()
-                        .requestMatchers("company/{companyId}").permitAll()
+                        .requestMatchers("company/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()

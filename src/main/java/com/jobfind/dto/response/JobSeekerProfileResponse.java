@@ -18,6 +18,6 @@ public class JobSeekerProfileResponse {
     private String email;
     private String phone;
     private List<ResumeDTO> resumeList;
-    private List<WorkExperienceDTO> workExperiences;
     private List<SkillDTO> skills;
+    private List<WorkExperienceDTO> workExperiences;
 }

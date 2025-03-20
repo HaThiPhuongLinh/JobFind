@@ -9,6 +9,8 @@ import com.jobfind.services.ICompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CompanyServiceImpl implements ICompanyService {
@@ -21,5 +23,11 @@ public class CompanyServiceImpl implements ICompanyService {
                 .orElseThrow(() -> new BadRequestException("Company not found"));
 
         return companyConverter.convertToCompanyDTO(company);
+    }
+
+    @Override
+    public List<CompanyDTO> findCompanyByIndustryAndCompanyName(Integer industryId, String companyName) {
+        List<Company> company = companyRepository.findByIndustryOrCompanyName(industryId, companyName);
+        return company.stream().map(companyConverter::convertToCompanyDTO).toList();
     }
 }

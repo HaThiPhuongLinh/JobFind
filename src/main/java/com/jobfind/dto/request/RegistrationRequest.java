@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -27,7 +29,7 @@ public class RegistrationRequest {
     private String lastName;
 
     private String companyName;
-    private String industry;
+    private List<Integer> industryIds;
     private String logoPath;
     private String website;
     private String description;

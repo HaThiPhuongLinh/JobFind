@@ -11,7 +11,9 @@ public class CompanyPopulator {
         target.setCompanyName(source.getCompanyName());
         target.setDescription(source.getDescription());
         target.setLogoPath(source.getLogoPath());
-        target.setIndustry(source.getIndustry());
+        target.setIndustry(source.getIndustry().stream()
+                .map(industry -> industry.getName())
+                .toList());
         target.setWebsite(source.getWebsite());
         target.setEmail(source.getUser().getEmail());
         target.setPhone(source.getUser().getPhone());
