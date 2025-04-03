@@ -1,7 +1,9 @@
 package com.jobfind.services.impl;
 
+import com.jobfind.constants.JobFindConstant;
 import com.jobfind.converters.ResumeConverter;
 import com.jobfind.dto.dto.ApplicationStatusDTO;
+import com.jobfind.dto.dto.NotificationDTO;
 import com.jobfind.dto.request.ApplicationRequest;
 import com.jobfind.dto.request.CreateNotiRequest;
 import com.jobfind.dto.response.ApplicationStatusResponse;
@@ -13,6 +15,7 @@ import com.jobfind.converters.JobSeekerProfileConverter;
 import com.jobfind.repositories.*;
 import com.jobfind.services.IApplicationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,6 +34,7 @@ public class ApplicationServiceImpl implements IApplicationService {
     private final JobSeekerProfileConverter jobSeekerProfileConverter;
     private final ResumeConverter resumeConverter;
     private final JobConverter jobConverter;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public void applyForJob(ApplicationRequest request) {
         Job job = jobRepository.findById(request.getJobId())
@@ -105,7 +109,8 @@ public class ApplicationServiceImpl implements IApplicationService {
                 .content("Your application status has been updated to: " + newStatus)
                 .build();
 
-        notificationServiceImpl.createNoti(notificationRequest);
+        NotificationDTO notification = notificationServiceImpl.createNoti(notificationRequest);
+        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_NOTIFICATION  + application.getJobSeekerProfile().getUser().getUserId(), notification);
     }
 
     private void saveApplicationStatusHistory(Application application, ApplicationStatus status) {

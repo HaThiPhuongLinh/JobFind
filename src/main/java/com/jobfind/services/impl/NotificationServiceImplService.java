@@ -34,7 +34,7 @@ public class NotificationServiceImplService implements INotificationService {
     }
 
     @Override
-    public void createNoti(CreateNotiRequest request) {
+    public NotificationDTO createNoti(CreateNotiRequest request) {
         Optional<User> user = userRepository.findById(request.getUserId());
         Optional<Application> application = applicationRepository.findById(request.getApplicationId());
         Notification notification = Notification.builder()
@@ -45,6 +45,7 @@ public class NotificationServiceImplService implements INotificationService {
                 .isRead(false)
                 .build();
         notificationRepository.save(notification);
+        return notificationConverter.convertToNotificationDTO(notification);
     }
 
     @Override

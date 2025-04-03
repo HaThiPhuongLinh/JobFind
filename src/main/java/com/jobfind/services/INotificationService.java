@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface INotificationService {
     List<NotificationDTO> getAllNotifications();
-    void createNoti(CreateNotiRequest request);
+    NotificationDTO createNoti(CreateNotiRequest request);
     void updateReadStatus(Integer notiId);
 }
