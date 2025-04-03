@@ -167,4 +167,10 @@ public class JobServiceImpl implements IJobService {
 
         return list.stream().map(jobConverter::convertToJobDTO).toList();
     }
+
+    @Override
+    public List<JobDTO> getJobsByCategory(Integer categoryId) {
+        List<Job> list = jobRepository.findByCategoryId(categoryId);
+        return list.stream().map(jobConverter::convertToJobDTO).toList();
+    }
 }

@@ -12,6 +12,7 @@ public interface IJobService {
     JobDTO getJobByID(Integer jobId);
     List<JobDTO> searchJobs(String keyword, String location, Integer jobCategoryId);
     List<JobDTO> getJobsByCompanyId(Integer companyId);
+    List<JobDTO> getJobsByCategory(Integer categoryId);
     void updateJob(UpdateJobRequest request, BindingResult bindingResult);
     void deleteJob(Integer jobId);
     void approveJob(Integer jobId);
