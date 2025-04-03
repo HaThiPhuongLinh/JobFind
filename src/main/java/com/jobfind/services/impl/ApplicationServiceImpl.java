@@ -3,6 +3,7 @@ package com.jobfind.services.impl;
 import com.jobfind.converters.ResumeConverter;
 import com.jobfind.dto.dto.ApplicationStatusDTO;
 import com.jobfind.dto.request.ApplicationRequest;
+import com.jobfind.dto.request.CreateNotiRequest;
 import com.jobfind.dto.response.ApplicationStatusResponse;
 import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.*;
@@ -26,6 +27,7 @@ public class ApplicationServiceImpl implements IApplicationService {
     private final ApplicationStatusHistoryRepository historyRepository;
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
     private final ResumeRepository resumeRepository;
+    private final NotificationServiceImplService notificationServiceImpl;
     private final JobSeekerProfileConverter jobSeekerProfileConverter;
     private final ResumeConverter resumeConverter;
     private final JobConverter jobConverter;
@@ -96,6 +98,14 @@ public class ApplicationServiceImpl implements IApplicationService {
         applicationRepository.save(application);
 
         saveApplicationStatusHistory(application, newStatus);
+
+        CreateNotiRequest notificationRequest = CreateNotiRequest.builder()
+                .applicationId(application.getApplicationId())
+                .userId(application.getJobSeekerProfile().getUser().getUserId())
+                .content("Your application status has been updated to: " + newStatus)
+                .build();
+
+        notificationServiceImpl.createNoti(notificationRequest);
     }
 
     private void saveApplicationStatusHistory(Application application, ApplicationStatus status) {
