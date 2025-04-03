@@ -14,6 +14,7 @@ import com.jobfind.services.INotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +41,7 @@ public class NotificationServiceImplService implements INotificationService {
                 .user(user.orElseThrow(() -> new BadRequestException("User not found")))
                 .application(application.orElseThrow(() -> new BadRequestException("Application not found")))
                 .content(request.getContent())
+                .createdAt(LocalDateTime.now())
                 .isRead(false)
                 .build();
         notificationRepository.save(notification);
