@@ -7,9 +7,14 @@ const JOBS_PER_PAGE = 6;
 const initState = {
   jobs: jobs,
   filterJobs: [],
+  renderJobs: [],
   selectedJob: null,
   relatedJobs: [],
   jobsSaved: [],
+  filterOptions: {
+    salary: "", // Ví dụ: "10000000"
+    workType: "Tất cả", // "Toàn thời gian", "Bán thời gian", "Tất cả"
+  },
 };
 
 const jobSlice = createSlice({
@@ -32,6 +37,55 @@ const jobSlice = createSlice({
       state.selectedJob = action.payload;
 
       state.filterJobs = state.selectedJob;
+      state.renderJobs = state.selectedJob;
+    },
+    applyAdvancedFilters: (state) => {
+      const { salary, workType } = state.filterOptions;
+      let result = [...state.filterJobs];
+      // console.log(JSON.parse(JSON.stringify(result)));
+
+      // Lọc theo hình thức làm việc
+      if (workType !== "Tất cả") {
+        result = result.filter((job) =>
+          workType === "Bán thời gian"
+            ? job.jobType === "PARTTIME" // chỉnh ở đây nha
+            : job.jobType === "FULLTIME"
+        );
+      }
+
+      // Lọc theo lương
+      if (salary !== "0") {
+        if (salary === "5000000") {
+          result = result.filter((job) => {
+            return job.salaryMin <= 5 && job.salaryMax >= 5;
+          });
+        } else if (salary === "10000000") {
+          result = result.filter(
+            (job) => job.salaryMin <= 10 && 10 <= job.salaryMax
+          );
+        } else if (salary === "15000000") {
+          result = result.filter(
+            (job) => job.salaryMin <= 15 && 15 <= job.salaryMax
+          );
+        } else if (salary === "20000000") {
+          result = result.filter(
+            (job) => job.salaryMin <= 20 && 20 <= job.salaryMax
+          );
+        } else if (salary === "20000000+") {
+          result = result.filter((job) => job.salaryMin >= 20);
+        }
+      }
+
+      state.renderJobs = result;
+    },
+    updateFilterOptions: (state, action) => {
+      state.filterOptions = {
+        ...state.filterOptions,
+        ...action.payload,
+      };
+    },
+    setRenderJobs: (state, action) => {
+      state.renderJobs = action.payload;
     },
     likeJob: (state, action) => {
       const job = action.payload;
@@ -71,5 +125,8 @@ export const {
   unSaveJob,
   filterJobByCategory,
   setFilterJob,
+  setRenderJobs,
+  updateFilterOptions,
+  applyAdvancedFilters,
 } = jobSlice.actions;
 export default jobSlice.reducer;
