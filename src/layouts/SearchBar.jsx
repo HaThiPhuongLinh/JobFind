@@ -88,7 +88,7 @@ const SearchBar = () => {
     // thêm keyword
     if (searchText) queryParams.append("keyword", searchText);
 
-    // Thêm các industry đã chọn (nối bằng dấu phẩy)
+    // Thêm các category đã chọn (nối bằng dấu phẩy)
     if (categoriesSelected.length > 0) {
       const categoryIds = categoriesSelected.map((cat) => cat.id).join(",");
       queryParams.append("category", categoryIds);
@@ -149,7 +149,7 @@ const SearchBar = () => {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder={
-              auth_role == 2 ? "Nhập công việc..." : "Nhập mã ứng viên..."
+              auth_role == "JOBSEEKER" ? "Nhập công việc..." : "Nhập từ khóa..."
             }
             className="w-full text-gray-800 outline-none p-1"
           />

@@ -6,6 +6,11 @@ const jobSeekerApi = {
         return axiosClient.get(url);
     },
 
+    getProfileById: (jobSeekerId) => {
+        const url = `/jobseeker/getProfileById?jobSeekerId=${jobSeekerId}`;
+        return axiosClient.get(url);
+    },
+
     addWorkExperience: (userId, workExpRequest) => {
         const url = `/jobseeker/addWorkExperience?userId=${userId}`;
         return axiosClient.post(url, workExpRequest);
@@ -26,10 +31,25 @@ const jobSeekerApi = {
         return axiosClient.post(url, skillRequest);
     },
 
-    searchJobSeekers: (keyword, jobCategoryId) => {
-        const url = `/jobseeker/search-jobseekers?jobCategoryId=${jobCategoryId}${keyword ? `&keyword=${keyword}` : ''}`;
+    searchJobSeekers: (keyword, categoryIds) => {
+        const params = new URLSearchParams();
+
+        categoryIds.forEach(id => {
+            params.append('categoryIds', id);
+        });
+
+        if (keyword) {
+            params.append('keyword', keyword);
+        }
+
+        const url = `/jobseeker/search-jobseekers?${params.toString()}`;
         return axiosClient.get(url);
     },
+
+    findJobSeekersByCompanyIndustry: (companyId) => {
+        const url = `/jobseeker/find-jobseekers-by-company-industry?companyId=${companyId}`;
+        return axiosClient.get(url);
+    },    
 };
 
 export default jobSeekerApi;
