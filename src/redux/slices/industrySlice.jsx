@@ -38,6 +38,10 @@ const industrySlice = createSlice({
       } else {
         state.selectedIndustries = [...state.selectedIndustries, industry];
       }
+      console.log(
+        "Selected industries after toggle:",
+        state.selectedIndustries
+      );
     },
     clearSelectedIndustries: (state) => {
       state.selectedIndustries = [];
