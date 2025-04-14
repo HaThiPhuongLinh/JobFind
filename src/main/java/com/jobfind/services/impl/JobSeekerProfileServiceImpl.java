@@ -85,8 +85,17 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     }
 
     @Override
-    public void addWorkExperience(Integer userId, CreateWorkExperienceRequest request, BindingResult result) {
-        JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(userId);
+    public JobSeekerProfileDTO getProfileById(Integer jobSeekerId) {
+        JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findById(jobSeekerId)
+                .orElseThrow(() -> new BadRequestException("JobSeekerProfile not found"));
+
+        return jobSeekerProfileConverter.convertToJobSeekerProfileDTO(jobSeekerProfile);
+    }
+
+    @Override
+    public void addWorkExperience(Integer jobSeekerId, CreateWorkExperienceRequest request, BindingResult result) {
+        JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findById(jobSeekerId)
+                .orElseThrow(() -> new BadRequestException("JobSeekerProfile not found"));
 
         Map<String, String> errors = validateField.getErrors(result);
         if (!errors.isEmpty()) {
@@ -121,8 +130,9 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     }
 
     @Override
-    public void updateWorkExperience(Integer userId, UpdateWorkExperienceRequest request, BindingResult result) {
-        JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(userId);
+    public void updateWorkExperience(Integer jobSeekerId, UpdateWorkExperienceRequest request, BindingResult result) {
+        JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findById(jobSeekerId)
+                .orElseThrow(() -> new BadRequestException("JobSeekerProfile not found"));
 
         Map<String, String> errors = validateField.getErrors(result);
         if (!errors.isEmpty()) {
@@ -186,11 +196,27 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     }
 
     @Override
-    public List<JobSeekerProfileDTO> searchJobSeekers(String keyword, Integer jobCategoryId) {
-        if (jobCategoryId == null) {
+    public List<JobSeekerProfileDTO> searchJobSeekers(String keyword, List<Integer> categoryIds) {
+        List<JobSeekerProfile> jobSeekers = jobSeekerProfileRepository.searchJobSeekers(keyword, categoryIds);
+
+        if (jobSeekers.isEmpty()) {
             return new ArrayList<>();
         }
-        return jobSeekerProfileRepository.searchJobSeekers(keyword, jobCategoryId).stream()
+
+        return jobSeekers.stream()
+                .map(jobSeekerProfileConverter::convertToJobSeekerProfileDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<JobSeekerProfileDTO> findJobSeekersByCompanyIndustry(Integer companyId) {
+        List<JobSeekerProfile> jobSeekers = jobSeekerProfileRepository.findJobSeekersByCompanyIndustry(companyId);
+
+        if (jobSeekers.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return jobSeekers.stream()
                 .map(jobSeekerProfileConverter::convertToJobSeekerProfileDTO)
                 .collect(Collectors.toList());
     }

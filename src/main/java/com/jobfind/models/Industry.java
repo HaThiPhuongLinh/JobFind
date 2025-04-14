@@ -3,6 +3,9 @@ package com.jobfind.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -17,4 +20,7 @@ public class Industry {
     private Integer industryId;
 
     private String name;
+
+    @OneToMany(mappedBy = "industry", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JobCategory> jobCategories = new ArrayList<>();
 }

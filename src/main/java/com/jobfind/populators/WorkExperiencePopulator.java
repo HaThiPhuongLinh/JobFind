@@ -19,6 +19,7 @@ public class WorkExperiencePopulator {
         target.setStartDate(source.getStartDate().toString());
         target.setEndDate(source.getEndDate().toString());
         target.setJobTitle(source.getJobPosition().getName());
+        target.setLogo(source.getCompany().getLogoPath());
         target.setJobType(source.getJobType());
         target.setDescription(source.getDescription());
         target.setSkills(source.getSkills().stream()

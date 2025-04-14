@@ -17,4 +17,8 @@ public class JobCategory {
     private Integer jobCategoryId;
 
     private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "industry_id")
+    private Industry industry;
 }

@@ -98,9 +98,25 @@ public class AuthServiceImpl implements IAuthService {
 
         String token = jwtService.generateToken(user.getEmail());
 
+        Integer returnId = null;
+
+        switch (user.getRole()) {
+            case JOBSEEKER:
+                JobSeekerProfile profile = jobSeekerProfileRepository.findByUser_UserId(user.getUserId())
+                        .orElseThrow(() -> new BadRequestException("JobSeekerProfile not found"));
+                returnId = profile.getProfileId();
+                break;
+            case COMPANY:
+                Company company = companyRepository.findByUser_UserId(user.getUserId())
+                        .orElseThrow(() -> new BadRequestException("Company not found"));
+                returnId = company.getCompanyId();
+                break;
+        }
+
         return AuthResponse.builder()
                 .token(token)
-                .userId(user.getUserId())
+                .id(user.getUserId())
+                .userId(returnId)
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .role(user.getRole())

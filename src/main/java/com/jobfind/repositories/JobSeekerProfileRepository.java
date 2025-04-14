@@ -17,7 +17,7 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
             "LEFT JOIN we.jobPosition jp " +
             "LEFT JOIN j.skills js " +
             "JOIN we.categories jc " +
-            "WHERE (:jobCategoryId IS NOT NULL AND jc.jobCategoryId = :jobCategoryId) " +
+            "WHERE (:categoryIds IS NULL OR jc.jobCategoryId IN :categoryIds) " +
             "AND (" +
             "       (:keyword IS NOT NULL AND EXISTS (" +
             "           SELECT 1 FROM WorkExperience we2 " +
@@ -41,5 +41,15 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
             ")")
     List<JobSeekerProfile> searchJobSeekers(
             @Param("keyword") String keyword,
-            @Param("jobCategoryId") Integer jobCategoryId);
+            @Param("categoryIds") List<Integer> categoryIds);
+
+    @Query("""
+    SELECT DISTINCT j FROM JobSeekerProfile j
+    JOIN j.workExperiences we
+    JOIN we.categories jc
+    JOIN Industry i ON jc.industry = i
+    JOIN Company c ON i MEMBER OF c.industry
+    WHERE c.companyId = :companyId
+    """)
+    List<JobSeekerProfile> findJobSeekersByCompanyIndustry(@Param("companyId") Integer companyId);
 }

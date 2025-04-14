@@ -14,6 +14,7 @@ import java.util.List;
 public class WorkExperienceDTO {
     private String jobTitle;
     private String companyName;
+    private String logo;
     private String description;
     private JobType jobType;
     private String startDate;

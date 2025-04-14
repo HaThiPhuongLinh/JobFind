@@ -21,6 +21,7 @@ public class JobSeekerProfile {
 
     private String lastName;
     private String address;
+    private String title;
 
     @OneToOne
     @JoinColumn(name = "user_id")

@@ -26,15 +26,20 @@ public class JobSeekerProfileController {
         return ResponseEntity.ok(jobSeekerProfileServiceImpl.getProfileByUserId(userId));
     }
 
+    @GetMapping("/getProfileById")
+    public ResponseEntity<JobSeekerProfileDTO> getJobSeekerProfileById(@RequestParam Integer jobSeekerId) {
+        return ResponseEntity.ok(jobSeekerProfileServiceImpl.getProfileById(jobSeekerId));
+    }
+
     @PostMapping("/addWorkExperience")
-    public ResponseEntity<SuccessResponse> createWorkExperience(@RequestParam Integer userId, @Valid @RequestBody CreateWorkExperienceRequest createWorkExperienceRequest, BindingResult result) {
-        jobSeekerProfileServiceImpl.addWorkExperience(userId, createWorkExperienceRequest, result);
+    public ResponseEntity<SuccessResponse> createWorkExperience(@RequestParam Integer jobSeekerId, @Valid @RequestBody CreateWorkExperienceRequest createWorkExperienceRequest, BindingResult result) {
+        jobSeekerProfileServiceImpl.addWorkExperience(jobSeekerId, createWorkExperienceRequest, result);
         return ResponseEntity.ok(new SuccessResponse("Work Experience created successfully"));
     }
 
     @PostMapping("/updateWorkExperience")
-    public ResponseEntity<SuccessResponse> updateWorkExperience(@RequestParam Integer userId, @Valid @RequestBody UpdateWorkExperienceRequest updateWorkExperienceRequest, BindingResult result) {
-        jobSeekerProfileServiceImpl.updateWorkExperience(userId, updateWorkExperienceRequest, result);
+    public ResponseEntity<SuccessResponse> updateWorkExperience(@RequestParam Integer jobSeekerId, @Valid @RequestBody UpdateWorkExperienceRequest updateWorkExperienceRequest, BindingResult result) {
+        jobSeekerProfileServiceImpl.updateWorkExperience(jobSeekerId, updateWorkExperienceRequest, result);
         return ResponseEntity.ok(new SuccessResponse("Work Experience updated successfully"));
     }
 
@@ -53,8 +58,14 @@ public class JobSeekerProfileController {
     @GetMapping("/search-jobseekers")
     public ResponseEntity<List<JobSeekerProfileDTO>> searchJobSeekers(
             @RequestParam(required = false) String keyword,
-            @RequestParam Integer jobCategoryId) {
-        List<JobSeekerProfileDTO> jobSeekers = jobSeekerProfileServiceImpl.searchJobSeekers(keyword, jobCategoryId);
+            @RequestParam(required = false) List<Integer> categoryIds) {
+        List<JobSeekerProfileDTO> jobSeekers = jobSeekerProfileServiceImpl.searchJobSeekers(keyword, categoryIds);
+        return ResponseEntity.ok(jobSeekers);
+    }
+
+    @GetMapping("/find-jobseekers-by-company-industry")
+    public ResponseEntity<List<JobSeekerProfileDTO>> findJobSeekersByCompanyIndustry(@RequestParam Integer companyId) {
+        List<JobSeekerProfileDTO> jobSeekers = jobSeekerProfileServiceImpl.findJobSeekersByCompanyIndustry(companyId);
         return ResponseEntity.ok(jobSeekers);
     }
 }
