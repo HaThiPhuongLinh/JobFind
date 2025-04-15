@@ -9,8 +9,8 @@ import {
   fetchIndustries,
 } from "../../redux/slices/industrySlice";
 
-// const MenuCategory = ({ setIsOpen }) => {
-const MenuCategory = () => {
+// const MenuIndustry = ({ setIsOpen }) => {
+const MenuIndustry = () => {
   const dispatch = useDispatch();
 
   // Fetch industries khi component được mount
@@ -118,8 +118,8 @@ const MenuCategory = () => {
   );
 };
 
-MenuCategory.propTypes = {
+MenuIndustry.propTypes = {
   setIsOpen: PropTypes.func.isRequired,
 };
 
-export default MenuCategory;
+export default MenuIndustry;

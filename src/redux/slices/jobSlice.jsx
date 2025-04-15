@@ -57,22 +57,22 @@ const jobSlice = createSlice({
       if (salary !== "0") {
         if (salary === "5000000") {
           result = result.filter((job) => {
-            return job.salaryMin <= 5 && job.salaryMax >= 5;
+            return job.salaryMin <= 5000000 && job.salaryMax >= 5000000;
           });
         } else if (salary === "10000000") {
           result = result.filter(
-            (job) => job.salaryMin <= 10 && 10 <= job.salaryMax
+            (job) => job.salaryMin <= 10000000 && 10000000 <= job.salaryMax
           );
         } else if (salary === "15000000") {
           result = result.filter(
-            (job) => job.salaryMin <= 15 && 15 <= job.salaryMax
+            (job) => job.salaryMin <= 15000000 && 15000000 <= job.salaryMax
           );
         } else if (salary === "20000000") {
           result = result.filter(
-            (job) => job.salaryMin <= 20 && 20 <= job.salaryMax
+            (job) => job.salaryMin <= 20000000 && 20000000 <= job.salaryMax
           );
         } else if (salary === "20000000+") {
-          result = result.filter((job) => job.salaryMin >= 20);
+          result = result.filter((job) => job.salaryMin >= 20000000);
         }
       }
 

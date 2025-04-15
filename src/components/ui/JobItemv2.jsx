@@ -55,9 +55,9 @@ const JobItemv2 = ({ job, iconHeart, isApply, isButtonSave }) => {
       {/* Button */}
       <div className="flex flex-col justify-between items-end h-full">
         <p className="text-primary font-bold">
-          {new Intl.NumberFormat("de-DE").format(job.salaryMin) +
+          {new Intl.NumberFormat("de-DE").format(job.salaryMin / 1000000) +
             " - " +
-            new Intl.NumberFormat("de-DE").format(job.salaryMax) +
+            new Intl.NumberFormat("de-DE").format(job.salaryMax / 1000000) +
             " triệu"}
         </p>
         <div className="flex items-center gap-2">

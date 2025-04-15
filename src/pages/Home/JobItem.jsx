@@ -7,6 +7,7 @@ import ButtonSave from "../../components/button/ButtonSave";
 import ButtonApply from "../../components/button/ButtonApply";
 
 const JobItem = ({ job }) => {
+  // console.log("JobItem - home: ", job);
   const navigate = useNavigate();
 
   // navigate to job detail
@@ -28,7 +29,7 @@ const JobItem = ({ job }) => {
         >
           <img
             src={
-              //   job.company.logoPath ||
+              job.company.logoPath ||
               "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6CkfRreFUwou55lvRWataKzz21cendRZmfMP1HF5dqzqYa6BjhUAxsY-wZZUDBT-Ve-U&usqp=CAU"
             }
             alt="logo"
@@ -45,9 +46,9 @@ const JobItem = ({ job }) => {
       <div className="flex justify-between items-center pt-2 text-sm whitespace-nowrap">
         <div className="flex flex-wrap items-center gap-2">
           <p className="py-1 px-2 rounded-full bg-slate-200 cursor-pointer">
-            {new Intl.NumberFormat("de-DE").format(job.salaryMin) +
+            {new Intl.NumberFormat("de-DE").format(job.salaryMin / 1000000) +
               " - " +
-              new Intl.NumberFormat("de-DE").format(job.salaryMax) +
+              new Intl.NumberFormat("de-DE").format(job.salaryMax / 1000000) +
               " triệu"}
           </p>
           <p className="py-1 px-2 rounded-full bg-slate-200 cursor-pointer">

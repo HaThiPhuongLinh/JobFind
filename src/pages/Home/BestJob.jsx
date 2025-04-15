@@ -38,6 +38,7 @@ const BestJob = () => {
     const fetchJobs = async () => {
       try {
         const data = await getAllJobs();
+        // console.log("data", data);
         setJobs(data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách jobs:", error);

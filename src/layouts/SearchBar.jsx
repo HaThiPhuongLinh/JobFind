@@ -15,37 +15,27 @@ import background from "../assets/bg_search_section.jpg";
 
 // component
 import MenuLocation from "../components/Menu/MenuLocation";
+// import MenuCategory from "../components/Menu/MenuCategory";
 import MenuIndustry from "../components/Menu/MenuIndustry";
 
 // redux
-import { useSelector, useDispatch } from "react-redux";
-import { setSelectedIndustries } from "../redux/slices/industrySlice";
+import { useSelector } from "react-redux";
 
 const SearchBar = () => {
   const auth_role = useSelector((state) => state.auth.user)?.role;
   // console.log(auth_role);
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   // Lấy dữ liệu từ redux
   const citysSelected = useSelector((state) => state.locations.citySelected);
   const industriesSelected = useSelector(
     (state) => state.industry.selectedIndustries
   );
+  // console.log("SearchBar: ", industriesSelected);
 
   // track search text
   const [searchText, setSearchText] = useState("");
-
-  // Lấy dữu liệu search Text từ localstorage
-  useEffect(() => {
-    const savedSearchData = JSON.parse(localStorage.getItem("searchData"));
-
-    if (savedSearchData) {
-      setSearchText(savedSearchData.keyword);
-      dispatch(setSelectedIndustries(savedSearchData.industries));
-    }
-  }, []);
 
   // Mở/Tắt model chọn tỉnh thành quận huyện
   const [isOpen, setIsOpen] = useState(false);
@@ -155,7 +145,7 @@ const SearchBar = () => {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder={
-              auth_role == 2 ? "Nhập công việc..." : "Nhập mã ứng viên..."
+              auth_role == "JOBSEEKER" ? "Nhập công việc..." : "Nhập từ khóa..."
             }
             className="w-full text-gray-800 outline-none p-1"
           />

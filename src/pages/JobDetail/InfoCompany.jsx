@@ -36,7 +36,8 @@ const InfoCompany = ({ job }) => {
           <p>{job.location}</p>
         </div>
         <Link
-          to={`/company/${job.company.companyId}`}
+          to={`${job.company.website}`}
+          target="_blank"
           className="text-green-500 text-center block mt-4 hover:underline"
         >
           Xem trang công ty
