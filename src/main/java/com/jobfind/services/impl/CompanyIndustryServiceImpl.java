@@ -1,5 +1,6 @@
 package com.jobfind.services.impl;
 
+import com.jobfind.dto.response.IndustryReponse;
 import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.Industry;
 import com.jobfind.repositories.IndustryRepository;
@@ -15,8 +16,15 @@ public class CompanyIndustryServiceImpl implements ICompanyIndustryService {
     private final IndustryRepository industryRepository;
 
     @Override
-    public List<Industry> getAllCompanyIndustries() {
-        return industryRepository.findAll();
+    public List<IndustryReponse> getAllCompanyIndustries() {
+        List<Industry> industries = industryRepository.findAll();
+
+        return industries.stream()
+                .map(industry -> IndustryReponse.builder()
+                        .industryId(industry.getIndustryId())
+                        .name(industry.getName())
+                        .build())
+                .toList();
     }
 
     @Override

@@ -31,8 +31,8 @@ public class SavedJobSeekerController {
     }
 
     @GetMapping("/listSavedJobSeekers")
-    public ResponseEntity<List<JobSeekerProfileDTO>> getListSavedJobSeekers(Integer jobSeekerProfileId) {
-        List<JobSeekerProfileDTO> list = savedJobSeekerServiceImpl.getListSavedJobSeekers(jobSeekerProfileId);
+    public ResponseEntity<List<JobSeekerProfileDTO>> getListSavedJobSeekers(Integer companyId) {
+        List<JobSeekerProfileDTO> list = savedJobSeekerServiceImpl.getListSavedJobSeekers(companyId);
         return ResponseEntity.ok(list);
     }
 }

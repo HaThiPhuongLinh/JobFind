@@ -38,10 +38,12 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
             "               WHERE j2 = j AND LOWER(js2.name) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
             "           )" +
             "       )" +
-            ")")
+            ") " +
+            "AND (:location IS NULL OR LOWER(j.address) LIKE LOWER(CONCAT('%', :location, '%')))")
     List<JobSeekerProfile> searchJobSeekers(
             @Param("keyword") String keyword,
-            @Param("categoryIds") List<Integer> categoryIds);
+            @Param("categoryIds") List<Integer> categoryIds,
+            @Param("location") String location);
 
     @Query("""
     SELECT DISTINCT j FROM JobSeekerProfile j

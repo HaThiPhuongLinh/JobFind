@@ -196,8 +196,18 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     }
 
     @Override
-    public List<JobSeekerProfileDTO> searchJobSeekers(String keyword, List<Integer> categoryIds) {
-        List<JobSeekerProfile> jobSeekers = jobSeekerProfileRepository.searchJobSeekers(keyword, categoryIds);
+    public List<JobSeekerProfileDTO> searchJobSeekers(String keyword, List<Integer> categoryIds, String location, Integer companyId) {
+        List<JobSeekerProfile> jobSeekers;
+
+        boolean isKeywordEmpty = keyword == null || keyword.trim().isEmpty();
+        boolean isCategoryIdsEmpty = categoryIds == null || categoryIds.isEmpty();
+        boolean isLocationEmpty = location == null || location.trim().isEmpty();
+
+        if (isKeywordEmpty && isCategoryIdsEmpty && isLocationEmpty) {
+            jobSeekers = jobSeekerProfileRepository.findJobSeekersByCompanyIndustry(companyId);
+        } else {
+            jobSeekers = jobSeekerProfileRepository.searchJobSeekers(keyword, categoryIds, location);
+        }
 
         if (jobSeekers.isEmpty()) {
             return new ArrayList<>();

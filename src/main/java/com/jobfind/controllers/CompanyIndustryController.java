@@ -1,7 +1,7 @@
 package com.jobfind.controllers;
 
+import com.jobfind.dto.response.IndustryReponse;
 import com.jobfind.dto.response.SuccessResponse;
-import com.jobfind.models.Industry;
 import com.jobfind.services.ICompanyIndustryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ public class CompanyIndustryController {
     private final ICompanyIndustryService companyIndustryServiceImpl;
 
     @GetMapping("/all")
-    public ResponseEntity<List<Industry>> getAllCompanyIndustries() {
+    public ResponseEntity<List<IndustryReponse>> getAllCompanyIndustries() {
         return ResponseEntity.ok(companyIndustryServiceImpl.getAllCompanyIndustries());
     }
 
