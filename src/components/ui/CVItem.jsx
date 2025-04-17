@@ -4,8 +4,8 @@ import PropTypes from "prop-types";
 import ButtonSaveJobSeeker from "../button/ButtonSaveJobSeeker";
 import { Link, useNavigate } from "react-router-dom";
 
-const CVItem = ({ profile }) => {
-  const navigate = useNavigate();
+const CVItem = ({ profile, savedJobSeekers }) => {
+    const navigate = useNavigate();
 
   const {
     profileId,
@@ -24,7 +24,6 @@ const CVItem = ({ profile }) => {
       console.error("Profile ID is undefined or invalid");
     }
   };
-  
 
   return (
     <div className="rounded-md border border-green-600 p-4 bg-white">
@@ -45,8 +44,8 @@ const CVItem = ({ profile }) => {
           <div className="flex justify-between pb-2 pt-1">
             <p className="text-primary font-semibold text-lg">{`${firstName} ${lastName}`}</p>
             <div>
-              <ButtonSaveJobSeeker />
-              {/* Button chat */}
+            <ButtonSaveJobSeeker profileId={profileId} savedJobSeekers={savedJobSeekers} />
+            {/* Button chat */}
               <Link to={"/"} className="cursor-pointer">
                 <FontAwesomeIcon
                   icon={faMessage}
@@ -123,6 +122,7 @@ CVItem.propTypes = {
       })
     ).isRequired, 
   }).isRequired,
+  savedJobSeekers: PropTypes.arrayOf(PropTypes.number).isRequired,
 };
 
 export default CVItem;

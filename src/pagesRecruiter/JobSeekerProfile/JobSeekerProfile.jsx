@@ -1,6 +1,5 @@
 import { Link, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import ButtonSaveJobSeeker from "../../components/button/ButtonSaveJobSeeker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMessage } from "@fortawesome/free-solid-svg-icons";
 import jobSeekerApi from "../../api/jobSeekerApi";
@@ -51,7 +50,7 @@ const JobSeekerProfile = () => {
             <p className="text-gray-600">{profile.title}</p>
           </div>
           <div className="grow text-right">
-            <ButtonSaveJobSeeker />
+            {/* <ButtonSaveJobSeeker /> */}
             <FontAwesomeIcon
               icon={faMessage}
               className="h-6 w-6 text-green-600 cursor-pointer"
