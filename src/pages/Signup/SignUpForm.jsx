@@ -1,93 +1,52 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLock, faUser, faEnvelope } from "@fortawesome/free-solid-svg-icons";
+import { faLock, faUser, faEnvelope, faPhone, faHome } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import { faGoogle, faSquareFacebook } from "@fortawesome/free-brands-svg-icons";
-
 import { useState } from "react";
-
-// api
 import registerUser from "../../services/registerService";
+import logo from "../../assets/logo.png";
 
 const SignUpForm = () => {
   const navigate = useNavigate();
 
-  // Theo dõi trạng thái form
   const [formData, setFormData] = useState({
-    firstName: "Nguyễn Minh",
-    lastName: "Nhật",
-    phone: "0123456789",
-    address: "Hà Nội",
-    email: "nhat@gmail.com",
-    password: "StrongPass@123",
-    confirmPassword: "StrongPass@123",
-  });
-
-  const [errors, setErrors] = useState({
-    email: "",
+    firstName: "",
+    lastName: "",
     phone: "",
+    address: "",
+    email: "",
     password: "",
     confirmPassword: "",
   });
 
-  // Kiểm tra email hợp lệ
-  const validateEmail = (email) => {
-    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    return regex.test(email);
-  };
+  const [errors, setErrors] = useState({});
 
-  // Kiểm tra số điện thoại có 10 chữ số
-  const validatePhone = (phone) => {
-    return phone.length === 10 && /^[0-9]+$/.test(phone);
-  };
+  const validateEmail = (email) =>
+    /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(email);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const validatePhone = (phone) =>
+    phone.length === 10 && /^[0-9]+$/.test(phone);
 
-  // call api đăng ký
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     let newErrors = {};
+    if (!validateEmail(formData.email)) newErrors.email = "Email không hợp lệ";
+    if (!validatePhone(formData.phone)) newErrors.phone = "Số điện thoại phải có 10 chữ số";
+    if (formData.password !== formData.confirmPassword)
+      newErrors.confirmPassword = "Mật khẩu và xác nhận không khớp";
 
-    // Kiểm tra email
-    if (!validateEmail(formData.email)) {
-      newErrors.email = "Email không hợp lệ";
-    } else {
-      newErrors.email = "";
-    }
-
-    // Kiểm tra số điện thoại
-    if (!validatePhone(formData.phone)) {
-      newErrors.phone = "Số điện thoại phải có 10 chữ số";
-    } else {
-      newErrors.phone = "";
-    }
-
-    // Cập nhật trạng thái lỗi
     setErrors(newErrors);
-
-    const { confirmPassword, ...rest } = formData;
-
-    // Kiểm tra mật khẩu và xác nhận mật khẩu
-    if (formData.password !== confirmPassword) {
-      newErrors.confirmPassword = "Mật khẩu và xác nhận mật khẩu không khớp";
-    } else {
-      newErrors.confirmPassword = "";
-    }
+    if (Object.keys(newErrors).length > 0) return;
 
     const payload = {
-      ...rest,
+      ...formData,
       role: "JOBSEEKER",
     };
-
-    // Nếu có lỗi, không gửi form
-    if (Object.values(newErrors).some((error) => error !== "")) {
-      return;
-    }
+    delete payload.confirmPassword;
 
     const response = await registerUser(payload);
     if (!response.success) {
@@ -95,268 +54,185 @@ const SignUpForm = () => {
       return;
     }
 
-    console.log("Đăng ký thành công:", response.data);
     alert("Đăng ký thành công!");
-    // Chuyển hướng đến trang đăng nhập
     navigate("/login", { replace: true });
   };
 
   return (
-    <div className="mx-auto pt-6">
-      <p className="text-2xl text-primary">Chào mừng bạn đến với FindJob</p>
-      <p className="fotn-light text-gray-500 py-3">
-        Cùng xây dựng một hồ sơ nổi bật và nhận được các cơ hội sự nghiệp lý
-        tưởng
-      </p>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-100 via-white to-blue-100 px-4">
+      <div>
+        <img src={logo} alt="Logo" className="w-44 mx-auto object-contain" />
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        {/* form group - firstName */}
-        <div className="form-group pb-3">
-          <label htmlFor="" className="block pb-1">
-            Họ và tên đệm
-          </label>
-          <div className="flex items-center border border-slate-300 rounded-lg p-2 ">
-            <FontAwesomeIcon
-              icon={faUser}
-              className="text-primary text-xl pe-6"
-            />
-            <input
-              type="text"
-              name="firstName"
-              placeholder="Nhập họ và tên đệm"
-              required
-              className="w-full outline-none"
-              value={formData.firstName}
-              onChange={handleChange}
-            />
-          </div>
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-md rounded-xl p-8 w-full max-w-4xl border border-gray-200"
+      >
+        <h2 className="text-2xl font-bold text-center mb-6 text-primary">
+          Chào mừng bạn đến với JobFind
+        </h2>
+        <p className="text-center text-gray-500 mb-6">
+          Cùng xây dựng hồ sơ nổi bật và nhận cơ hội nghề nghiệp lý tưởng
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Họ và tên đệm */}
+          <InputField
+            icon={faUser}
+            label="Họ và tên đệm"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+          />
+
+          {/* Tên */}
+          <InputField
+            icon={faUser}
+            label="Tên"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+          />
+
+          {/* Số điện thoại */}
+          <InputField
+            icon={faPhone}
+            label="Số điện thoại"
+            name="phone"
+            type="tel"
+            value={formData.phone}
+            onChange={handleChange}
+            error={errors.phone}
+          />
+
+          {/* Địa chỉ */}
+          <InputField
+            icon={faHome}
+            label="Địa chỉ"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+          />
+
+          {/* Email */}
+          <InputField
+            icon={faEnvelope}
+            label="Email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            error={errors.email}
+          />
+
+          {/* Mật khẩu */}
+          <InputField
+            icon={faLock}
+            label="Mật khẩu"
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange}
+          />
+
+          {/* Xác nhận mật khẩu */}
+          <InputField
+            icon={faLock}
+            label="Xác nhận mật khẩu"
+            name="confirmPassword"
+            type="password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            error={errors.confirmPassword}
+          />
         </div>
 
-        {/* form group - lastName */}
-        <div className="form-group pb-3">
-          <label htmlFor="" className="block pb-1">
-            Tên
-          </label>
-          <div className="flex items-center border border-slate-300 rounded-lg p-2 ">
-            <FontAwesomeIcon
-              icon={faUser}
-              className="text-primary text-xl pe-6"
-            />
-            <input
-              type="text"
-              name="lastName"
-              placeholder="Nhập tên"
-              required
-              className="w-full outline-none"
-              value={formData.lastName}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-
-        {/* form group - phone */}
-        <div className="form-group pb-3">
-          <label htmlFor="" className="block pb-1">
-            Số điện thoại
-          </label>
-          <div className="flex items-center border border-slate-300 rounded-lg p-2 ">
-            <FontAwesomeIcon
-              icon={faUser}
-              className="text-primary text-xl pe-6"
-            />
-            <input
-              type="number"
-              name="phone"
-              placeholder="Nhập số điện thoại"
-              required
-              className="w-full outline-none"
-              value={formData.phone}
-              onChange={handleChange}
-            />
-          </div>
-          {errors.phone && (
-            <p className="text-red-500 text-sm">{errors.phone}</p>
-          )}
-        </div>
-
-        {/* form group - address */}
-        <div className="form-group pb-3">
-          <label htmlFor="" className="block pb-1">
-            Địa chỉ
-          </label>
-          <div className="flex items-center border border-slate-300 rounded-lg p-2 ">
-            <FontAwesomeIcon
-              icon={faEnvelope}
-              className="text-primary text-xl pe-6"
-            />
-            <input
-              type="text"
-              name="adress"
-              placeholder="Nhập địa chỉ"
-              required
-              className="w-full outline-none"
-              value={formData.address}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-
-        {/* form group - email */}
-        <div className="form-group pb-3">
-          <label htmlFor="" className="block pb-1">
-            Email
-          </label>
-          <div className="flex items-center border border-slate-300 rounded-lg p-2 ">
-            <FontAwesomeIcon
-              icon={faEnvelope}
-              className="text-primary text-xl pe-6"
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Nhập email"
-              required
-              className="w-full outline-none"
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
-          {errors.email && (
-            <p className="text-red-500 text-sm">{errors.email}</p>
-          )}
-        </div>
-
-        {/* form group - password */}
-        <div className="form-group pb-3">
-          <label htmlFor="" className="block pb-1">
-            Mật khẩu
-          </label>
-          <div className="flex items-center border border-slate-300 rounded-lg p-2 ">
-            <FontAwesomeIcon
-              icon={faLock}
-              className="text-primary text-xl pe-6"
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Nhập mật khẩu"
-              required
-              className="w-full outline-none"
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-
-        {/* form group - confirm password */}
-        <div className="form-group pb-3">
-          <label htmlFor="" className="block pb-1">
-            Xác nhận mật khẩu
-          </label>
-          <div className="flex items-center border border-slate-300 rounded-lg p-2 ">
-            <FontAwesomeIcon
-              icon={faLock}
-              className="text-primary text-xl pe-6"
-            />
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Nhập lại mật khẩu"
-              required
-              className="w-full outline-none"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
-          </div>
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
-          )}
-        </div>
-
-        {/* Đồng ý chính sách bảo mật */}
-        <div className="flex items-center">
-          <input type="checkbox" style={{ height: "20px", width: "20px" }} />
-          <label htmlFor="" className="ps-2">
-            Tôi đã đọc và đồng ý với
-            <Link to="/" className="text-primary">
-              {" "}
-              Điều khoản dịch vụ{" "}
+        {/* Chính sách */}
+        <div className="flex items-start gap-2 text-sm mt-4">
+          <input type="checkbox" className="mt-1" required />
+          <p>
+            Tôi đồng ý với{" "}
+            <Link to="/" className="text-primary underline">
+              Điều khoản dịch vụ
+            </Link>{" "}
+            và{" "}
+            <Link to="/" className="text-primary underline">
+              Chính sách bảo mật
             </Link>
-            và
-            <Link to="/" className="text-primary">
-              {" "}
-              Chính sách bảo mật{" "}
-            </Link>
-            của FindJob
-          </label>
+            .
+          </p>
         </div>
 
-        {/* Button Submit */}
-        <div className="w-full rounded-lg bg-primary mt-3 py-3 hover:opacity-80">
+        {/* Nút đăng ký */}
+        <div className="mt-6 flex justify-center">
           <button
             type="submit"
-            className="btn btn-primary w-full text-white text-xl"
+            className="bg-green-600 text-white px-14 py-2 rounded-md font-semibold hover:bg-green-700"
           >
             Đăng ký
           </button>
         </div>
-      </form>
 
-      {/* Phương thức khác */}
-      <div className="">
-        <p className="py-6 text-center text-slate-400">Hoặc đăng nhập bằng</p>
-        <div className="flex justify-between items-center">
-          <Link
-            className="w-1/2 me-2 py-2 rounded-lg bg-primary text-lg text-white flex items-center justify-center hover:opacity-80"
-            style={{ backgroundColor: "#e73b2f" }}
-          >
-            <FontAwesomeIcon
-              icon={faGoogle}
-              className="text-white text-lg pe-6"
-            />
+        {/* Hoặc đăng ký bằng */}
+        <p className="text-center text-gray-400 my-4">Hoặc đăng ký bằng</p>
+        <div className="flex gap-4">
+          <Link className="flex-1 bg-[#e73b2f] text-white py-2 rounded-lg flex items-center justify-center gap-2">
+            <FontAwesomeIcon icon={faGoogle} />
             Google
           </Link>
-          <Link
-            className="w-1/2 ms-2 py-2 rounded-lg bg-primary text-lg text-white flex items-center justify-center hover:opacity-80"
-            style={{ backgroundColor: "#1877f2" }}
-          >
-            <FontAwesomeIcon
-              icon={faSquareFacebook}
-              className="text-white pe-6 text-2xl"
-            />
+          <Link className="flex-1 bg-[#1877f2] text-white py-2 rounded-lg flex items-center justify-center gap-2">
+            <FontAwesomeIcon icon={faSquareFacebook} />
             Facebook
           </Link>
         </div>
 
-        {/* Đồng ý chính sách bảo mật mạng xã hội */}
-        <div className="pt-4 flex items-center">
-          <input type="checkbox" style={{ height: "20px", width: "20px" }} />
-          <label htmlFor="" className="ps-2">
-            Tôi đã đọc và đồng ý với
-            <Link to="/" className="text-primary">
-              {" "}
-              Điều khoản dịch vụ{" "}
+        {/* Đã có tài khoản */}
+        <div className="mt-6 flex justify-center">
+          <p>
+            Đã có tài khoản?{" "}
+            <Link
+              to="/login"
+              className="text-blue-600 font-medium hover:underline"
+            >
+              Đăng nhập
             </Link>
-            và
-            <Link to="/" className="text-primary">
-              {" "}
-              Chính sách bảo mật{" "}
-            </Link>
-            của FindJob
-          </label>
+          </p>
         </div>
-        {/* end: Đồng ý chính sách bảo mật mạng xã hội */}
-      </div>
+      </form>
 
-      {/* Đã có tài khoản */}
-      <p className="pt-4 text-center">
-        Bạn đã có tài khoản?{" "}
-        <Link to="/login" className="text-primary">
-          Đăng nhập
-        </Link>
-      </p>
+      <style>{`
+        .input {
+          padding: 0.5rem;
+          border: 1px solid #d1d5db;
+          border-radius: 0.5rem;
+          width: 100%;
+          outline: none;
+        }
+        .input:focus {
+          border-color: #3b82f6;
+        }
+      `}</style>
     </div>
   );
 };
+
+const InputField = ({ icon, label, name, value, onChange, error, type = "text" }) => (
+  <div>
+    <label className="block mb-1 font-medium text-sm">{label} <span className="text-red-600">*</span></label>
+    <div className="flex items-center border border-slate-300 rounded-lg px-3 py-2">
+      <FontAwesomeIcon icon={icon} className="text-primary mr-3" />
+      <input
+        type={type}
+        name={name}
+        placeholder={`Nhập ${label.toLowerCase()}`}
+        className="w-full outline-none"
+        value={value}
+        onChange={onChange}
+        required
+      />
+    </div>
+    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+  </div>
+);
 
 export default SignUpForm;

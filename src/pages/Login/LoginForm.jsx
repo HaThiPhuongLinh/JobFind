@@ -2,16 +2,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import { faGoogle, faSquareFacebook } from "@fortawesome/free-brands-svg-icons";
-
 import { useState } from "react";
 import { login } from "../../redux/slices/authSlice";
 import { useDispatch } from "react-redux";
-
-// ảnh logo test đăng nhập
 import vina68 from "../../assets/images/image_products/vina68.webp";
-
-// api services
 import loginService from "../../services/loginService";
+import logo from "../../assets/logo.png";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
@@ -69,129 +65,132 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="mx-auto pt-6">
-      <p className="text-2xl text-primary">Chào mừng bạn đã quay trở lại</p>
-      <p className="fotn-light text-gray-500 py-3">
-        Cùng xây dựng một hồ sơ nổi bật và nhận được các cơ hội sự nghiệp lý
-        tưởng
-      </p>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-100 via-white to-blue-100 px-4">
+      <div>
+        <img src={logo} alt="Logo" className="w-40 mx-auto object-contain" />
+      </div>
 
-      <form action="">
-        {/* form group */}
-        <div className="form-group pb-3">
-          <label htmlFor="" className="block pb-1">
-            Email
-          </label>
-          <div className="flex items-center border border-slate-300 rounded-lg p-2 ">
-            <FontAwesomeIcon
-              icon={faEnvelope}
-              className="text-primary text-xl pe-6"
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Nhập email"
-              required
-              className="w-full outline-none"
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-md rounded-xl p-8 w-full max-w-md border border-gray-200"
+      >
+        <h2 className="text-2xl font-bold text-center mb-4 text-primary">
+          Chào mừng bạn đã quay trở lại
+        </h2>
+        <p className="text-center text-gray-500 mb-6">
+          Cùng xây dựng một hồ sơ nổi bật và nhận được các cơ hội sự nghiệp lý tưởng
+        </p>
+
+        {/* Email */}
+        <InputField
+          icon={faEnvelope}
+          label="Email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+        />
+
+        {/* Mật khẩu */}
+        <InputField
+          icon={faLock}
+          label="Mật khẩu"
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleChange}
+        />
+
+        <div className="text-right text-sm mb-4">
+          <Link to="/" className="text-primary hover:underline">
+            Quên mật khẩu?
+          </Link>
         </div>
-        {/* form group */}
-        <div className="form-group pb-3">
-          <label htmlFor="" className="block pb-1">
-            Mật khẩu
-          </label>
-          <div className="flex items-center border border-slate-300 rounded-lg p-2 ">
-            <FontAwesomeIcon
-              icon={faLock}
-              className="text-primary text-xl pe-6"
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Nhập mật khẩu"
-              required
-              className="w-full outline-none"
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-        {/* Quên mật khẩu */}
-        <Link to="/" className="text-primary text-right">
-          Quên mật khẩu
-        </Link>
-        {/* Button Submit */}
-        <div
-          className="w-full rounded-lg bg-primary mt-3 py-3 hover:opacity-80 cursor-pointer"
-          onClick={handleSubmit}
+
+        <button
+          type="submit"
+          className="w-full bg-primary text-white text-lg py-2 rounded-lg hover:opacity-90 transition"
         >
-          <button
-            type="submit"
-            className="btn btn-primary w-full text-white text-xl block text-center"
-          >
-            Đăng nhập
-          </button>
-        </div>
-      </form>
+          Đăng nhập
+        </button>
 
-      {/* Phương thức khác */}
-      <div className="">
-        <p className="py-6 text-center text-slate-400">Hoặc đăng nhập bằng</p>
-        <div className="flex justify-between items-center">
+        {/* Đăng nhập bằng MXH */}
+        <p className="py-3 text-center text-slate-400">Hoặc đăng nhập bằng</p>
+        <div className="flex justify-between items-center gap-4">
           <Link
-            className="w-1/2 me-2 py-2 rounded-lg bg-primary text-lg text-white flex items-center justify-center hover:opacity-80"
+            className="flex-1 py-2 rounded-lg text-white flex items-center justify-center hover:opacity-80"
             style={{ backgroundColor: "#e73b2f" }}
           >
-            <FontAwesomeIcon
-              icon={faGoogle}
-              className="text-white text-lg pe-6"
-            />
+            <FontAwesomeIcon icon={faGoogle} className="me-2" />
             Google
           </Link>
           <Link
-            className="w-1/2 ms-2 py-2 rounded-lg bg-primary text-lg text-white flex items-center justify-center hover:opacity-80"
+            className="flex-1 py-2 rounded-lg text-white flex items-center justify-center hover:opacity-80"
             style={{ backgroundColor: "#1877f2" }}
           >
-            <FontAwesomeIcon
-              icon={faSquareFacebook}
-              className="text-white pe-6 text-2xl"
-            />
+            <FontAwesomeIcon icon={faSquareFacebook} className="me-2" />
             Facebook
           </Link>
         </div>
 
-        {/* Đồng ý chính sách bảo mật mạng xã hội */}
-        <div className="pt-4 flex items-center">
+        {/* Chính sách */}
+        <div className="pt-4 flex items-start gap-2 text-sm">
           <input type="checkbox" style={{ height: "20px", width: "20px" }} />
-          <label htmlFor="" className="ps-2">
+          <label>
             Tôi đã đọc và đồng ý với
-            <Link to="/" className="text-primary">
-              {" "}
-              Điều khoản dịch vụ{" "}
+            <Link to="/" className="text-primary underline mx-1">
+              Điều khoản dịch vụ
             </Link>
             và
-            <Link to="/" className="text-primary">
-              {" "}
-              Chính sách bảo mật{" "}
+            <Link to="/" className="text-primary underline mx-1">
+              Chính sách bảo mật
             </Link>
             của FindJob
           </label>
         </div>
-        {/* end: Đồng ý chính sách bảo mật mạng xã hội */}
-      </div>
-
-      {/* Đã có tài khoản */}
-      <p className="pt-4 text-center">
-        Bạn chưa có tài khoản?{" "}
-        <Link to="/signup" className="text-primary">
-          Đăng ký
-        </Link>
-      </p>
+        <div className="mt-6 flex justify-center">
+          <p>
+            Chưa có tài khoản?{" "}
+            <Link
+              to="/signup"
+              className="text-blue-600 font-medium hover:underline"
+            >
+              Đăng ký
+            </Link>
+          </p>
+        </div>
+      </form>
     </div>
   );
-};
+}
+
+const InputField = ({
+  icon,
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  error,
+}) => (
+  <div className="flex flex-col gap-1 pb-4">
+    <label className="font-medium">{label}</label>
+    <div className="flex items-center border border-slate-300 rounded-lg px-3 py-2">
+      <FontAwesomeIcon icon={icon} className="text-primary me-3" />
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required
+        className="w-full outline-none"
+        placeholder={`Nhập ${label.toLowerCase()}`}
+      />
+    </div>
+    {error && <p className="text-red-500 text-sm">{error}</p>}
+  </div>
+);
+
+
 
 export default LoginForm;
