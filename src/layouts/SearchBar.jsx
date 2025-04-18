@@ -29,6 +29,7 @@ const SearchBar = () => {
 
   // Lấy dữ liệu từ redux
   const citysSelected = useSelector((state) => state.locations.citySelected);
+  console.log("fdjd" + citysSelected)
   const categoriesSelected = useSelector(
     (state) => state.category.selectedCategories
   );
@@ -81,52 +82,50 @@ const SearchBar = () => {
   }, []);
 
   const handleButtonSearch = () => {
-  const user = localStorage.getItem("user");
-  const userObject = JSON.parse(user);
-  const companyId = userObject.userId;
-  const queryParams = new URLSearchParams();
+    const user = localStorage.getItem("user");
+    const userObject = JSON.parse(user);
+    const companyId = userObject.userId;
+    const queryParams = new URLSearchParams();
 
-  const hasSearchText = searchText.trim().length > 0;
-  const hasCity = citysSelected.length > 0;
+    const hasSearchText = searchText.trim().length > 0;
+    const hasCity = citysSelected.length > 0;
 
-  if (hasSearchText) {
-    queryParams.append("keyword", searchText);
-  }
-
-  if (hasCity) {
-    if (auth_role === "JOBSEEKER") {
-      const cities = citysSelected.join(",");
-      queryParams.append("location", cities);
-    } else {
-      citysSelected.forEach((city) => {
-        queryParams.append("location", city);
-      });
+    if (hasSearchText) {
+      queryParams.append("keyword", searchText);
     }
-  }
 
-  if (auth_role === "JOBSEEKER" && industriesSelected.length > 0) {
-    const industryIds = industriesSelected.map(ind => ind.industryId).join(",");
-    queryParams.append("industry", industryIds);
-  }
+    if (hasCity) {
+      if (auth_role === "JOBSEEKER") {
+        const cities = citysSelected.join(",");
+        queryParams.append("location", cities);
+      } else {
+        citysSelected.forEach((city) => {
+          queryParams.append("location", city);
+        });
+      }
+    }
 
-  if (auth_role !== "JOBSEEKER" && categoriesSelected.length > 0) {
-    const categoryIds = categoriesSelected.map(cat => cat.jobCategoryId).join(",");
-    queryParams.append("categoryIds", categoryIds);
-  }
+    if (auth_role === "JOBSEEKER" && industriesSelected.length > 0) {
+      const industryIds = industriesSelected.map(ind => ind.industryId).join(",");
+      queryParams.append("industry", industryIds);
+    }
 
-  if (auth_role !== "JOBSEEKER") {
-    queryParams.append("companyId", companyId);
-  }
+    if (auth_role !== "JOBSEEKER" && categoriesSelected.length > 0) {
+      const categoryIds = categoriesSelected.map(cat => cat.jobCategoryId).join(",");
+      queryParams.append("categoryIds", categoryIds);
+    }
 
-  localStorage.setItem("searchText", JSON.stringify(searchText));
+    if (auth_role !== "JOBSEEKER") {
+      queryParams.append("companyId", companyId);
+    }
 
-  if (auth_role === "JOBSEEKER") {
-    navigate(`/search?${queryParams.toString()}`);
-    window.location.reload(); 
-  } else {
-    navigate(`/search-cv?${queryParams.toString()}`);
-    console.log("response: ", queryParams.toString());
-  }
+    localStorage.setItem("searchText", JSON.stringify(searchText));
+
+    if (auth_role === "JOBSEEKER") {
+      navigate(`/search?${queryParams.toString()}`);
+    } else {
+      navigate(`/search-cv?${queryParams.toString()}`);
+    }
 };
 
   return (

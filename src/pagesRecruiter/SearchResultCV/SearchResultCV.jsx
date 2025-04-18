@@ -22,22 +22,18 @@ const SearchResultCV = () => {
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const keyword = queryParams.get("keyword") || "";
-  const locationList = queryParams.get("location") || "";
+  const locationList = queryParams.getAll("location");
   const categoryIds = useMemo(() => {
-    const raw = queryParams.get("categoryIds");
+  const raw = queryParams.get("categoryIds");
     return raw ? raw.split(",") : [];
   }, [location.search]); const companyId = queryParams.get("companyId") || "";
 
   useEffect(() => {
     const fetchJobSeekers = async () => {
       setLoading(true);
+
       try {
-        const response = await jobSeekerApi.searchJobSeekers(
-          keyword,
-          categoryIds,
-          locationList,
-          companyId,
-        );
+        const response = await jobSeekerApi.searchJobSeekers(keyword, categoryIds, locationList, companyId);
 
         const transformedData = response.map(jobSeeker => {
           const { profileId, firstName, lastName, address, title, workExperiences, skills } = jobSeeker;
@@ -82,7 +78,7 @@ const SearchResultCV = () => {
     };
 
     fetchJobSeekers();
-  }, [keyword, categoryIds, companyId]);
+  }, [location.search]);
 
   const filteredCVs = cvList;
 
