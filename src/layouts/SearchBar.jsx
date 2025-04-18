@@ -15,8 +15,8 @@ import background from "../assets/bg_search_section.jpg";
 
 // component
 import MenuLocation from "../components/Menu/MenuLocation";
-// import MenuCategory from "../components/Menu/MenuCategory";
-import MenuIndustry from "../components/Menu/MenuIndustry";
+import MenuCategory from "../components/Menu/MenuCategory";
+// import MenuIndustry from "../components/Menu/MenuIndustry";
 
 // redux
 import { useSelector } from "react-redux";
@@ -132,7 +132,7 @@ const SearchBar = () => {
 
           {/* Menu danh mục nghề */}
           <div className="absolute top-full left-0 mt-4 bg-white shadow-md rounded-lg">
-            {isOpenIndustry && <MenuIndustry setIsOpen={setIsOpenIndustry} />}
+            {isOpenIndustry && <MenuCategory setIsOpen={setIsOpenIndustry} />}
           </div>
           {/* end: Menu danh mục nghề */}
         </div>
