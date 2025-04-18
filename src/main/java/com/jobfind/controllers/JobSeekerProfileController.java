@@ -59,9 +59,8 @@ public class JobSeekerProfileController {
     public ResponseEntity<List<JobSeekerProfileDTO>> searchJobSeekers(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) List<Integer> categoryIds,
-            @RequestParam(required = false) String location,
+            @RequestParam(required = false) List<String> location,
             @RequestParam(required = false) Integer companyId) {
-
         List<JobSeekerProfileDTO> jobSeekers = jobSeekerProfileServiceImpl
                 .searchJobSeekers(keyword, categoryIds, location, companyId);
 

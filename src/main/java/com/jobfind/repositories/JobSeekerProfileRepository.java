@@ -13,12 +13,11 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
     @Query("SELECT DISTINCT j FROM JobSeekerProfile j " +
             "JOIN j.workExperiences we " +
             "LEFT JOIN we.skills wes " +
-            "LEFT JOIN we.company c " +
-            "LEFT JOIN we.jobPosition jp " +
             "LEFT JOIN j.skills js " +
-            "JOIN we.categories jc " +
-            "WHERE (:categoryIds IS NULL OR jc.jobCategoryId IN :categoryIds) " +
-            "AND (" +
+            "LEFT JOIN we.categories jc " +
+            "WHERE " +
+            "(" +
+            "   :keyword IS NULL OR (" +
             "       (:keyword IS NOT NULL AND EXISTS (" +
             "           SELECT 1 FROM WorkExperience we2 " +
             "           JOIN we2.skills wes2 " +
@@ -38,12 +37,15 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
             "               WHERE j2 = j AND LOWER(js2.name) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
             "           )" +
             "       )" +
+            "   )" +
             ") " +
-            "AND (:location IS NULL OR LOWER(j.address) LIKE LOWER(CONCAT('%', :location, '%')))")
+            "AND (:categoryIds IS NULL OR jc.jobCategoryId IN :categoryIds) " +
+            "AND (:locations IS NULL OR j.address IN :locations)")
     List<JobSeekerProfile> searchJobSeekers(
             @Param("keyword") String keyword,
             @Param("categoryIds") List<Integer> categoryIds,
-            @Param("location") String location);
+            @Param("locations") List<String> locations);
+
 
     @Query("""
     SELECT DISTINCT j FROM JobSeekerProfile j
