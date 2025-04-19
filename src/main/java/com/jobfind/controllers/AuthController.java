@@ -9,10 +9,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/auth")
@@ -21,7 +20,7 @@ public class AuthController {
     private IAuthService authServiceImpl;
 
     @PostMapping("/register")
-    public ResponseEntity<SuccessResponse> register(@Valid @RequestBody RegistrationRequest registrationRequest, BindingResult result) {
+    public ResponseEntity<SuccessResponse> register(@Valid @ModelAttribute RegistrationRequest registrationRequest, BindingResult result) throws IOException {
         authServiceImpl.register(registrationRequest, result);
         return ResponseEntity.ok(new SuccessResponse("User registered successfully"));
     }

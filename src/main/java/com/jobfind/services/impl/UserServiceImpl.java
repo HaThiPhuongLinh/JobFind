@@ -1,5 +1,6 @@
 package com.jobfind.services.impl;
 
+import com.jobfind.config.AwsS3Service;
 import com.jobfind.dto.request.ResetPasswordRequest;
 import com.jobfind.dto.request.UpdatePersonalInfoRequest;
 import com.jobfind.exception.BadRequestException;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,7 @@ public class UserServiceImpl implements IUserService {
     private final IndustryRepository industryRepository;
     private final PasswordEncoder passwordEncoder;
     private final ValidateField validateField;
+    private final AwsS3Service awsS3Service;
 
     @Override
     public void updateProfileInfo(UpdatePersonalInfoRequest request, BindingResult bindingResult) {
@@ -42,11 +45,25 @@ public class UserServiceImpl implements IUserService {
 
         user.setPhone(request.getPhoneNumber());
 
+        String logoPath = null;
+
+        if (request.getLogoPath() != null && !request.getLogoPath().isEmpty()) {
+            String originalFileName = request.getLogoPath().getOriginalFilename();
+            String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            String baseName = originalFileName.substring(0, originalFileName.lastIndexOf("."));
+            String s3Key = baseName + "_" + System.currentTimeMillis() + extension;
+            try {
+                logoPath = awsS3Service.uploadFileToS3(request.getLogoPath().getInputStream(), s3Key, request.getLogoPath().getContentType());
+            } catch (IOException e) {
+                throw new BadRequestException("Failed to upload avatar.");
+            }
+        }
+
         if (Role.COMPANY.equals(user.getRole())) {
             Company company = companyRepository.findByUser_UserId(user.getUserId()).orElseThrow(() -> new BadRequestException("Company not found with this user id"));
-            validateField.getCompanyFieldErrors(errors, request.getCompanyName(), request.getLogoPath());
+            validateField.getCompanyFieldErrors(errors, request.getCompanyName());
             company.setCompanyName(request.getCompanyName());
-            company.setLogoPath(request.getLogoPath());
+            company.setLogoPath(logoPath);
             if (request.getIndustryIds() != null && !request.getIndustryIds().isEmpty()) {
                 List<Industry> industries = industryRepository.findAllById(request.getIndustryIds());
                 company.setIndustry(industries);

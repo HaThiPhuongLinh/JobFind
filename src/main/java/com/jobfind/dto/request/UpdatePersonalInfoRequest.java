@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class UpdatePersonalInfoRequest {
     private String title;
     private String address;
     private String companyName;
-    private String logoPath;
+    private MultipartFile logoPath;
     private List<Integer> industryIds;
     private String website;
     private String description;

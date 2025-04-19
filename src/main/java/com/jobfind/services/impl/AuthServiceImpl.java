@@ -1,5 +1,6 @@
 package com.jobfind.services.impl;
 
+import com.jobfind.config.AwsS3Service;
 import com.jobfind.config.JwtService;
 import com.jobfind.dto.request.AuthRequest;
 import com.jobfind.dto.request.RegistrationRequest;
@@ -20,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,13 +36,14 @@ public class AuthServiceImpl implements IAuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final ValidateField validateField;
+    private final AwsS3Service awsS3Service;
     @Override
-    public void register(RegistrationRequest registrationRequest, BindingResult result) {
+    public void register(RegistrationRequest registrationRequest, BindingResult result) throws IOException {
         Map<String,String> errors = validateField.getErrors(result);
         if (registrationRequest.getRole() == Role.JOBSEEKER) {
             validateField.getJobSeekerFieldErrors(errors, registrationRequest.getFirstName(), registrationRequest.getLastName(), registrationRequest.getAddress());
         } else if (registrationRequest.getRole() == Role.COMPANY) {
-            validateField.getCompanyFieldErrors(errors, registrationRequest.getCompanyName(), registrationRequest.getLogoPath());
+            validateField.getCompanyFieldErrors(errors, registrationRequest.getCompanyName());
         }
 
         if (!errors.isEmpty()) {
@@ -62,6 +66,20 @@ public class AuthServiceImpl implements IAuthService {
 
         Boolean isVerified = registrationRequest.getIsVerified() != null && registrationRequest.getIsVerified();
 
+        String logoPath = null;
+
+        if (registrationRequest.getLogoPath() != null && !registrationRequest.getLogoPath().isEmpty()) {
+            String originalFileName = registrationRequest.getLogoPath().getOriginalFilename();
+            String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            String baseName = originalFileName.substring(0, originalFileName.lastIndexOf("."));
+            String s3Key = baseName + "_" + System.currentTimeMillis() + extension;
+            try {
+                logoPath = awsS3Service.uploadFileToS3(registrationRequest.getLogoPath().getInputStream(), s3Key, registrationRequest.getLogoPath().getContentType());
+            } catch (IOException e) {
+                throw new BadRequestException("Failed to upload avatar.");
+            }
+        }
+
         if (registrationRequest.getRole() == Role.JOBSEEKER) {
             jobSeekerProfileRepository.save(JobSeekerProfile.builder()
                     .firstName(registrationRequest.getFirstName())
@@ -75,7 +93,7 @@ public class AuthServiceImpl implements IAuthService {
                             .stream()
                             .map(industryId -> Industry.builder().industryId(industryId).build())
                             .collect(Collectors.toList()))
-                    .logoPath(registrationRequest.getLogoPath())
+                    .logoPath(logoPath)
                     .website(registrationRequest.getWebsite())
                     .description(registrationRequest.getDescription())
                     .isVerified(isVerified)
