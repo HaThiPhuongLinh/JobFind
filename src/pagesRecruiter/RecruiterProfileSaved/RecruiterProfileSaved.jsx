@@ -13,18 +13,23 @@ const RecruiterProfileSaved = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const user = localStorage.getItem("user");
-  const userObject = JSON.parse(user);
-  const companyId = userObject.userId;
-
   useEffect(() => {
     const fetchSavedJobSeekers = async () => {
+      const user = localStorage.getItem("user");
+      if (!user) {
+        console.warn("Không tìm thấy user trong localStorage");
+        setLoading(false);
+        return;
+      }
+
+      const userObject = JSON.parse(user);
+      const companyId = userObject?.userId;
       try {
         setLoading(true);
         const response = await savedJobSeekerApi.getListSaved(companyId);
         const transformedData = transformJobSeekerData(response);
         setJobSeekers(transformedData);
-  
+
         setTotalPages(response.totalPages || 1);
       } catch (error) {
         setError("Failed to fetch saved job seekers");
@@ -32,7 +37,7 @@ const RecruiterProfileSaved = () => {
         setLoading(false);
       }
     };
-  
+
     fetchSavedJobSeekers();
   }, [companyId, currentPage]);
 
@@ -61,7 +66,7 @@ const RecruiterProfileSaved = () => {
           <div className="grid grid-cols-3 gap-4">
             {jobSeekers.length > 0 ? (
               jobSeekers.map((profile, index) => (
-                <CVItem key={index} profile={profile}/>
+                <CVItem key={index} profile={profile} />
               ))
             ) : (
               <p className="text-gray-500">Không có CV đã lưu</p>
