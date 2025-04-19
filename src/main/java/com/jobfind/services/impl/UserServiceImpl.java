@@ -63,7 +63,9 @@ public class UserServiceImpl implements IUserService {
             Company company = companyRepository.findByUser_UserId(user.getUserId()).orElseThrow(() -> new BadRequestException("Company not found with this user id"));
             validateField.getCompanyFieldErrors(errors, request.getCompanyName());
             company.setCompanyName(request.getCompanyName());
-            company.setLogoPath(logoPath);
+            if (logoPath != null) {
+                company.setLogoPath(logoPath);
+            }
             if (request.getIndustryIds() != null && !request.getIndustryIds().isEmpty()) {
                 List<Industry> industries = industryRepository.findAllById(request.getIndustryIds());
                 company.setIndustry(industries);

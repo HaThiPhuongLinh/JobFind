@@ -1,5 +1,6 @@
 package com.jobfind.dto.dto;
 
+import com.jobfind.dto.response.IndustryReponse;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,9 +12,9 @@ public class CompanyDTO {
     private Integer companyId;
     private String companyName;
     private String logoPath;
-    private List<String> industry;
+    private List<IndustryReponse> industry;
     private String website;
     private String description;
     private String email;
-    private String phone;
+    private String phoneNumber;
 }

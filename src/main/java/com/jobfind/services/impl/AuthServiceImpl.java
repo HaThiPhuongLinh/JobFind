@@ -117,6 +117,7 @@ public class AuthServiceImpl implements IAuthService {
         String token = jwtService.generateToken(user.getEmail());
 
         Integer returnId = null;
+        String avatar = null;
 
         switch (user.getRole()) {
             case JOBSEEKER:
@@ -128,6 +129,7 @@ public class AuthServiceImpl implements IAuthService {
                 Company company = companyRepository.findByUser_UserId(user.getUserId())
                         .orElseThrow(() -> new BadRequestException("Company not found"));
                 returnId = company.getCompanyId();
+                avatar = company.getLogoPath();
                 break;
         }
 
@@ -136,6 +138,7 @@ public class AuthServiceImpl implements IAuthService {
                 .id(user.getUserId())
                 .userId(returnId)
                 .email(user.getEmail())
+                .avatar(avatar)
                 .phone(user.getPhone())
                 .role(user.getRole())
                 .build();

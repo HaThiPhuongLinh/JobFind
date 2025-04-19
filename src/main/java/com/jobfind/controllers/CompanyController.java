@@ -19,10 +19,10 @@ public class CompanyController {
         return ResponseEntity.ok(companyServiceImpl.getCompanyById(companyId));
     }
 
-    @GetMapping("/searchCompany/{industryId}/{companyName}")
+    @GetMapping("/searchCompany")
     public ResponseEntity<List<CompanyDTO>> searchCompanies(
             @RequestParam(required = false) Integer industryId,
             @RequestParam(required = false) String companyName) {
-    return ResponseEntity.ok(companyServiceImpl.findCompanyByIndustryAndCompanyName(industryId, companyName));
+        return ResponseEntity.ok(companyServiceImpl.findCompanyByIndustryAndCompanyName(industryId, companyName));
     }
 }
