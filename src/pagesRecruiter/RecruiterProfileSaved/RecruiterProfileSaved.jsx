@@ -13,17 +13,19 @@ const RecruiterProfileSaved = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const user = localStorage.getItem("user");
+  if (!user) {
+    console.warn("Không tìm thấy user trong localStorage");
+    setLoading(false);
+    return;
+  }
+
+  const userObject = JSON.parse(user);
+  const companyId = userObject?.userId;
+
   useEffect(() => {
     const fetchSavedJobSeekers = async () => {
-      const user = localStorage.getItem("user");
-      if (!user) {
-        console.warn("Không tìm thấy user trong localStorage");
-        setLoading(false);
-        return;
-      }
 
-      const userObject = JSON.parse(user);
-      const companyId = userObject?.userId;
       try {
         setLoading(true);
         const response = await savedJobSeekerApi.getListSaved(companyId);
