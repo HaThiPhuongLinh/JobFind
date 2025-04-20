@@ -44,8 +44,9 @@ public class JobController {
     }
 
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<List<JobDTO>> getJobsByCompanyId(@PathVariable Integer companyId) {
-        return ResponseEntity.ok(jobServiceImpl.getJobsByCompanyId(companyId));
+    public ResponseEntity<List<JobDTO>> getJobsByCompanyId(@PathVariable Integer companyId,
+                                                           @RequestParam Integer id) {
+        return ResponseEntity.ok(jobServiceImpl.getJobsByCompanyId(companyId, id));
     }
 
     @GetMapping("/category/{categoryId}")

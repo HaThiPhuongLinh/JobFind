@@ -4,15 +4,10 @@ import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.dto.request.CreateJobRequest;
 import com.jobfind.dto.request.UpdateJobRequest;
 import com.jobfind.exception.BadRequestException;
-import com.jobfind.models.Company;
-import com.jobfind.models.Job;
-import com.jobfind.models.JobCategory;
-import com.jobfind.models.Skill;
+import com.jobfind.models.*;
 import com.jobfind.converters.JobConverter;
-import com.jobfind.repositories.CompanyRepository;
-import com.jobfind.repositories.JobCategoryRepository;
-import com.jobfind.repositories.JobRepository;
-import com.jobfind.repositories.SkillRepository;
+import com.jobfind.models.enums.Role;
+import com.jobfind.repositories.*;
 import com.jobfind.services.IJobService;
 import com.jobfind.utils.ValidateField;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +25,7 @@ public class JobServiceImpl implements IJobService {
     private final CompanyRepository companyRepository;
     private final SkillRepository skillRepository;
     private final JobCategoryRepository jobCategoryRepository;
+    private final UserRepository userRepository;
     private final ValidateField validateField;
     private final JobConverter jobConverter;
 
@@ -150,8 +146,11 @@ public class JobServiceImpl implements IJobService {
     @Override
     public List<JobDTO> searchJobs(String keyword, String location, Integer jobCategoryId) {
 
-        if(StringUtils.isEmpty(keyword) && StringUtils.isEmpty(location)) {
-            return jobRepository.findAll().stream().map(jobConverter::convertToJobDTO).toList();
+        if (StringUtils.isEmpty(keyword) && StringUtils.isEmpty(location)) {
+            return jobRepository.findAll().stream()
+                    .filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved())
+                    .map(jobConverter::convertToJobDTO)
+                    .toList();
         }
 
         List<Job> jobs = jobRepository.searchJobs(keyword, location, jobCategoryId);
@@ -161,11 +160,25 @@ public class JobServiceImpl implements IJobService {
     }
 
     @Override
-    public List<JobDTO> getJobsByCompanyId(Integer companyId) {
-        List<Job> list = jobRepository.findByCompanyCompanyId(companyId);
-        list = list.stream().filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved()).toList();
+    public List<JobDTO> getJobsByCompanyId(Integer companyId, Integer id) {
+        List<Job> jobs;
 
-        return list.stream().map(jobConverter::convertToJobDTO).toList();
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Company not found"));
+
+        boolean isCompanyOwner = company.getUser().getRole().equals(Role.COMPANY) &&
+                id.equals(companyId);
+
+        if (isCompanyOwner) {
+            jobs = jobRepository.findByCompanyCompanyId(companyId);
+        } else {
+            jobs = jobRepository.findByCompanyCompanyId(companyId)
+                    .stream()
+                    .filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved())
+                    .toList();
+        }
+
+        return jobs.stream().map(jobConverter::convertToJobDTO).toList();
     }
 
     @Override
