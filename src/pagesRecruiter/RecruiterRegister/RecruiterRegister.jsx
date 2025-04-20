@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 
-import { Link, useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 import authApi from "./../../api/authApi";
 import industryApi from "./../../api/industryApi";
 import { toast, ToastContainer } from "react-toastify";
@@ -171,9 +169,9 @@ const RecruiterRegister = () => {
   };
 
   return (
-    <div className="re-login flex justify-between bg-slate-100 items-stretch h-fit">
+    <div className="min-h-screen flex">
       {/* ========== Thẻ div chứa form thông tin ============== */}
-      <div className="w-full p-4" style={{ maxWidth: "60%" }}>
+      <div className="w-1/2 bg-white p-12 overflow-y-auto">
         {/* form thông tin */}
         <form
           onSubmit={handleSubmit}
@@ -300,26 +298,21 @@ const RecruiterRegister = () => {
                 )}
               </div>
             ))}
-
-          {/* =========== button submit form ============ */}
-          <div className="flex justify-between mt-4 items-center pt-4">
-            <p className="text-slate-700">
-              Bạn đã có tài khoản ?{" "}
-              <Link
-                to={"/recruiter/login"}
-                className="text-blue-600 hover:underline font-semibold"
-              >
+          <button
+            type="submit"
+            className="!rounded-button whitespace-nowrap w-full bg-gradient-to-r from-blue-500 to-blue-400 hover:from-blue-600 hover:to-blue-500 text-white py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center cursor-pointer shadow-sm hover:shadow-md"
+          >
+            Hoàn thành đăng ký
+          </button>
+          {/* Login Link */}
+          <div className="text-center mt-4">
+            <p className="text-sm text-gray-600">
+              Bạn đã có tài khoản?
+              <span className="ml-1 text-blue-500 hover:text-blue-600 font-medium transition-colors cursor-pointer">
                 Đăng nhập
-              </Link>
+              </span>
             </p>
-            <button
-              type="submit"
-              className="py-2 px-4 rounded-md bg-green-600 text-white font-semibold"
-            >
-              Hoàn thành đăng ký
-            </button>
           </div>
-          {/* =========== end: button submit form ============ */}
         </form>
         <ToastContainer />
         {/* end: form thông tin */}
@@ -327,28 +320,51 @@ const RecruiterRegister = () => {
       {/* ========== End: Thẻ div chứa form thông tin ============== */}
 
       {/* =================== div chứa background ============= */}
-      <div className="flex-1 bg-login-register">
-        <img
-          src="/logo_no_bg.png"
-          alt="Logo"
-          className="w-full h-80 object-fit"
-        />
-
-        {/* button tới trang làm việc */}
-        <div className="flex items-center h-1/2">
-          <Link
-            to={"/home"}
-            className="flex justify-center items-center py-4 w-3/5 mx-auto bg-white rounded-md cursor-pointer hover:bg-black hover:text-white transition-all duration-200"
-          >
-            <input
-              type="button"
-              value={"Tới trang tìm việc"}
-              className="font-semibold text-xl cursor-pointer"
-            />
-            <FontAwesomeIcon icon={faArrowRight} className="ps-4 text-xl" />
-          </Link>
+      <div className="w-1/2 relative">
+        {/* Background */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url('/visual_company_register.jpg')`,
+          }}
+        >
+          <div className="absolute inset-0 bg-blue-500/10 backdrop-blur-[2px]"></div>
         </div>
-        {/* end: button tới trang tìm việc */}
+        {/* Overlay Content */}
+        <div className="relative h-full flex flex-col items-center justify-center text-white p-12 text-center">
+          <h2 className="text-4xl font-bold mb-6">Start Hiring Today!</h2>
+          <p className="text-lg mb-8 max-w-md">
+            Join thousands of companies who trust us to help them find the
+            perfect candidates for their teams.
+          </p>
+          <div className="grid grid-cols-2 gap-8 w-full max-w-lg">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+              <div className="text-3xl font-bold mb-2">1M+</div>
+              <div className="text-sm">Active Job Seekers</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+              <div className="text-3xl font-bold mb-2">48h</div>
+              <div className="text-sm">Average Hiring Time</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+              <div className="text-3xl font-bold mb-2">92%</div>
+              <div className="text-sm">Employer Satisfaction</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+              <div className="text-3xl font-bold mb-2">24/7</div>
+              <div className="text-sm">Dedicated Support</div>
+            </div>
+          </div>
+        </div>
+        {/* Button go to home */}
+        <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 text-center w-1/2">
+          <a
+            href="/"
+            className="block bg-white text-blue-600 font-semibold px-5 py-3 rounded-full shadow-md hover:bg-blue-100 transition-all duration-200 text-center"
+          >
+            Go to Home
+          </a>
+        </div>
       </div>
       {/* =================== end: div chứa background ============= */}
     </div>

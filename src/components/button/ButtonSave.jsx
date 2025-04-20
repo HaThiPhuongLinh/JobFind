@@ -16,6 +16,7 @@ import { saveJob, unSaveJob } from "../../services/saveJob";
 import { removeSavedJob } from "../../redux/slices/savedJobSlice";
 
 const ButtonSave = ({ job }) => {
+  // console.log("Job: ", job);
   const dispatch = useDispatch();
   //Lấy danh sách savedJobs từ redux
   const savedJobs = useSelector((state) => state.savedJob.savedJobs);

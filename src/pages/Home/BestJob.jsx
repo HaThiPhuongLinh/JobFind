@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAngleRight,
@@ -7,47 +6,38 @@ import {
   faFilter,
   faAngleDown,
 } from "@fortawesome/free-solid-svg-icons";
-// redux
-// import { useDispatch } from "react-redux";
-// import { filterJob } from "../../redux/slices/jobSlice";
-// data
+import { useDispatch } from "react-redux";
 import filters from "../../data/filters";
-// untils
 import {
   convertSalaryDisplay,
   convertExperienceDisplay,
 } from "../../untils/convertSalaryDisplay";
-// component
-// import JobItem from "../../components/ui/JobItem";
 import JobItem from "./JobItem";
 
 // api service
 import { searchJobs } from "../../services/Job";
 import { toast } from "react-toastify";
 
+import jobApi from "../../api/jobApi";
+
 const BestJob = () => {
-  // const dispatch = useDispatch();
-  // state để lưu danh sách job
-  // const [jobs, setJobs] = useState([]);
-  // state để lưu trang hiện tại
+  const [jobs, setJobs] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  // số lượng job hiển thị trên 1 trang
   const jobsPerPage = 6;
 
   // Lấy danh sách job từ api
-  // useEffect(() => {
-  //   const fetchJobs = async () => {
-  //     try {
-  //       const data = await getAllJobs();
-  //       // console.log("data", data);
-  //       setJobs(data);
-  //     } catch (error) {
-  //       console.error("Lỗi khi lấy danh sách jobs:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const data = await jobApi.search("", "", "");
+        setJobs(data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách jobs:", error);
+      }
+    };
 
-  //   fetchJobs();
-  // }, []);
+    fetchJobs();
+  }, []);
 
   // Mở model bộ lọc
   const [isOpenFilter, setIsOpenFilter] = useState(false);

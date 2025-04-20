@@ -1,15 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
+import authApi from "../../api/authApi";
+import { toast } from "react-toastify";
 
 const App = ({ setIsLogin }) => {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    address: "",
-    password: "",
-    confirmPassword: "",
+    firstName: "Nguyễn Minh",
+    lastName: "Nhật",
+    email: "jobSKer@gmail.com",
+    phone: "0147258369",
+    address: "Hồ Chí Minh",
+    password: "StrongPass@123",
+    confirmPassword: "StrongPass@123",
   });
   const [avatar, setAvatar] = useState(null);
   const [passwordStrength, setPasswordStrength] = useState(0);
@@ -40,13 +42,14 @@ const App = ({ setIsLogin }) => {
 
   // ============================= Handle file upload =========================
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setAvatar(event.target?.result);
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
+    // if (e.target.files && e.target.files[0]) {
+    //   const reader = new FileReader();
+    //   reader.onload = (event) => {
+    //     setAvatar(event.target?.result);
+    //   };
+    //   reader.readAsDataURL(e.target.files[0]);
+    // }
+    setAvatar(e.target.files[0]);
   };
 
   // ============================= Handle drag over =========================
@@ -107,16 +110,45 @@ const App = ({ setIsLogin }) => {
   };
 
   // =============================== Submit Form ==================================
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
       setIsSubmitting(true);
-      // Simulate API call
-      setTimeout(() => {
+      const formDataToSend = new FormData();
+      formDataToSend.append("firstName", formData.firstName);
+      formDataToSend.append("lastName", formData.lastName);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("phone", formData.phone);
+      formDataToSend.append("address", formData.address);
+      formDataToSend.append("password", formData.password);
+      formDataToSend.append("role", "JOBSEEKER");
+
+      if (avatar) {
+        formDataToSend.append("logoPath", avatar);
+      }
+
+      try {
+        for (let [key, value] of formDataToSend.entries()) {
+          console.log(`${key}:`, value);
+        }
+
+        const authResponse = await authApi.register(formDataToSend);
+        console.log("Đăng ký jobseeker thành công: ", authResponse);
+
+        toast.success("Đăng ký thành công!", { autoClose: 1000 });
+
+        setTimeout(() => {
+          setIsLogin(true);
+        }, 2000);
+      } catch (error) {
+        console.error("Registration error:", error);
+        setErrors({
+          ...errors,
+          email: "Registration failed. Please try again.",
+        });
+      } finally {
         setIsSubmitting(false);
-        // Handle successful registration
-        alert("Registration successful!");
-      }, 1500);
+      }
     }
   };
 
@@ -409,12 +441,12 @@ const App = ({ setIsLogin }) => {
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
               Already have an account?
-              <p
+              <span
                 onClick={() => setIsLogin(true)}
                 className="ml-1 text-blue-500 hover:text-blue-600 font-medium transition-colors cursor-pointer"
               >
                 Log in
-              </p>
+              </span>
             </p>
           </div>
         </form>

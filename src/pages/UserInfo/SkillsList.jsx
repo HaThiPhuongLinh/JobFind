@@ -13,17 +13,23 @@ const SkillsList = ({ skills, isEditMode, onAddSkill }) => {
   };
 
   return (
-    <div className="flex gap-3 py-3 flex-wrap pr-4">
-      {skills.map((skill, index) => (
-        <div
-          key={index}
-          className="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-[#f0f4f0] pl-4 pr-4"
-        >
-          <p className="text-[#111811] text-sm font-medium leading-normal">
-            {skill.name}
-          </p>
-        </div>
-      ))}
+    <div className="flex flex-wrap gap-3 py-3 pr-4">
+      {skills.length === 0 ? (
+        <p className="text-[#111811] text-sm font-normal leading-normal">
+          Chưa cập nhật
+        </p>
+      ) : (
+        skills.map((skill, index) => (
+          <div
+            key={index}
+            className="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-[#f0f4f0] pl-4 pr-4"
+          >
+            <p className="text-[#111811] text-sm font-medium leading-normal">
+              {skill.name.replace(/^"(.*)"$/, "$1")}
+            </p>
+          </div>
+        ))
+      )}
 
       {isEditMode && (
         <div className="flex items-center gap-2">

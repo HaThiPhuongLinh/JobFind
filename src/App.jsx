@@ -44,7 +44,8 @@ function App() {
 
       // Load profile cho job seeker
       if (user.role === "JOBSEEKER") {
-        dispatch(fetchJobSeekerProfileByUserId(user.userId));
+        // console.log("user.userId", user.userId);
+        dispatch(fetchJobSeekerProfileByUserId(user.id));
       }
     }
   }, [dispatch, user]);
@@ -55,8 +56,9 @@ function App() {
     "/signup",
     "/recruiter/login",
     "/recruiter/register",
-    "/profile",
   ].includes(location.pathname);
+
+  const hiddenFooter = ["/profile"].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -69,7 +71,10 @@ function App() {
       )}
 
       {/* Content */}
-      <div className="flex-grow" style={{ backgroundColor: "#e7eee7" }}>
+      <div
+        className="flex-grow"
+        // style={{ backgroundColor: "#e7eee7" }}
+      >
         <Routes>
           {/* Role-based redirect route */}
           <Route path="/redirect" element={<RoleBasedRedirect />} />
@@ -113,7 +118,7 @@ function App() {
       </div>
 
       {/* Footer */}
-      {!hideHeaderFooter && <Footer className="justify-end" />}
+      {!hiddenFooter && <Footer className="justify-end" />}
       <ToastContainer />
     </div>
   );

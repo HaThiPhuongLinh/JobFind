@@ -6,7 +6,7 @@ const jobPropTypes = PropTypes.shape({
     companyId: PropTypes.number,
     companyName: PropTypes.string,
     logoPath: PropTypes.string,
-    industry: PropTypes.arrayOf(PropTypes.string),
+    industry: PropTypes.arrayOf(PropTypes.object),
     website: PropTypes.string,
     description: PropTypes.string,
     email: PropTypes.string,
@@ -23,8 +23,16 @@ const jobPropTypes = PropTypes.shape({
   postedAt: PropTypes.string,
   deadline: PropTypes.string,
   isActive: PropTypes.bool,
-  skills: PropTypes.arrayOf(PropTypes.string), // nếu là array of string
-  categories: PropTypes.arrayOf(PropTypes.object), // hoặc có thể là object nếu backend trả vậy
+  skills: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+    })
+  ),
+  categories: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+    })
+  ),
 });
 
 export default jobPropTypes;

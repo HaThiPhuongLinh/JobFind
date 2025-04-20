@@ -9,11 +9,12 @@ import { useEffect, useState } from "react";
 
 const PersonalInfoForm = () => {
   const profileJSK = useSelector((state) => state.jobSeekerProfile.profile);
-  console.log("profileJSK", profileJSK); // Lấy profile từ redux
+  console.log("profileJSK", profileJSK);
   const loading = useSelector((state) => state.jobSeekerProfile.loading); // Lấy trạng thái loading từ redux
   const [isEditMode, setIsEditMode] = useState(false);
 
   const [fullName, setFullName] = useState("");
+  console.log("fullName", fullName);
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [skills, setSkills] = useState([]);
@@ -22,9 +23,11 @@ const PersonalInfoForm = () => {
     setSkills((prev) => [...prev, newSkill]);
   };
 
+  const handleSave = () => {};
+
   // Khi profileJSK thay đổi thì set lại các giá trị form
   useEffect(() => {
-    console.log("Skills: ", skills);
+    // console.log("Skills: ", skills);
     if (profileJSK) {
       setFullName(`${profileJSK.firstName} ${profileJSK.lastName}`);
       setPhone(profileJSK.phone || "");
@@ -61,26 +64,50 @@ const PersonalInfoForm = () => {
     >
       <div className="layout-container flex h-full grow flex-col">
         <div className="gap-1 px-6 flex flex-1 justify-between py-5">
+          {/* Satrt: Side bar */}
           <div className="w-[200px] flex flex-col gap-1">
             <Sidebar />
           </div>
+          {/* End: Sidebar */}
+
+          {/* Start: Content section */}
           <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
+            {/* Start: Nút Chỉnh sửa */}
             <div className="flex flex-wrap justify-between gap-3 p-4">
               <p className="text-[#111811] tracking-light text-[32px] font-bold leading-tight min-w-72">
                 Profile
               </p>
-              <div className="flex justify-end px-4">
-                <button
-                  onClick={() => setIsEditMode(!isEditMode)}
-                  className="bg-[#638863] text-white px-4 py-2 rounded-md hover:bg-[#4e6d4e] transition"
-                >
-                  {isEditMode ? "Hủy chế độ sửa" : "Chế độ chỉnh sửa"}
-                </button>
+              <div className="flex justify-end px-4 gap-3">
+                {isEditMode ? (
+                  <>
+                    <button
+                      onClick={() => setIsEditMode(false)}
+                      className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition"
+                    >
+                      Hủy chỉnh sửa
+                    </button>
+                    <button
+                      onClick={handleSave} // bạn cần định nghĩa hàm này
+                      className="bg-[#638863] text-white px-4 py-2 rounded-md hover:bg-[#4e6d4e] transition"
+                    >
+                      Lưu
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setIsEditMode(true)}
+                    className="bg-[#638863] text-white px-4 py-2 rounded-md hover:bg-[#4e6d4e] transition"
+                  >
+                    Chế độ chỉnh sửa
+                  </button>
+                )}
               </div>
             </div>
+            {/* End: Nút chỉnh sửa */}
 
-            {/* ======================= Profile Header ======================== */}
+            {/* Start: Header */}
             <ProfileHeader profileJSK={profileJSK} isUpdateMode={isEditMode} />
+            {/* End: Header */}
 
             <div className="p-4 grid grid-cols-[20%_1fr] gap-x-6">
               {/* ====================== Phone =================== */}
@@ -126,17 +153,11 @@ const PersonalInfoForm = () => {
                 <p className="text-[#638863] text-sm font-normal leading-normal">
                   Skills
                 </p>
-                {profileJSK?.skills?.length === 0 ? (
-                  <p className="text-[#111811] text-sm font-normal leading-normal">
-                    Chưa cập nhật
-                  </p>
-                ) : (
-                  <SkillsList
-                    skills={skills}
-                    isEditMode={isEditMode}
-                    onAddSkill={handleAddSkill}
-                  />
-                )}
+                <SkillsList
+                  skills={skills}
+                  isEditMode={isEditMode}
+                  onAddSkill={handleAddSkill}
+                />
               </div>
 
               {/* ===================== Work Experience ======================== */}
@@ -144,7 +165,10 @@ const PersonalInfoForm = () => {
                 <p className="text-[#638863] text-sm font-normal leading-normal">
                   Work Experience
                 </p>
-                <WorkExperience />
+                <WorkExperience
+                  isEditMode={isEditMode}
+                  workExperiences={profileJSK.workExperiences}
+                />
               </div>
 
               {/* ====================== Uploaded Cvs =========================== */}
@@ -156,6 +180,7 @@ const PersonalInfoForm = () => {
               </div>
             </div>
           </div>
+          {/* End: Content section */}
         </div>
       </div>
     </div>

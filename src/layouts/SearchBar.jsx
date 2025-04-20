@@ -1,4 +1,3 @@
-// https://www.topcv.vn/?ref=you
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -19,23 +18,34 @@ import MenuCategory from "../components/Menu/MenuCategory";
 // import MenuIndustry from "../components/Menu/MenuIndustry";
 
 // redux
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setSelectedCategories } from "../redux/slices/categorySlice";
 
 const SearchBar = () => {
   const auth_role = useSelector((state) => state.auth.user)?.role;
   // console.log(auth_role);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // Lấy dữ liệu từ redux
   const citysSelected = useSelector((state) => state.locations.citySelected);
-  const industriesSelected = useSelector(
-    (state) => state.industry.selectedIndustries
+  const categoriesSelected = useSelector(
+    (state) => state.category.selectedCategories
   );
-  // console.log("SearchBar: ", industriesSelected);
 
   // track search text
   const [searchText, setSearchText] = useState("");
+
+  // Lấy dữu liệu search Text từ localstorage
+  useEffect(() => {
+    const savedSearchData = JSON.parse(localStorage.getItem("searchData"));
+
+    if (savedSearchData) {
+      setSearchText(savedSearchData.keyword);
+      dispatch(setSelectedCategories(savedSearchData.categories));
+    }
+  }, []);
 
   // Mở/Tắt model chọn tỉnh thành quận huyện
   const [isOpen, setIsOpen] = useState(false);
@@ -71,39 +81,56 @@ const SearchBar = () => {
     };
   }, []);
 
-  // handle button Search
   const handleButtonSearch = () => {
+    const user = localStorage.getItem("user");
+    const userObject = JSON.parse(user);
+    const companyId = userObject.userId;
     const queryParams = new URLSearchParams();
 
-    // thêm keyword
-    if (searchText) queryParams.append("keyword", searchText);
+    const hasSearchText = searchText.trim().length > 0;
+    const hasCity = citysSelected.length > 0;
 
-    // Thêm các industry đã chọn (nối bằng dấu phẩy)
-    if (industriesSelected.length > 0) {
+    if (hasSearchText) {
+      queryParams.append("keyword", searchText);
+    }
+
+    if (hasCity) {
+      if (auth_role === "JOBSEEKER") {
+        const cities = citysSelected.join(",");
+        queryParams.append("location", cities);
+      } else {
+        citysSelected.forEach((city) => {
+          queryParams.append("location", city);
+        });
+      }
+    }
+
+    if (auth_role === "JOBSEEKER" && industriesSelected.length > 0) {
       const industryIds = industriesSelected
         .map((ind) => ind.industryId)
         .join(",");
-      queryParams.append("industry", industryIds); // Đổi từ "category" thành "industry"
+      queryParams.append("industry", industryIds);
     }
 
-    // Thêm các địa điểm đã chọn (nối bằng dấu phẩy)
-    if (citysSelected.length > 0) {
-      const cities = citysSelected.join(",");
-      queryParams.append("location", cities);
+    if (auth_role !== "JOBSEEKER" && categoriesSelected.length > 0) {
+      const categoryIds = categoriesSelected
+        .map((cat) => cat.jobCategoryId)
+        .join(",");
+      queryParams.append("categoryIds", categoryIds);
     }
 
-    // // lưu vào localstorage
-    // localStorage.setItem("searchText", JSON.stringify(searchText));
+    if (auth_role !== "JOBSEEKER") {
+      queryParams.append("companyId", companyId);
+    }
 
-    // // Reset searchText trong localStorage
-    // localStorage.setItem("searchText", JSON.stringify(""));
+    localStorage.setItem("searchText", JSON.stringify(searchText));
 
-    // Chuyển hướng đến trang search với các tham số
-    if (auth_role == "JOBSEEKER") {
+    if (auth_role === "JOBSEEKER") {
       navigate(`/search?${queryParams.toString()}`);
-      window.location.reload(); // Tải lại trang
+      window.location.reload();
     } else {
       navigate(`/search-cv?${queryParams.toString()}`);
+      console.log("response: ", queryParams.toString());
     }
   };
 
@@ -125,7 +152,7 @@ const SearchBar = () => {
             onClick={() => setIsOpenIndustry(!isOpenIndustry)}
           >
             <FontAwesomeIcon icon={faList} />
-            <p>Danh mục nghề {"(" + industriesSelected?.length + ")"}</p>
+            <p>Danh mục nghề {"(" + categoriesSelected?.length + ")"}</p>
             <FontAwesomeIcon icon={faAngleDown} />
           </div>
           {/* end: label danh mục nghề */}

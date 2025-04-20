@@ -1,12 +1,21 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import authApi from "../../api/authApi";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 const App = ({ setIsLogin }) => {
+  const navigate = useNavigate();
+
+  // State to manage form data and error messages
   const [formData, setFormData] = useState({
-    loginEmail: "",
-    loginPassword: "",
+    email: "jobSKer@gmail.com",
+    password: "StrongPass@123",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Handle input change and clear error messages
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -20,27 +29,44 @@ const App = ({ setIsLogin }) => {
       });
     }
   };
+
+  // Validate form inputs
+  // Check if the form is valid before submitting
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.loginEmail.trim()) {
-      newErrors.loginEmail = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.loginEmail)) {
-      newErrors.loginEmail = "Email is invalid";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
     }
-    if (!formData.loginPassword) {
-      newErrors.loginPassword = "Password is required";
+    if (!formData.password) {
+      newErrors.password = "Password is required";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const handleSubmit = (e) => {
+
+  // Handle form submission
+  // Handle form submission and show a success message
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (validateForm()) {
       setIsSubmitting(true);
-      setTimeout(() => {
+      try {
+        console.log("Login with data: ", formData);
+        const authRespone = await authApi.login(formData);
+        console.log("Login response: ", authRespone);
+        toast.success("Login successful!", { autoClose: 1000 });
+
+        localStorage.setItem("token", authRespone.token);
+        localStorage.setItem("user", JSON.stringify(authRespone));
+        navigate("/");
+      } catch (error) {
+        console.error("Login error:", error);
+      } finally {
         setIsSubmitting(false);
-        alert("Login successful!");
-      }, 1500);
+      }
     }
   };
   return (
@@ -73,7 +99,7 @@ const App = ({ setIsLogin }) => {
                 id="loginEmail"
                 name="loginEmail"
                 type="email"
-                value={formData.loginEmail}
+                value={formData.email}
                 onChange={handleChange}
                 className={`pl-10 pr-3 py-3 w-full border ${
                   errors.loginEmail ? "border-red-500" : "border-gray-300"
@@ -100,7 +126,7 @@ const App = ({ setIsLogin }) => {
                 id="loginPassword"
                 name="loginPassword"
                 type="password"
-                value={formData.loginPassword}
+                value={formData.password}
                 onChange={handleChange}
                 className={`pl-10 pr-3 py-3 w-full border ${
                   errors.loginPassword ? "border-red-500" : "border-gray-300"
@@ -156,12 +182,12 @@ const App = ({ setIsLogin }) => {
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
               Do not have an account?
-              <p
+              <span
                 onClick={() => setIsLogin(false)}
                 className="ml-1 text-blue-500 hover:text-blue-600 font-medium transition-colors cursor-pointer"
               >
                 Sign up
-              </p>
+              </span>
             </p>
           </div>
         </form>
