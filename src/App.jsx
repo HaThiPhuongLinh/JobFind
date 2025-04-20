@@ -56,6 +56,7 @@ function App() {
     "/signup",
     "/recruiter/login",
     "/recruiter/register",
+    "/overview"
   ].includes(location.pathname);
 
   const hiddenFooter = ["/profile"].includes(location.pathname);

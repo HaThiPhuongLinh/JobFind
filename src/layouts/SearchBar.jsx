@@ -106,16 +106,24 @@ const SearchBar = () => {
     }
 
     if (auth_role === "JOBSEEKER" && industriesSelected.length > 0) {
+<<<<<<< HEAD
       const industryIds = industriesSelected
         .map((ind) => ind.industryId)
         .join(",");
+=======
+      const industryIds = industriesSelected.map(ind => ind.industryId).join(",");
+>>>>>>> eebf06313744317fd7198f098be6ca0b826d195b
       queryParams.append("industry", industryIds);
     }
 
     if (auth_role !== "JOBSEEKER" && categoriesSelected.length > 0) {
+<<<<<<< HEAD
       const categoryIds = categoriesSelected
         .map((cat) => cat.jobCategoryId)
         .join(",");
+=======
+      const categoryIds = categoriesSelected.map(cat => cat.jobCategoryId).join(",");
+>>>>>>> eebf06313744317fd7198f098be6ca0b826d195b
       queryParams.append("categoryIds", categoryIds);
     }
 
@@ -127,12 +135,19 @@ const SearchBar = () => {
 
     if (auth_role === "JOBSEEKER") {
       navigate(`/search?${queryParams.toString()}`);
+<<<<<<< HEAD
       window.location.reload();
     } else {
       navigate(`/search-cv?${queryParams.toString()}`);
       console.log("response: ", queryParams.toString());
     }
   };
+=======
+    } else {
+      navigate(`/search-cv?${queryParams.toString()}`);
+    }
+};
+>>>>>>> eebf06313744317fd7198f098be6ca0b826d195b
 
   return (
     <div
@@ -193,7 +208,7 @@ const SearchBar = () => {
 
         {/* Chọn địa điểm */}
         <div className="relative w-1/5" ref={ref}>
-          {/* label chọn đại điểm */}
+          {/* label chọn địa điểm */}
           <div
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center justify-between text-gray-600 cursor-pointer"

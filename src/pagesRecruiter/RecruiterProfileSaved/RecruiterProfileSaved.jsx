@@ -3,9 +3,10 @@ import savedJobSeekerApi from "../../api/savedJobSeekerApi";
 import CVItem from "../../components/ui/CVItem";
 import Pagination from "../../components/ui/Pagination";
 import { transformJobSeekerData } from '../../untils/jobSeekerHelpers';
+import { useDispatch, useSelector } from 'react-redux';
 
 const RecruiterProfileSaved = () => {
-  const [savedJobSeekers, setSavedJobSeekers] = useState([]);
+  const savedJobSeekers = useSelector(state => state.savedJobseeker.savedList);
   const [jobSeekers, setJobSeekers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -13,19 +14,24 @@ const RecruiterProfileSaved = () => {
   const [error, setError] = useState("");
 
   const user = localStorage.getItem("user");
+  if (!user) {
+    console.warn("Không tìm thấy user trong localStorage");
+    setLoading(false);
+    return;
+  }
+
   const userObject = JSON.parse(user);
-  const companyId = userObject.userId;
+  const companyId = userObject?.userId;
 
   useEffect(() => {
     const fetchSavedJobSeekers = async () => {
+
       try {
         setLoading(true);
         const response = await savedJobSeekerApi.getListSaved(companyId);
         const transformedData = transformJobSeekerData(response);
         setJobSeekers(transformedData);
-  
-        const savedIds = response.filter(seeker => seeker.profileId).map(seeker => seeker.profileId);
-        setSavedJobSeekers(savedIds);
+
         setTotalPages(response.totalPages || 1);
       } catch (error) {
         setError("Failed to fetch saved job seekers");
@@ -33,12 +39,16 @@ const RecruiterProfileSaved = () => {
         setLoading(false);
       }
     };
-  
+
     fetchSavedJobSeekers();
   }, [companyId, currentPage]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex justify-center items-center mt-16">
+        <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   if (error) {
@@ -54,7 +64,7 @@ const RecruiterProfileSaved = () => {
             <p className="text-primary font-semibold text-xl">
               Danh sách CV yêu thích
             </p>
-            <p className="text-blue-500 hover:underline cursor-pointer">
+            <p className="text-green-500 hover:underline cursor-pointer">
               Xem thêm
             </p>
           </div>
@@ -62,7 +72,7 @@ const RecruiterProfileSaved = () => {
           <div className="grid grid-cols-3 gap-4">
             {jobSeekers.length > 0 ? (
               jobSeekers.map((profile, index) => (
-                <CVItem key={index} profile={profile} savedJobSeekers={savedJobSeekers} />
+                <CVItem key={index} profile={profile} />
               ))
             ) : (
               <p className="text-gray-500">Không có CV đã lưu</p>
