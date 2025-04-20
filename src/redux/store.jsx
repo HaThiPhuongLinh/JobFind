@@ -5,26 +5,20 @@ import industrySlice from "../redux/slices/industrySlice";
 import cvReducer from "./slices/cvSlice";
 import savedJobReducer from "./slices/savedJobSlice";
 import categoryReducer from "./slices/categorySlice";
-<<<<<<< HEAD
-import jobSeekerProfileReducer from "./slices/JSKerProfileSlice";
-
-const store = configureStore({
-  reducer: {
-    jobs: jobReucer,
-    locations: locationReducer,
-    auth: authReducer,
-    industry: industrySlice,
-    cv: cvReducer,
-    savedJob: savedJobReducer,
-    category: categoryReducer,
-    jobSeekerProfile: jobSeekerProfileReducer,
-  },
-=======
 import savedJobseekerReducer from "./slices/savedJobseekerSlice";
 import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "redux";
 import storage from "redux-persist/lib/storage";
-import { persistReducer, persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist";
+import {
+  persistReducer,
+  persistStore,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from "redux-persist";
 
 const persistConfig = {
   key: "root",
@@ -41,7 +35,6 @@ const rootReducer = combineReducers({
   savedJob: savedJobReducer,
   category: categoryReducer,
   savedJobseeker: savedJobseekerReducer,
->>>>>>> eebf06313744317fd7198f098be6ca0b826d195b
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
