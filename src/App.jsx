@@ -59,7 +59,7 @@ function App() {
     "/overview"
   ].includes(location.pathname);
 
-  const hiddenFooter = ["/profile"].includes(location.pathname);
+  const hiddenFooter = ["/profile",  "/overview", "/recruiter/register", "/recruiter/login"].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen">
