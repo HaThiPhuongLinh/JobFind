@@ -53,20 +53,27 @@ const filters = [
     ],
   },
   {
-    id: 6,
     key: "Hình thức làm việc",
     list: [
       {
-        id: 3,
+        id: 5,
         name: "Tất cả",
       },
       {
         id: 1,
-        name: "Toàn thời gian",
+        name: "FULLTIME",
       },
       {
         id: 2,
-        name: "Bán thời gian",
+        name: "PARTTIME",
+      },
+      {
+        id: 3,
+        name: "INTERNSHIP",
+      },
+      {
+        id: 4,
+        name: "FREELANCE",
       },
     ],
   },
