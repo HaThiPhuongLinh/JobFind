@@ -12,6 +12,7 @@ import com.jobfind.services.IJobService;
 import com.jobfind.utils.ValidateField;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
@@ -63,7 +64,7 @@ public class JobServiceImpl implements IJobService {
                 .salaryMax(request.getSalaryMax())
                 .jobType(request.getJobType())
                 .location(request.getLocation())
-                .postedAt(request.getPostedAt())
+                .postedAt(LocalDateTime.now())
                 .deadline(request.getDeadline())
                 .isActive(true)
                 .isDeleted(false)

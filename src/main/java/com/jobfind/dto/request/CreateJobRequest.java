@@ -37,7 +37,6 @@ public class CreateJobRequest {
     private JobType jobType;
     @NotBlank(message = "Location is required")
     private String location;
-    private LocalDateTime postedAt;
     private LocalDate deadline;
     private List<Integer> skillIds;
     private List<Integer> categoryIds;
