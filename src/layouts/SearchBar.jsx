@@ -186,7 +186,7 @@ const SearchBar = () => {
 
         {/* Chọn địa điểm */}
         <div className="relative w-1/5" ref={ref}>
-          {/* label chọn đại điểm */}
+          {/* label chọn địa điểm */}
           <div
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center justify-between text-gray-600 cursor-pointer"
