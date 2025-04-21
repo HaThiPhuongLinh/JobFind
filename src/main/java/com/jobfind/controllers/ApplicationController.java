@@ -1,12 +1,15 @@
 package com.jobfind.controllers;
 
 import com.jobfind.dto.request.ApplicationRequest;
+import com.jobfind.dto.response.ApplicationOfJobResponse;
 import com.jobfind.dto.response.ApplicationStatusResponse;
 import com.jobfind.dto.response.SuccessResponse;
 import com.jobfind.services.impl.ApplicationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/application")
@@ -30,5 +33,11 @@ public class ApplicationController {
     public ResponseEntity<SuccessResponse> updateApplicationStatus(@PathVariable Integer applicationId, @RequestParam String status) {
         applicationServiceImpl.updateApplicationStatus(applicationId, status);
         return ResponseEntity.ok(new SuccessResponse("Application status updated successfully"));
+    }
+
+    @GetMapping("/job/{jobId}")
+    public ResponseEntity<List<ApplicationOfJobResponse>> getApplicationOfJob(@PathVariable Integer jobId) {
+        List<ApplicationOfJobResponse> response = applicationServiceImpl.getApplicationOfJob(jobId);
+        return ResponseEntity.ok(response);
     }
 }

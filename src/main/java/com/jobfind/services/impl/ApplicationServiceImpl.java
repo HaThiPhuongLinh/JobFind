@@ -6,6 +6,7 @@ import com.jobfind.dto.dto.ApplicationStatusDTO;
 import com.jobfind.dto.dto.NotificationDTO;
 import com.jobfind.dto.request.ApplicationRequest;
 import com.jobfind.dto.request.CreateNotiRequest;
+import com.jobfind.dto.response.ApplicationOfJobResponse;
 import com.jobfind.dto.response.ApplicationStatusResponse;
 import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.*;
@@ -67,6 +68,24 @@ public class ApplicationServiceImpl implements IApplicationService {
                 .build();
         applicationRepository.save(application);
         saveApplicationStatusHistory(application, ApplicationStatus.PENDING);
+    }
+
+    @Override
+    public List<ApplicationOfJobResponse> getApplicationOfJob(Integer jobId) {
+        List<Application> applications = applicationRepository.findByJobJobId(jobId);
+
+        if(applications.isEmpty()){
+            throw new BadRequestException("No applications found for the given job ID");
+        }
+
+        return applications.stream()
+                .map(application -> ApplicationOfJobResponse.builder()
+                        .applicationId(application.getApplicationId())
+                        .JobSeekerProfileDTO(jobSeekerProfileConverter.convertToJobSeekerProfileDTO(application.getJobSeekerProfile()))
+                        .appliedAt(application.getAppliedAt())
+                        .status(application.getApplicationStatus())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override
