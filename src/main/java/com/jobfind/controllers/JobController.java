@@ -26,15 +26,15 @@ public class JobController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<String> updateJob(@Valid @RequestBody UpdateJobRequest request, BindingResult bindingResult) {
+    public ResponseEntity<SuccessResponse> updateJob(@Valid @RequestBody UpdateJobRequest request, BindingResult bindingResult) {
         jobServiceImpl.updateJob(request, bindingResult);
-        return ResponseEntity.ok("Job updated successfully.");
+        return ResponseEntity.ok(new SuccessResponse("Job updated successfully"));
     }
 
     @DeleteMapping("delete/{jobId}")
-    public ResponseEntity<String> deleteJob(@PathVariable Integer jobId) {
+    public ResponseEntity<SuccessResponse> deleteJob(@PathVariable Integer jobId) {
         jobServiceImpl.deleteJob(jobId);
-        return ResponseEntity.ok("Job deleted successfully.");
+        return ResponseEntity.ok(new SuccessResponse("Job deleted successfully"));
     }
 
     @GetMapping("/searchJobs")
@@ -61,8 +61,8 @@ public class JobController {
     }
 
     @PutMapping("/approve/{jobId}")
-    public ResponseEntity<String> approveJob(@PathVariable Integer jobId) {
+    public ResponseEntity<SuccessResponse> approveJob(@PathVariable Integer jobId) {
         jobServiceImpl.approveJob(jobId);
-        return ResponseEntity.ok("Job approved successfully.");
+        return ResponseEntity.ok(new SuccessResponse("Job approved successfully"));
     }
 }
