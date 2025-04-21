@@ -5,25 +5,111 @@ import ProfileHeader from "./ProfileHeader";
 import SkillsList from "./SkillsList";
 import WorkExperience from "./WorkExperience";
 import UploadedCVs from "./UploadedCVs";
-import { useEffect, useState } from "react";
+// import resumeApi from "../../api/resumeApi";
+import { useEffect, useRef, useState } from "react";
+import resumeApi from "../../api/resumeApi";
 
 const PersonalInfoForm = () => {
   const profileJSK = useSelector((state) => state.jobSeekerProfile.profile);
-  console.log("profileJSK", profileJSK);
   const loading = useSelector((state) => state.jobSeekerProfile.loading); // Lấy trạng thái loading từ redux
-  const [isEditMode, setIsEditMode] = useState(false);
+  const upLoadCvsRef = useRef(null);
 
+  const [isEditMode, setIsEditMode] = useState(false);
   const [fullName, setFullName] = useState("");
-  console.log("fullName", fullName);
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [skills, setSkills] = useState([]);
+  const [cvs, setCvs] = useState([]); // Khởi tạo với danh sách CV từ profileJSK
+
+  useEffect(() => {
+    if (profileJSK) {
+      setFullName(`${profileJSK.firstName} ${profileJSK.lastName}`);
+      setPhone(profileJSK.phone || "");
+      setEmail(profileJSK.email || "");
+      setSkills(profileJSK.skills || []);
+      // setCvs(profileJSK.resumeList || []);
+    }
+  }, [profileJSK]);
+
+  console.log("profileJSK", profileJSK);
+  console.log("fullName", fullName);
 
   const handleAddSkill = (newSkill) => {
     setSkills((prev) => [...prev, newSkill]);
   };
 
-  const handleSave = () => {};
+  const handleUploadFiles = async (files) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0]; // Chỉ lấy file đầu tiên
+    const nameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
+
+    const fileObject = {
+      resumeName: nameWithoutExtension,
+      resume: file,
+    };
+    console.log("files", fileObject);
+
+    try {
+      const formData = new FormData();
+      formData.append("resumeName", fileObject.resumeName);
+      formData.append("resume", fileObject.resume);
+
+      const user = JSON.parse(localStorage.getItem("user"));
+      const profileId = user?.id; // Lấy profileId từ localStorage
+      if (!profileId) {
+        console.error("Không tìm thấy profileId trong localStorage");
+        return;
+      }
+
+      const response = await resumeApi.cretaeResume(profileId, formData); // profileJSK.id là profileId
+      console.log("Upload thành công:", response.data);
+
+      setCvs((prev) => [...prev, fileObject]); // Chỉ thêm vào state khi upload thành công
+    } catch (error) {
+      console.error("Upload thất bại:", error);
+    }
+  };
+
+  const handleButtonClick = () => {
+    upLoadCvsRef.current.click();
+  };
+
+  useEffect(() => {
+    if (!isEditMode) {
+      setCvs([]); // Reset cvs when not in edit mode
+    }
+  }, [isEditMode]);
+
+  const handleUploadCvs = async (newCvs) => {
+    const formData = new FormData();
+
+    newCvs.forEach((fileObj) => {
+      // Append file
+      formData.append("files", fileObj.resume);
+
+      // Append resume name tương ứng
+      formData.append("resumeNames", fileObj.resumeName);
+    });
+
+    // Log để kiểm tra
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
+    }
+
+    // try {
+    //   const result = await resumeApi.cretaeResume(formData); // <-- đừng quên truyền formData nè
+    //   console.log("Upload result:", result);
+    // } catch (error) {
+    //   console.error("Upload failed:", error);
+    // }
+  };
+
+  const handleSave = () => {
+    // upload cvs lên s3
+    handleUploadCvs(cvs);
+    console.log("Saving profile with data:", cvs);
+  };
 
   // Khi profileJSK thay đổi thì set lại các giá trị form
   useEffect(() => {
@@ -82,13 +168,13 @@ const PersonalInfoForm = () => {
                   <>
                     <button
                       onClick={() => setIsEditMode(false)}
-                      className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition"
+                      className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition"
                     >
                       Hủy chỉnh sửa
                     </button>
                     <button
                       onClick={handleSave} // bạn cần định nghĩa hàm này
-                      className="bg-[#638863] text-white px-4 py-2 rounded-md hover:bg-[#4e6d4e] transition"
+                      className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-800 transition"
                     >
                       Lưu
                     </button>
@@ -96,7 +182,7 @@ const PersonalInfoForm = () => {
                 ) : (
                   <button
                     onClick={() => setIsEditMode(true)}
-                    className="bg-[#638863] text-white px-4 py-2 rounded-md hover:bg-[#4e6d4e] transition"
+                    className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-800 transition"
                   >
                     Chế độ chỉnh sửa
                   </button>
@@ -173,10 +259,40 @@ const PersonalInfoForm = () => {
 
               {/* ====================== Uploaded Cvs =========================== */}
               <div className="col-span-2 grid grid-cols-subgrid border-t border-t-[#dce5dc] py-5">
-                <p className="text-[#638863] text-sm font-normal leading-normal">
-                  Uploaded CV
-                </p>
-                <UploadedCVs />
+                <div>
+                  <p className="text-[#638863] text-sm font-normal leading-normal pb-3">
+                    Uploaded CV
+                  </p>
+                  {/* Nút Upload */}
+                  {
+                    // isEditMode && (
+                    <>
+                      <button
+                        className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-8 px-4 bg-[#e1e7e1] text-[#111811] text-sm font-medium leading-normal w-fit"
+                        onClick={handleButtonClick}
+                      >
+                        <span className="truncate">Upload</span>
+                      </button>
+
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => handleUploadFiles(e.target.files)}
+                        accept=".pdf, .doc, .docx"
+                        ref={upLoadCvsRef}
+                        // multiple
+                      />
+                    </>
+                    // )
+                  }
+
+                  {/* end: bút upload cvs */}
+                </div>
+
+                <UploadedCVs
+                  cvs={profileJSK?.resumeList}
+                  isEditMode={isEditMode}
+                />
               </div>
             </div>
           </div>
