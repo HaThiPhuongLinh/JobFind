@@ -27,11 +27,9 @@ import { fetchCategories } from "./redux/slices/categorySlice";
 import { fetchSavedJobs } from "./redux/slices/savedJobSlice";
 import { fetchJobSeekerProfileByUserId } from "./redux/slices/JSKerProfileSlice";
 function App() {
-  // load savedJob lên redux
   const dispatch = useDispatch();
   // Lấy user từ redux
   const user = useSelector((state) => state.auth.user);
-  console.log("user", user);
 
   // ====================== Load các dữ liệu cần thiết vào redux
   useEffect(() => {
@@ -56,10 +54,17 @@ function App() {
     "/signup",
     "/recruiter/login",
     "/recruiter/register",
-    "/overview"
+    "/overview",
   ].includes(location.pathname);
 
-  const hiddenFooter = ["/profile",  "/overview", "/recruiter/register", "/recruiter/login"].includes(location.pathname);
+  const hiddenFooter = [
+    "/login",
+    "/signup",
+    "/profile",
+    "/overview",
+    "/recruiter/register",
+    "/recruiter/login",
+  ].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen">
