@@ -8,6 +8,7 @@ import UploadedCVs from "./UploadedCVs";
 // import resumeApi from "../../api/resumeApi";
 import { useEffect, useRef, useState } from "react";
 import resumeApi from "../../api/resumeApi";
+import { toast } from "react-toastify";
 
 const PersonalInfoForm = () => {
   const profileJSK = useSelector((state) => state.jobSeekerProfile.profile);
@@ -27,7 +28,7 @@ const PersonalInfoForm = () => {
       setPhone(profileJSK.phone || "");
       setEmail(profileJSK.email || "");
       setSkills(profileJSK.skills || []);
-      // setCvs(profileJSK.resumeList || []);
+      setCvs(profileJSK.resumeList || []);
     }
   }, [profileJSK]);
 
@@ -67,7 +68,21 @@ const PersonalInfoForm = () => {
 
       setCvs((prev) => [...prev, fileObject]); // Chỉ thêm vào state khi upload thành công
     } catch (error) {
+      toast.error("Upload thất bại. Có vẻ file đã tồn tại trong hệ thống.", {
+        autoClose: 1000,
+      });
       console.error("Upload thất bại:", error);
+    }
+  };
+
+  const handleDeleteCv = async (resumeId) => {
+    try {
+      const response = await resumeApi.deleteResume(resumeId);
+      console.log("Xóa thành công:", response.data);
+      setCvs((prev) => prev.filter((cv) => cv.resumeId !== resumeId)); // Cập nhật lại danh sách CV sau khi xóa
+    } catch (error) {
+      toast.error("Xóa thất bại", { autoClose: 1000 });
+      console.error("Xóa thất bại:", error);
     }
   };
 
@@ -75,52 +90,7 @@ const PersonalInfoForm = () => {
     upLoadCvsRef.current.click();
   };
 
-  useEffect(() => {
-    if (!isEditMode) {
-      setCvs([]); // Reset cvs when not in edit mode
-    }
-  }, [isEditMode]);
-
-  const handleUploadCvs = async (newCvs) => {
-    const formData = new FormData();
-
-    newCvs.forEach((fileObj) => {
-      // Append file
-      formData.append("files", fileObj.resume);
-
-      // Append resume name tương ứng
-      formData.append("resumeNames", fileObj.resumeName);
-    });
-
-    // Log để kiểm tra
-    for (let pair of formData.entries()) {
-      console.log(`${pair[0]}:`, pair[1]);
-    }
-
-    // try {
-    //   const result = await resumeApi.cretaeResume(formData); // <-- đừng quên truyền formData nè
-    //   console.log("Upload result:", result);
-    // } catch (error) {
-    //   console.error("Upload failed:", error);
-    // }
-  };
-
-  const handleSave = () => {
-    // upload cvs lên s3
-    handleUploadCvs(cvs);
-    console.log("Saving profile with data:", cvs);
-  };
-
-  // Khi profileJSK thay đổi thì set lại các giá trị form
-  useEffect(() => {
-    // console.log("Skills: ", skills);
-    if (profileJSK) {
-      setFullName(`${profileJSK.firstName} ${profileJSK.lastName}`);
-      setPhone(profileJSK.phone || "");
-      setEmail(profileJSK.email || "");
-      setSkills(profileJSK.skills || []);
-    }
-  }, [profileJSK]);
+  const handleSave = () => {};
 
   // Nếu đang loading hoặc không có profile, hiển thị loading spinner
   if (loading) {
@@ -290,8 +260,10 @@ const PersonalInfoForm = () => {
                 </div>
 
                 <UploadedCVs
-                  cvs={profileJSK?.resumeList}
+                  // cvs={profileJSK?.resumeList}
+                  cvs={cvs}
                   isEditMode={isEditMode}
+                  handleDeleteCv={handleDeleteCv}
                 />
               </div>
             </div>

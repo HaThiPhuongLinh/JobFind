@@ -9,7 +9,7 @@ const resumeApi = {
   },
 
   deleteResume: (resumeId) => {
-    const url = `/resume/delete?resumeId=${resumeId}`;
+    const url = `/resume/delete/${resumeId}`;
     return axiosClient.delete(url);
   },
 };

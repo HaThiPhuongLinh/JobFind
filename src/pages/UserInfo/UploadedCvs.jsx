@@ -1,8 +1,8 @@
-// UploadedCVs Component
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDownload, faTrash } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
-const UploadedCVs = ({ cvs }) => {
+const UploadedCVs = ({ cvs, handleDeleteCv }) => {
   console.log("cvs", cvs);
-  // const cvs = [{ file: "marketing_cv.pdf", date: "2021-11-01" }];
 
   return (
     <div className="flex flex-col items-center gap-4 bg-white px-4 min-h-[72px] justify-between">
@@ -40,8 +40,19 @@ const UploadedCVs = ({ cvs }) => {
               {/* Nút hành động: Upload + Download */}
               <div className="flex items-center gap-2 shrink-0">
                 {/* Nút Download */}
-                <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-8 px-4 bg-[#f0f4f0] text-[#111811] text-sm font-medium leading-normal w-fit">
-                  <span className="truncate">Download</span>
+                <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-8 px-4 bg-green-600 text-[#111811] text-sm font-medium leading-normal w-fit">
+                  <span className="truncate">
+                    <FontAwesomeIcon icon={faDownload} className="text-white" />
+                  </span>
+                </button>
+                {/* Nút Xóa */}
+                <button
+                  className="flex min-w-[50px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-8 px-4 bg-red-500 text-[#111811] text-sm font-medium leading-normal w-fit"
+                  onClick={() => handleDeleteCv(cv.resumeId)}
+                >
+                  <span className="truncate">
+                    <FontAwesomeIcon icon={faTrash} className="text-white" />
+                  </span>
                 </button>
               </div>
             </div>
@@ -54,6 +65,7 @@ const UploadedCVs = ({ cvs }) => {
 
 UploadedCVs.propTypes = {
   cvs: PropTypes.arrayOf(PropTypes.object).isRequired,
+  handleDeleteCv: PropTypes.func.isRequired,
 };
 
 export default UploadedCVs;
