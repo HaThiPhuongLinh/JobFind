@@ -24,7 +24,7 @@ const Header = () => {
 
   // dùng useSelector để theo dõi sự thay đổi user khi logout
   let user = useSelector((state) => state.auth.user);
-  console.log(user);
+
   if (!user || user === null) {
     user = JSON.parse(localStorage.getItem("user"));
     // const token = JSON.parse(localStorage.getItem("token"));
