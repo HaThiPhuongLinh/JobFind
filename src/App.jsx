@@ -37,11 +37,10 @@ function App() {
     dispatch(fetchCategories());
 
     if (user) {
-      // Load savedJobs
-      dispatch(fetchSavedJobs(user.userId));
-
       // Load profile cho job seeker
       if (user.role === "JOBSEEKER") {
+        // Load savedJobs
+        dispatch(fetchSavedJobs(user.userId));
         // console.log("user.userId", user.userId);
         dispatch(fetchJobSeekerProfileByUserId(user.id));
       }
