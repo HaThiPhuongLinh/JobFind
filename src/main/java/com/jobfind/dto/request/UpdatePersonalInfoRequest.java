@@ -22,6 +22,7 @@ public class UpdatePersonalInfoRequest {
     private String firstName;
     private String lastName;
     private String title;
+    private MultipartFile avatar;
     private String address;
     private String companyName;
     private MultipartFile logoPath;

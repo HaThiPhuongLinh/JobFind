@@ -46,7 +46,6 @@ public interface JobSeekerProfileRepository extends JpaRepository<JobSeekerProfi
             @Param("categoryIds") List<Integer> categoryIds,
             @Param("locations") List<String> locations);
 
-
     @Query("""
     SELECT DISTINCT j FROM JobSeekerProfile j
     JOIN j.workExperiences we

@@ -30,6 +30,7 @@ public class JobPopulator {
         target.setPostedAt(source.getPostedAt());
         target.setDeadline(source.getDeadline());
         target.setIsActive(source.getIsActive());
+        target.setIsApproved(source.getIsApproved());
 
         List<SkillDTO> skillDTOList = source.getSkills().stream()
                 .map(skillConverter::convertToSkillDTO)

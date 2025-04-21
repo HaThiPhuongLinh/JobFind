@@ -23,6 +23,7 @@ public class JobDTO {
     private LocalDateTime postedAt;
     private LocalDate deadline;
     private Boolean isActive;
+    private Boolean isApproved;
     private List<SkillDTO> skills;
     private List<JobCategory> categories;
 }

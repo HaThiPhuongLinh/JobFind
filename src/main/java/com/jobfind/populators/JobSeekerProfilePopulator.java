@@ -25,6 +25,7 @@ public class JobSeekerProfilePopulator {
                 .map(resumeConverter::convertToResumeDTO)
                 .collect(Collectors.toList()));
         target.setAddress(source.getAddress());
+        target.setAvatar(source.getAvatar());
         target.setEmail(source.getUser().getEmail());
         target.setPhone(source.getUser().getPhone());
         target.setSkills(source.getSkills().stream()

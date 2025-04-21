@@ -10,7 +10,7 @@ import java.util.List;
 public interface IJobService {
     void createJob(CreateJobRequest request, BindingResult bindingResult);
     JobDTO getJobByID(Integer jobId);
-    List<JobDTO> searchJobs(String keyword, String location, Integer jobCategoryId);
+    List<JobDTO> searchJobs(String keyword, List<String> locations, List<Integer> jobCategoryIds);
     List<JobDTO> getJobsByCompanyId(Integer companyId, Integer id);
     List<JobDTO> getJobsByCategory(Integer categoryId);
     void updateJob(UpdateJobRequest request, BindingResult bindingResult);

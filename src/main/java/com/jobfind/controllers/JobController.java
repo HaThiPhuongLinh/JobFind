@@ -38,7 +38,7 @@ public class JobController {
     }
 
     @GetMapping("/searchJobs")
-    public ResponseEntity<List<JobDTO>> searchJobs(@RequestParam(required = false) String keyword, @RequestParam(required = false) String location, @RequestParam(required = false) Integer jobCategoryId) {
+    public ResponseEntity<List<JobDTO>> searchJobs(@RequestParam(required = false) String keyword, @RequestParam(required = false) List<String> location, @RequestParam(required = false) List<Integer> jobCategoryId) {
         List<JobDTO> jobs = jobServiceImpl.searchJobs(keyword, location, jobCategoryId);
         return ResponseEntity.ok(jobs);
     }

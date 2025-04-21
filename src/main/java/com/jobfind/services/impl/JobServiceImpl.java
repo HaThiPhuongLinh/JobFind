@@ -145,17 +145,23 @@ public class JobServiceImpl implements IJobService {
     }
 
     @Override
-    public List<JobDTO> searchJobs(String keyword, String location, Integer jobCategoryId) {
+    public List<JobDTO> searchJobs(String keyword, List<String> locations, List<Integer> jobCategoryIds) {
+        boolean isKeywordEmpty = keyword == null || keyword.trim().isEmpty();
+        boolean isLocationsEmpty = locations == null || locations.isEmpty();
+        boolean isCategoryIdsEmpty = jobCategoryIds == null || jobCategoryIds.isEmpty();
 
-        if (StringUtils.isEmpty(keyword) && StringUtils.isEmpty(location)) {
-            return jobRepository.findAll().stream()
+        List<Job> jobs;
+
+        if (isKeywordEmpty && isLocationsEmpty && isCategoryIdsEmpty) {
+            jobs = jobRepository.findAll().stream()
                     .filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved())
-                    .map(jobConverter::convertToJobDTO)
+                    .toList();
+        } else {
+            jobs = jobRepository.searchJobs(keyword, locations, jobCategoryIds);
+            jobs = jobs.stream()
+                    .filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved())
                     .toList();
         }
-
-        List<Job> jobs = jobRepository.searchJobs(keyword, location, jobCategoryId);
-        jobs = jobs.stream().filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved()).toList();
 
         return jobs.stream().map(jobConverter::convertToJobDTO).toList();
     }
