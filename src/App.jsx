@@ -26,7 +26,7 @@ import { useEffect } from "react";
 import { fetchCategories } from "./redux/slices/categorySlice";
 import { fetchSavedJobs } from "./redux/slices/savedJobSlice";
 import { fetchJobSeekerProfileByUserId } from "./redux/slices/JSKerProfileSlice";
-import { fetchAllApplications } from "./redux/slices/applySlice";
+import { fetchApplicationByJSK } from "./redux/slices/applySlice";
 import applicationApi from "./api/applicationApi";
 
 function App() {
@@ -46,8 +46,6 @@ function App() {
         dispatch(fetchSavedJobs(user.userId));
         // console.log("user.userId", user.userId);
         dispatch(fetchJobSeekerProfileByUserId(user.id));
-        // Load application
-        // dispatch(fetchAllApplications(user.id));
       }
     }
   }, [dispatch, user]);
