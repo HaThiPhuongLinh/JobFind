@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApplicationStatusResponse {
+    private Integer applicationId;
     private JobDTO job;
     private JobSeekerProfileDTO jobSeekerProfile;
     private ResumeDTO resumeApplied;

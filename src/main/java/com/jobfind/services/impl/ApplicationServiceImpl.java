@@ -89,6 +89,32 @@ public class ApplicationServiceImpl implements IApplicationService {
     }
 
     @Override
+    public List<ApplicationStatusResponse> getApplicationOfJobByJobSeeker(Integer jobSeekerId) {
+        List<Application> applications = applicationRepository.findByJobSeekerProfileProfileId(jobSeekerId);
+
+        if(applications.isEmpty()){
+            throw new BadRequestException("No applications found for the given job seeker ID");
+        }
+
+        return applications.stream()
+                .map(application -> ApplicationStatusResponse.builder()
+                        .applicationId(application.getApplicationId())
+                        .job(jobConverter.convertToJobDTO(application.getJob()))
+                        .jobSeekerProfile(jobSeekerProfileConverter.convertToJobSeekerProfileDTO(application.getJobSeekerProfile()))
+                        .resumeApplied(resumeConverter.convertToResumeDTO(application.getResume()))
+                        .statusDTOList(
+                                historyRepository.findByApplicationApplicationId(application.getApplicationId()).stream()
+                                        .map(history -> ApplicationStatusDTO.builder()
+                                                .status(history.getApplicationStatus())
+                                                .time(history.getTime())
+                                                .build())
+                                        .collect(Collectors.toList())
+                        )
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ApplicationStatusResponse getApplicationStatusHistory(Integer applicationId) {
         List<ApplicationStatusHistory> list = historyRepository.findByApplicationApplicationId(applicationId);
 
@@ -97,6 +123,7 @@ public class ApplicationServiceImpl implements IApplicationService {
         }
 
         return ApplicationStatusResponse.builder()
+                .applicationId(applicationId)
                 .job(jobConverter.convertToJobDTO(list.get(0).getApplication().getJob()))
                 .jobSeekerProfile(jobSeekerProfileConverter.convertToJobSeekerProfileDTO(list.get(0).getApplication().getJobSeekerProfile()))
                 .resumeApplied(resumeConverter.convertToResumeDTO(list.get(0).getApplication().getResume()))

@@ -29,6 +29,12 @@ public class ApplicationController {
         return ResponseEntity.ok(history);
     }
 
+    @GetMapping("/jobSeeker/{jobSeekerId}")
+    public ResponseEntity<List<ApplicationStatusResponse>> getApplicationOfJobByJobSeeker(@PathVariable Integer jobSeekerId) {
+        List<ApplicationStatusResponse> response = applicationServiceImpl.getApplicationOfJobByJobSeeker(jobSeekerId);
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("updateStatus/{applicationId}")
     public ResponseEntity<SuccessResponse> updateApplicationStatus(@PathVariable Integer applicationId, @RequestParam String status) {
         applicationServiceImpl.updateApplicationStatus(applicationId, status);
