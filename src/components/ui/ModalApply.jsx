@@ -57,6 +57,7 @@ const ApplyModal = ({ onClose, jobId }) => {
       console.log("response: ", response);
       toast.success("Nộp hồ sơ ứng tuyển thành công!");
       // dispatch(addApplication(response)); // Cập nhật danh sách ứng tuyển trong Redux
+      window.location.reload(); // Tải lại trang để cập nhật danh sách ứng tuyển
       onClose(); // Đóng modal sau khi nộp hồ sơ thành công
     } catch (error) {
       toast.error("Đã có lỗi xảy ra trong quá trình nộp hồ sơ ứng tuyển.");
