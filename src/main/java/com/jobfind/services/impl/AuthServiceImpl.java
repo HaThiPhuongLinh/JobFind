@@ -2,6 +2,7 @@ package com.jobfind.services.impl;
 
 import com.jobfind.config.AwsS3Service;
 import com.jobfind.config.JwtService;
+import com.jobfind.constants.JobFindConstant;
 import com.jobfind.dto.request.AuthRequest;
 import com.jobfind.dto.request.RegistrationRequest;
 import com.jobfind.dto.response.AuthResponse;
@@ -84,6 +85,7 @@ public class AuthServiceImpl implements IAuthService {
             jobSeekerProfileRepository.save(JobSeekerProfile.builder()
                     .firstName(registrationRequest.getFirstName())
                     .lastName(registrationRequest.getLastName())
+                    .avatar(JobFindConstant.AVATAR_URL_DEFAULT)
                     .user(user)
                     .build());
         } else if (registrationRequest.getRole() == Role.COMPANY) {
@@ -124,6 +126,7 @@ public class AuthServiceImpl implements IAuthService {
                 JobSeekerProfile profile = jobSeekerProfileRepository.findByUser_UserId(user.getUserId())
                         .orElseThrow(() -> new BadRequestException("JobSeekerProfile not found"));
                 returnId = profile.getProfileId();
+                avatar = profile.getAvatar();
                 break;
             case COMPANY:
                 Company company = companyRepository.findByUser_UserId(user.getUserId())

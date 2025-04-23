@@ -23,13 +23,12 @@ public class Job {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
-
     private String title;
-
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
-
+    @Column(columnDefinition = "LONGTEXT")
     private String requirements;
-
+    @Column(columnDefinition = "LONGTEXT")
     private String benefits;
 
     private double salaryMin;

@@ -28,6 +28,7 @@ public class Company {
     )
     private List<Industry> industry;
     private String website;
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
 
     @Column(columnDefinition = "boolean default false")
