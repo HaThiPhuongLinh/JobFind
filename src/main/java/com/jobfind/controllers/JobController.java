@@ -65,4 +65,10 @@ public class JobController {
         jobServiceImpl.approveJob(jobId);
         return ResponseEntity.ok(new SuccessResponse("Job approved successfully"));
     }
+
+    @GetMapping("/proposedJobs/{jobSeekerId}")
+    public ResponseEntity<List<JobDTO>> getProposedJobs(@PathVariable Integer jobSeekerId) {
+        List<JobDTO> jobs = jobServiceImpl.getProposedJobs(jobSeekerId);
+        return ResponseEntity.ok(jobs);
+    }
 }

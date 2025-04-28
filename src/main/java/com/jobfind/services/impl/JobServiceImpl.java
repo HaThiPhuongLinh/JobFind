@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ public class JobServiceImpl implements IJobService {
     private final CompanyRepository companyRepository;
     private final SkillRepository skillRepository;
     private final JobCategoryRepository jobCategoryRepository;
+    private final JobSeekerProfileRepository jobSeekerProfileRepository;
     private final UserRepository userRepository;
     private final ValidateField validateField;
     private final JobConverter jobConverter;
@@ -190,6 +193,55 @@ public class JobServiceImpl implements IJobService {
         }
 
         return jobs.stream().map(jobConverter::convertToJobDTO).toList();
+    }
+
+    @Override
+    public List<JobDTO> getProposedJobs(Integer jobSeekerId) {
+        JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findById(jobSeekerId)
+                .orElseThrow(() -> new BadRequestException("JobSeeker not found"));
+
+        List<Integer> skillIds = new ArrayList<>();
+
+        if (jobSeekerProfile.getSkills() != null) {
+            skillIds.addAll(jobSeekerProfile.getSkills().stream()
+                    .map(Skill::getSkillId)
+                    .toList());
+        }
+
+        if (jobSeekerProfile.getWorkExperiences() != null) {
+            jobSeekerProfile.getWorkExperiences().forEach(workExperience -> {
+                if (workExperience.getSkills() != null) {
+                    workExperience.getSkills().forEach(skill -> {
+                        if (!skillIds.contains(skill.getSkillId())) {
+                            skillIds.add(skill.getSkillId());
+                        }
+                    });
+                }
+            });
+        }
+
+        List<Integer> categoryIds = new ArrayList<>();
+        if (jobSeekerProfile.getWorkExperiences() != null) {
+            jobSeekerProfile.getWorkExperiences().forEach(workExperience -> {
+                if (workExperience.getCategories() != null) {
+                    workExperience.getCategories().forEach(category -> {
+                        if (!categoryIds.contains(category.getJobCategoryId())) {
+                            categoryIds.add(category.getJobCategoryId());
+                        }
+                    });
+                }
+            });
+        }
+
+        if (skillIds.isEmpty() && categoryIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Job> proposedJobs = jobRepository.findProposedJobs(skillIds, categoryIds);
+
+        return proposedJobs.stream()
+                .map(jobConverter::convertToJobDTO)
+                .toList();
     }
 
     @Override
