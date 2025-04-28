@@ -34,6 +34,8 @@ public class Job {
     private double salaryMin;
 
     private double salaryMax;
+    private String yearsOfExperience;
+    private String educationLevel;
 
     private JobType jobType;
 

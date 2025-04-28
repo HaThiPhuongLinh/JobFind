@@ -20,6 +20,8 @@ public class JobDTO {
     private Double salaryMax;
     private String jobType;
     private String location;
+    private String yearsOfExperience;
+    private String educationLevel;
     private LocalDateTime postedAt;
     private LocalDate deadline;
     private Boolean isActive;

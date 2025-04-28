@@ -62,6 +62,8 @@ public class JobServiceImpl implements IJobService {
                 .benefits(request.getBenefits())
                 .salaryMin(request.getSalaryMin())
                 .salaryMax(request.getSalaryMax())
+                .yearsOfExperience( request.getYearsOfExperience())
+                .educationLevel(request.getEducationLevel())
                 .jobType(request.getJobType())
                 .location(request.getLocation())
                 .postedAt(LocalDateTime.now())
@@ -104,6 +106,8 @@ public class JobServiceImpl implements IJobService {
         job.setSalaryMin(request.getSalaryMin());
         job.setSalaryMax(request.getSalaryMax());
         job.setJobType(request.getJobType());
+        job.setEducationLevel(request.getEducationLevel());
+        job.setYearsOfExperience( request.getYearsOfExperience());
         job.setLocation(request.getLocation());
         job.setDeadline(request.getDeadline());
         job.setIsActive(request.getIsActive());

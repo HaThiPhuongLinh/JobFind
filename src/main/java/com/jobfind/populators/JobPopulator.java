@@ -27,6 +27,8 @@ public class JobPopulator {
         target.setSalaryMax(source.getSalaryMax());
         target.setJobType(source.getJobType().name());
         target.setLocation(source.getLocation());
+        target.setEducationLevel(source.getEducationLevel());
+        target.setYearsOfExperience(source.getYearsOfExperience());
         target.setPostedAt(source.getPostedAt());
         target.setDeadline(source.getDeadline());
         target.setIsActive(source.getIsActive());

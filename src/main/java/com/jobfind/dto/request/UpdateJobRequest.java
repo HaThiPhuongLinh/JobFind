@@ -27,6 +27,10 @@ public class UpdateJobRequest {
     @NotNull(message = "Salary max is required")
     @PositiveOrZero(message = "Salary min must be zero or positive")
     private double salaryMax;
+    @NotBlank(message = "Years of experience is required")
+    private String yearsOfExperience;
+    @NotBlank(message = "Education level is required")
+    private String educationLevel;
     private JobType jobType;
     @NotBlank(message = "Location is required")
     private String location;
