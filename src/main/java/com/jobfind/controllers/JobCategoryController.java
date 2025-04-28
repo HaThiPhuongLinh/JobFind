@@ -1,5 +1,6 @@
 package com.jobfind.controllers;
 
+import com.jobfind.dto.response.JobCategoryResponse;
 import com.jobfind.dto.response.SuccessResponse;
 import com.jobfind.models.JobCategory;
 import com.jobfind.services.IJobCatrgoryService;
@@ -16,7 +17,7 @@ public class JobCategoryController {
     private final IJobCatrgoryService jobCategoryServiceImpl;
 
     @GetMapping("/all")
-    public ResponseEntity<List<JobCategory>> getAllJobCategories() {
+    public ResponseEntity<List<JobCategoryResponse>> getAllJobCategories() {
         return ResponseEntity.ok(jobCategoryServiceImpl.getAllJobCategories());
     }
 

@@ -1,5 +1,6 @@
 package com.jobfind.services.impl;
 
+import com.jobfind.dto.response.JobCategoryResponse;
 import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.JobCategory;
 import com.jobfind.repositories.JobCategoryRepository;
@@ -15,8 +16,14 @@ public class JobCategoryServiceImpl implements IJobCatrgoryService {
     private final JobCategoryRepository jobCategoryRepository;
 
     @Override
-    public List<JobCategory> getAllJobCategories() {
-        return jobCategoryRepository.findAll();
+    public List<JobCategoryResponse> getAllJobCategories() {
+        List<JobCategory> jobCategories = jobCategoryRepository.findAll();
+        return jobCategories.stream()
+                .map(jobCategory -> JobCategoryResponse.builder()
+                        .jobCategoryId(jobCategory.getJobCategoryId())
+                        .name(jobCategory.getName())
+                        .build())
+                .toList();
     }
 
     @Override
