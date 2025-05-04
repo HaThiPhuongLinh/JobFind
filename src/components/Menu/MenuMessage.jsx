@@ -4,11 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import conversationApi from '../../api/conversationApi';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { openChatBox } from '../../redux/slices/chatBoxSlice';
+import { openChatBox, setTotalUnreadCount } from '../../redux/slices/chatBoxSlice';
 
 const MenuMessage = ({ userId, onClose }) => {
     const [conversations, setConversations] = useState([]);
-    const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const dispatch = useDispatch();
     const user = useSelector(state => state.auth.user);
@@ -22,8 +21,8 @@ const MenuMessage = ({ userId, onClose }) => {
                 const convResponse = await conversationApi.getUserConversations(userId);
                 setConversations(convResponse || []);
 
-                const unreadResponse = await conversationApi.countUnreadConversations(userId);
-                setUnreadCount(unreadResponse || 0);
+                const totalUnread = await conversationApi.countUnreadConversations(user.id);
+                dispatch(setTotalUnreadCount(totalUnread));
             } catch (error) {
                 console.error('Error fetching conversations:', error);
             } finally {
@@ -36,13 +35,13 @@ const MenuMessage = ({ userId, onClose }) => {
 
     const handleSelectConversation = async (conversationId) => {
         try {
-            await conversationApi.markMessagesAsRead(conversationId, userId);
+            // await conversationApi.markMessagesAsRead(conversationId, userId);
             setConversations(conversations.map(conv =>
                 conv.conversationId === conversationId ? { ...conv, unreadCount: 0 } : conv
             ));
-            setUnreadCount(conversations.filter(conv => conv.unreadCount > 0).length - 1);
+            const totalUnread = await conversationApi.countUnreadConversations(user.id);
+            dispatch(setTotalUnreadCount(totalUnread));
             dispatch(openChatBox({ conversationId }));
-            onClose();
         } catch (error) {
             console.error('Error marking messages as read:', error);
         }

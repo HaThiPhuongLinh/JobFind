@@ -52,10 +52,13 @@ const chatBoxSlice = createSlice({
                 .filter(box => box.profileId !== identifier && box.conversationId !== identifier)
                 .map((box, index) => ({ ...box, index }));
         },
+        setTotalUnreadCount: (state, action) => {
+            state.totalUnreadCount = action.payload;
+        },
     },
 });
 
-export const { openChatBox, setConversationId, minimizeChatBox, maximizeChatBox, closeChatBox } =
+export const { openChatBox, setConversationId, minimizeChatBox, maximizeChatBox, closeChatBox, setTotalUnreadCount } =
     chatBoxSlice.actions;
 
 export default chatBoxSlice.reducer;

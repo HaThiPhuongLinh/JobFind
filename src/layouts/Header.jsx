@@ -11,18 +11,18 @@ import { useState, useEffect, useRef } from "react";
 
 // import data
 import navItems from "../data/header_submenu";
-
+import { useSelector, useDispatch } from "react-redux";
 // component
 import MenuNotification from "../components/Menu/MenuNotification";
 import MenuMessage from "../components/Menu/MenuMessage";
 import MenuUser from "../components/Menu/MenuUser";
-import { useSelector } from "react-redux";
 import conversationApi from "../api/conversationApi";
+import { setTotalUnreadCount } from "../redux/slices/chatBoxSlice";
 
 const Header = () => {
   const location = useLocation();
-  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
-  // dùng useSelector để theo dõi sự thay đổi user khi logout
+  const totalUnreadCount = useSelector((state) => state.chatBox.totalUnreadCount);
+  const dispatch = useDispatch();
   let user = useSelector((state) => state.auth.user);
 
   if (!user || user === null) {
@@ -35,10 +35,12 @@ const Header = () => {
     setIsLogin(!!user); // Cập nhật trạng thái khi user hoặc token thay đổi
     if (user?.id) {
       conversationApi.countUnreadConversations(user.id)
-        .then(response => setUnreadMessageCount(response))
-        .catch(error => console.error('Error fetching unread count:', error));
+      .then((response) => {
+        dispatch(setTotalUnreadCount(response));
+      })
+      .catch((error) => console.error("Error fetching unread count:", error));
     }
-  }, [user]);
+  }, [user, dispatch]);
 
   // Bật / tắt model thông báo
   const [isOpenModelNotification, setIsOpenModelNotification] = useState(false);
@@ -190,12 +192,12 @@ const Header = () => {
             >
               <FontAwesomeIcon icon={faMessage} className="text-xl text-primary" />
             </div>
-            {unreadMessageCount > 0 && (
+            {totalUnreadCount > 0 && (
               <div
                 className="absolute top-0 right-3 bg-red-600 rounded-full flex items-center justify-center text-white text-xs"
                 style={{ width: '18px', height: '18px' }}
               >
-                {unreadMessageCount}
+                {totalUnreadCount}
               </div>
             )}
             {isOpenModelMessage && (

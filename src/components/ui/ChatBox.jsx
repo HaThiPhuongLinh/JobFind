@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createPortal } from 'react-dom';
 import conversationApi from '../../api/conversationApi';
 import awsS3Api from '../../api/awsApi';
-import { setConversationId, minimizeChatBox, maximizeChatBox, closeChatBox } from '../../redux/slices/chatBoxSlice';
+import { setConversationId, minimizeChatBox, maximizeChatBox, closeChatBox, setTotalUnreadCount, } from '../../redux/slices/chatBoxSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faTimes, faExpand, faPaperclip, faPaperPlane, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
@@ -13,6 +13,7 @@ const ChatBox = ({ profileId, userId, displayName, conversationId, isMinimized, 
     const [newMessage, setNewMessage] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
     const [conversationInfo, setConversationInfo] = useState(null);
+    const [initialUnreadCount, setInitialUnreadCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const dispatch = useDispatch();
@@ -21,6 +22,8 @@ const ChatBox = ({ profileId, userId, displayName, conversationId, isMinimized, 
     const fileInputRef = useRef(null);
     const [previewImage, setPreviewImage] = useState(null);
     const navigate = useNavigate();
+    const hasMarkedAsRead = useRef(false);
+    const hasMinimizedOnce = useRef(false);
 
     useEffect(() => {
         if (!user?.id) {
@@ -39,11 +42,15 @@ const ChatBox = ({ profileId, userId, displayName, conversationId, isMinimized, 
                 setLoading(true);
                 const convResponse = await conversationApi.getConversationById(conversationId, user.id);
                 setConversationInfo(convResponse || {});
+                setInitialUnreadCount(convResponse?.unreadCount || 0);
 
                 const messagesResponse = await conversationApi.getMessagesByConversationId(conversationId);
                 setMessages(messagesResponse || []);
 
                 await conversationApi.markMessagesAsRead(conversationId, user.id);
+                setConversationInfo(prev => ({ ...prev, unreadCount: 0 }));
+                const totalUnread = await conversationApi.countUnreadConversations(user.id);
+                dispatch(setTotalUnreadCount(totalUnread));
             } catch (error) {
                 console.error('Error fetching conversation data:', error);
             } finally {
@@ -57,6 +64,12 @@ const ChatBox = ({ profileId, userId, displayName, conversationId, isMinimized, 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
+
+    useEffect(() => {
+        hasMarkedAsRead.current = false;
+        hasMinimizedOnce.current = false;
+        setInitialUnreadCount(0);
+    }, [conversationId]);
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
@@ -131,6 +144,21 @@ const ChatBox = ({ profileId, userId, displayName, conversationId, isMinimized, 
         }
     };
 
+    const handleMarkAsRead = async () => {
+        if (!hasMarkedAsRead.current && conversationId && initialUnreadCount > 0) {
+            try {
+                await conversationApi.markMessagesAsRead(conversationId, user.id);
+                hasMarkedAsRead.current = true;
+                setConversationInfo(prev => ({ ...prev, unreadCount: 0 }));
+                setInitialUnreadCount(0);
+                const totalUnread = await conversationApi.countUnreadConversations(user.id);
+                dispatch(setTotalUnreadCount(totalUnread));
+            } catch (error) {
+                console.error('Error marking messages as read:', error);
+            }
+        }
+    };
+
     const handleFileSelect = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -147,11 +175,22 @@ const ChatBox = ({ profileId, userId, displayName, conversationId, isMinimized, 
     };
 
     const handleMinimize = () => {
-        dispatch(minimizeChatBox({ conversationId }));
+        if (!hasMinimizedOnce.current) {
+            hasMinimizedOnce.current = true;
+            setInitialUnreadCount(0);
+            setConversationInfo(prev => ({ ...prev, unreadCount: 0 }));
+        }
+        dispatch(minimizeChatBox({ profileId, conversationId }));
     };
 
-    const handleMaximize = () => {
-        dispatch(maximizeChatBox({ conversationId }));
+    const handleMaximize = async () => {
+        dispatch(maximizeChatBox({ profileId, conversationId }));
+        if (hasMarkedAsRead.current && conversationId) {
+            setConversationInfo(prev => ({
+                ...prev,
+                unreadCount: 0,
+            }));
+        }
         setTimeout(() => {
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
@@ -165,8 +204,23 @@ const ChatBox = ({ profileId, userId, displayName, conversationId, isMinimized, 
         return null;
     }
 
-    const chatDisplayName =
-        conversationInfo?.senderName || displayName
+    const groupMessagesByDate = (messages) => {
+        return messages.reduce((acc, msg) => {
+            const date = new Date(msg.sentAt).toISOString().split("T")[0];
+            if (!acc[date]) acc[date] = [];
+            acc[date].push(msg);
+            return acc;
+        }, {});
+    };
+
+    const groupedMessages = groupMessagesByDate(messages);
+    let globalIndex = 0;
+    const allMessages = Object.entries(groupedMessages).flatMap(([_, msgs]) => msgs);
+    const messagesFromOthers = allMessages.filter(msg => msg.senderId !== user.id);
+    const unreadStartIndexInOthers = messagesFromOthers.length - initialUnreadCount;
+    const unreadStartMessageId = messagesFromOthers[unreadStartIndexInOthers]?.messageId;
+
+    const chatDisplayName = conversationInfo?.senderName || displayName;
 
     return createPortal(
         <div
@@ -182,9 +236,9 @@ const ChatBox = ({ profileId, userId, displayName, conversationId, isMinimized, 
                     >
                         {chatDisplayName}
                     </span>
-                    {conversationInfo?.unreadCount > 0 && (
+                    {initialUnreadCount > 0 && (
                         <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
-                            {conversationInfo.unreadCount}
+                            {initialUnreadCount}
                         </span>
                     )}
                 </div>
@@ -232,47 +286,77 @@ const ChatBox = ({ profileId, userId, displayName, conversationId, isMinimized, 
                         ) : messages.length === 0 ? (
                             <div className="text-center text-gray-500">Chưa có tin nhắn</div>
                         ) : (
-                            messages.map(msg => (
-                                <div
-                                    key={msg.messageId}
-                                    className={`mb-3 flex ${msg.senderId === user.id ? 'justify-end' : 'justify-start'
-                                        } items-start space-x-2`}
-                                >
-                                    <div
-                                        className={`max-w-[70%] p-3 rounded-lg ${msg.senderId === user.id
-                                            ? 'bg-green-600 text-white'
-                                            : 'bg-gray-200 text-black'
-                                            }`}
-                                    >
-                                        {msg.content && <div className="text-sm break-words whitespace-pre-wrap">{msg.content}</div>
-                                        }
-                                        {msg.attachment && (
-                                            <div className="mt-2">
-                                                {msg.attachment.fileType?.startsWith('image/') ? (
-                                                    <img
-                                                        src={msg.attachment.filePath}
-                                                        alt={msg.attachment.fileName}
-                                                        className="max-w-full max-h-48 rounded-md border border-gray-300 hover:cursor-pointer"
-                                                        onClick={() => setPreviewImage(msg.attachment.filePath)}
-                                                    />
-                                                ) : (
-                                                    <a
-                                                        href={msg.attachment.filePath}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center space-x-2 text-sm text-white underline"
-                                                    >
-                                                        <FontAwesomeIcon icon={faFileAlt} className="text-white" />
-                                                        <span className="break-all max-w-[180px]">{msg.attachment.fileName}</span>
-                                                    </a>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        <div className="text-xs text-gray-600 mt-1">
-                                            {new Date(msg.sentAt).toLocaleTimeString()}
-                                        </div>
+                            Object.entries(groupedMessages).map(([date, messages]) => (
+                                <div key={date}>
+                                    <div className="text-center my-3 text-xs text-gray-500">
+                                        {new Date(date).toLocaleDateString('vi-VN', {
+                                            weekday: 'long',
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                        })}
                                     </div>
+                                    {messages.map(msg => {
+                                        const showUnreadSeparator = msg.messageId === unreadStartMessageId;
+                                        const messageBlock = (
+                                            <div
+                                                key={msg.messageId}
+                                                className={`mb-3 flex ${msg.senderId === user.id ? 'justify-end' : 'justify-start'
+                                                    } items-start space-x-2`}
+                                            >
+                                                <div
+                                                    className={`max-w-[70%] p-3 rounded-lg ${msg.senderId === user.id
+                                                        ? 'bg-green-600 text-white'
+                                                        : 'bg-gray-200 text-black'
+                                                        }`}
+                                                >
+                                                    {msg.content && (
+                                                        <div className="text-sm break-words whitespace-pre-wrap">{msg.content}</div>
+                                                    )}
+                                                    {msg.attachment && (
+                                                        <div className="mt-2">
+                                                            {msg.attachment.fileType?.startsWith('image/') ? (
+                                                                <img
+                                                                    src={msg.attachment.filePath}
+                                                                    alt={msg.attachment.fileName}
+                                                                    className="max-w-full max-h-48 rounded-md border border-gray-300 hover:cursor-pointer"
+                                                                    onClick={() => setPreviewImage(msg.attachment.filePath)}
+                                                                />
+                                                            ) : (
+                                                                <a
+                                                                    href={msg.attachment.filePath}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="flex items-center space-x-2 text-sm text-purple-800 underline"
+                                                                >
+                                                                    <FontAwesomeIcon icon={faFileAlt} className="text-purple-600" />
+                                                                    <span className="break-all max-w-[180px]">{msg.attachment.fileName}</span>
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                    <div className="text-xs text-gray-600 mt-1">
+                                                        {new Date(msg.sentAt).toLocaleTimeString()}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+
+                                        const result = (
+                                            <React.Fragment key={msg.messageId}>
+                                                {showUnreadSeparator && (
+                                                    <div className="text-center my-4 text-xs text-gray-500 relative">
+                                                        <div className="border-t border-gray-300 absolute left-0 right-0 top-1/2 z-0"></div>
+                                                        <span className="bg-gray-100 px-2 z-10 relative">Tin chưa đọc</span>
+                                                    </div>
+                                                )}
+                                                {messageBlock}
+                                            </React.Fragment>
+                                        );
+
+                                        globalIndex += 1;
+                                        return result;
+                                    })}
                                 </div>
                             ))
 
@@ -317,6 +401,7 @@ const ChatBox = ({ profileId, userId, displayName, conversationId, isMinimized, 
                             <textarea
                                 value={newMessage}
                                 onChange={e => setNewMessage(e.target.value)}
+                                onFocus={handleMarkAsRead}
                                 placeholder="Nhập tin nhắn..."
                                 rows={1}
                                 className="flex-1 resize-none p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-300 max-h-[6rem] overflow-y-auto"
