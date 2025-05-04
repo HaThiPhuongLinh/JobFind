@@ -14,14 +14,14 @@ import navItems from "../data/header_submenu";
 
 // component
 import MenuNotification from "../components/Menu/MenuNotification";
+import MenuMessage from "../components/Menu/MenuMessage";
 import MenuUser from "../components/Menu/MenuUser";
 import { useSelector } from "react-redux";
-
-// component
+import conversationApi from "../api/conversationApi";
 
 const Header = () => {
   const location = useLocation();
-
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   // dùng useSelector để theo dõi sự thay đổi user khi logout
   let user = useSelector((state) => state.auth.user);
 
@@ -33,6 +33,11 @@ const Header = () => {
 
   useEffect(() => {
     setIsLogin(!!user); // Cập nhật trạng thái khi user hoặc token thay đổi
+    if (user?.id) {
+      conversationApi.countUnreadConversations(user.id)
+        .then(response => setUnreadMessageCount(response))
+        .catch(error => console.error('Error fetching unread count:', error));
+    }
   }, [user]);
 
   // Bật / tắt model thông báo
@@ -41,9 +46,7 @@ const Header = () => {
     setIsOpenModelNotification(!isOpenModelNotification);
   };
 
-  // Đóng model chọn location khi click bên ngoài
   const ref = useRef(null);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (ref.current && !ref.current.contains(event.target)) {
@@ -71,6 +74,24 @@ const Header = () => {
       }
     };
 
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const [isOpenModelMessage, setIsOpenModelMessage] = useState(false);
+  const openModelMessage = () => {
+    setIsOpenModelMessage(!isOpenModelMessage);
+  };
+
+  const messageRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (messageRef.current && !messageRef.current.contains(event.target)) {
+        setIsOpenModelMessage(false);
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -143,8 +164,8 @@ const Header = () => {
 
             {/* số lượng thông báo hiện có */}
             <div
-              className="absolute top-0 right-4 p-2 bg-red-600 rounded-full flex items-center justify-center text-white"
-              style={{ width: "20px", height: "20px" }}
+              className="absolute top-0 right-4 p-2 bg-red-600 rounded-full flex items-center justify-center text-white text-xs"
+              style={{ width: "18px", height: "18px" }}
             >
               1
             </div>
@@ -161,13 +182,33 @@ const Header = () => {
           </div>
           {/* ==================== End: thông báo =================== */}
 
-          {/* icon tin nhắn: click vào thì mở trang chat với nhà tuyển dụng */}
-          <div className="btn-header">
-            <FontAwesomeIcon
-              icon={faMessage}
-              className="text-xl text-primary"
-            />
+          {/* ==================== tin nhắn =================== */}
+          <div className="relative" ref={messageRef}>
+            <div
+              className="btn-header p-2 hover:bg-gray-100 rounded-full cursor-pointer"
+              onClick={openModelMessage}
+            >
+              <FontAwesomeIcon icon={faMessage} className="text-xl text-primary" />
+            </div>
+            {unreadMessageCount > 0 && (
+              <div
+                className="absolute top-0 right-3 bg-red-600 rounded-full flex items-center justify-center text-white text-xs"
+                style={{ width: '18px', height: '18px' }}
+              >
+                {unreadMessageCount}
+              </div>
+            )}
+            {isOpenModelMessage && (
+              <div className="absolute top-full right-0 mt-6 p-4 bg-white rounded-lg shadow-lg z-[999] w-[360px]">
+                <MenuMessage
+                  userId={user?.id}
+                  onClose={() => setIsOpenModelMessage(false)}
+                />
+              </div>
+            )}
           </div>
+          {/* ==================== End: tin nhắn =================== */}
+
           {/* avatar */}
           <div
             className="relative flex items-center justify-center cursor-pointer"
