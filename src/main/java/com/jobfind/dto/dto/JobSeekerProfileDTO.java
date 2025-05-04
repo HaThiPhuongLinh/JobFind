@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class JobSeekerProfileDTO {
     private Integer profileId;
+    private Integer userId;
     private String firstName;
     private String lastName;
     private String address;

@@ -42,7 +42,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     private final ResumeConverter resumeConverter;
     private final ValidateField validateField;
 
-    private JobSeekerProfile getJobSeekerProfile(Integer userId) {
+    public JobSeekerProfile getJobSeekerProfile(Integer userId) {
         return jobSeekerProfileRepository.findByUser_UserId(userId)
                 .orElseThrow(() -> new BadRequestException("JobSeekerProfile not found"));
     }

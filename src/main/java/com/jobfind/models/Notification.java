@@ -17,8 +17,6 @@ public class Notification {
     private Integer notificationId;
 
     private String content;
-
-    @Column(columnDefinition = "boolean default false")
     private Boolean isRead;
 
     @ManyToOne

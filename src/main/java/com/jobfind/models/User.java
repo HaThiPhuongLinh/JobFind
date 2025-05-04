@@ -29,4 +29,10 @@ public class User {
 
     @Column(columnDefinition = "boolean default true")
     private Boolean isActive;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private JobSeekerProfile jobSeekerProfile;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Company company;
 }

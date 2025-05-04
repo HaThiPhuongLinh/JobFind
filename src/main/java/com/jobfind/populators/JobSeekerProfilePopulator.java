@@ -18,6 +18,7 @@ public class JobSeekerProfilePopulator {
     private final WorkExperienceConverter workExperienceConverter;
     public void populate(JobSeekerProfile source, JobSeekerProfileDTO target) {
         target.setProfileId(source.getProfileId());
+        target.setUserId(source.getUser().getUserId());
         target.setFirstName(source.getFirstName());
         target.setLastName(source.getLastName());
         target.setTitle(source.getTitle());
