@@ -1,19 +1,22 @@
 import PropTypes from "prop-types";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
-const ProfileHeader = ({ profileJSK, isEditMode }) => {
-  const [firstName, setFirstName] = useState(profileJSK?.firstName || "");
-  const [lastName, setLastName] = useState(profileJSK?.lastName || "");
-  const [address, setAddress] = useState("123 Gò Vấp, Hồ Chí Minh"); // hardcoded
-  const [avatarUrl, setAvatarUrl] = useState(
-    "https://cdn.usegalileo.ai/sdxl10/8eb31c25-4d21-4bd0-941f-cd480a3318e8.png"
-  );
-
+const ProfileHeader = ({
+  avatar,
+  setAvatar,
+  firstName,
+  setFirstName,
+  lastName,
+  setLastName,
+  address,
+  setAddress,
+  isEditMode,
+}) => {
   const fileInputRef = useRef(null);
 
   const handleAvatarClick = () => {
     if (isEditMode) {
-      fileInputRef.current.click(); // mở chọn file
+      fileInputRef.current.click();
     }
   };
 
@@ -21,7 +24,7 @@ const ProfileHeader = ({ profileJSK, isEditMode }) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("image/")) {
       const imageUrl = URL.createObjectURL(file);
-      setAvatarUrl(imageUrl);
+      setAvatar(imageUrl); // cập nhật avatar từ cha
     }
   };
 
@@ -31,7 +34,7 @@ const ProfileHeader = ({ profileJSK, isEditMode }) => {
         {/* Avatar */}
         <div
           className="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-[70px] cursor-pointer relative"
-          style={{ backgroundImage: `url('${avatarUrl}')` }}
+          style={{ backgroundImage: `url('${avatar}')` }}
           onClick={handleAvatarClick}
           title={isEditMode ? "Click để đổi ảnh đại diện" : ""}
         >
@@ -111,10 +114,14 @@ const ProfileHeader = ({ profileJSK, isEditMode }) => {
 };
 
 ProfileHeader.propTypes = {
-  profileJSK: PropTypes.shape({
-    firstName: PropTypes.string,
-    lastName: PropTypes.string,
-  }),
+  avatar: PropTypes.string,
+  setAvatar: PropTypes.func,
+  firstName: PropTypes.string,
+  setFirstName: PropTypes.func,
+  lastName: PropTypes.string,
+  setLastName: PropTypes.func,
+  address: PropTypes.string,
+  setAddress: PropTypes.func,
   isEditMode: PropTypes.bool,
 };
 
