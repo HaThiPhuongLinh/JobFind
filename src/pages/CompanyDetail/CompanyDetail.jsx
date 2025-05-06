@@ -2,22 +2,76 @@ import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import citys from "../../data/citys";
 import Pagination from "../../components/ui/Pagination";
 import companyApi from "../../api/companyApi";
 import JobItemv2 from "../../components/ui/JobItemv2";
 import jobApi from "../../api/jobApi";
+
+const filters = [
+  {
+    id: 1,
+    name: "Nghề nghiệp",
+    options: [],
+  },
+  {
+    id: 2,
+    name: "Địa điểm",
+    options: ["Tất cả địa điểm", ...citys],
+  },
+  {
+    id: 3,
+    name: "Ngày đăng",
+    options: [
+      { id: 1, name: "Tất cả ngày đăng" },
+      { id: 2, name: "Hôm nay" },
+      { id: 3, name: "Tuần trước" },
+      { id: 4, name: "Tháng trước" },
+      { id: 5, name: "3 tháng qua" },
+    ],
+  },
+  {
+    id: 4,
+    name: "Hình thức",
+    options: [
+      { id: 1, name: "Toàn thời gian" },
+      { id: 2, name: "Bán thời gian" },
+    ],
+  },
+];
 
 const CompanyDetail = () => {
   // Lấy id từ query params
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const companyId = queryParams.get("id");
+
+  // state
   const [company, setCompany] = useState(null);
   const [jobs, setJobs] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState("jobs");
-  const jobsPerPage = 4;
+  const [categories, setCategories] = useState([]);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [selectedFilters, setSelectedFilters] = useState({});
 
+  // selector from redux
+  const categoriesRedux = useSelector((state) => state.category.categories);
+  useEffect(() => {
+    // console.log("categoriesRedux", categoriesRedux);
+    if (categoriesRedux && categoriesRedux.length > 0) {
+      // const updateFilters = [...filters];
+      // updateFilters[0] = {
+      //   ...updateFilters[0],
+      //   options: [{ id: 0, name: "Tất cả nghề nghiệp" }, ...categoriesRedux],
+      // }
+      setCategories(categoriesRedux);
+      // filters[0].options = [...filters[0].options, ...categoriesRedux];
+      filters[0].options = categoriesRedux;
+    }
+  }, [categoriesRedux]);
+
+  // fetch data
   useEffect(() => {
     // Lấy thông tin company
     const fetchCompanyData = async () => {
@@ -43,6 +97,7 @@ const CompanyDetail = () => {
     const fetchJobsByCompanyId = async () => {
       try {
         const response = await jobApi.getByCompanyId(companyId, companyId);
+        // console.log("response", response);
         setJobs(response);
       } catch (error) {
         console.log("Lỗi khi lấy danh sách công việc:", error);
@@ -53,7 +108,15 @@ const CompanyDetail = () => {
     fetchJobsByCompanyId();
   }, [companyId]);
 
+  // handle filter dropdown selected
+  const handleSelectFilterOption = (filterId, option) => {
+    setSelectedFilters((prev) => ({ ...prev, [filterId]: option }));
+    setOpenDropdownId(null);
+  };
+
   // Tính toán phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 4;
   const totalPages = Math.ceil(jobs.length / jobsPerPage);
   const startIndex = (currentPage - 1) * jobsPerPage;
   const currentJobs = jobs.slice(startIndex, startIndex + jobsPerPage);
@@ -156,10 +219,48 @@ const CompanyDetail = () => {
         <>
           {/* Featured Jobs Preview */}
           <div className="bg-white/70 rounded-xl shadow-md p-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Danh sách công việc
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 pb-6">
+                {jobs?.length + " việc làm hiện có"}
               </h2>
+
+              {/* Filters */}
+              <div className="flex flex-wrap gap-4 mb-8">
+                {filters.map((filter) => (
+                  <div key={filter.id} className="relative">
+                    <button
+                      className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm flex items-center justify-between min-w-[180px] cursor-pointer !rounded-button whitespace-nowrap"
+                      onClick={() =>
+                        setOpenDropdownId(
+                          openDropdownId === filter.id ? null : filter.id
+                        )
+                      }
+                    >
+                      <span>{selectedFilters[filter.id] || filter.name}</span>
+                    </button>
+
+                    {openDropdownId === filter.id && (
+                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+                        {filter.options.map((option) => (
+                          <button
+                            key={option.id || option.name}
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 cursor-pointer !rounded-button whitespace-nowrap"
+                            onClick={() =>
+                              handleSelectFilterOption(
+                                filter.id,
+                                option.name || option
+                              )
+                            }
+                          >
+                            {option.name || option}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {/* End: filters */}
             </div>
 
             <div className="space-y-4">
@@ -190,6 +291,14 @@ const CompanyDetail = () => {
             </div>
           </div>
         </>
+      )}
+
+      {/* Tab overview */}
+      {activeTab === "reviews" && (
+        <div className="bg-white/70 rounded-xl shadow-md p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Đánh giá</h2>
+          <p className="text-gray-500">Chưa có đánh giá nào.</p>
+        </div>
       )}
     </div>
   );

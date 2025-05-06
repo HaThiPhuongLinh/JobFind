@@ -7,6 +7,7 @@ import savedJobReducer from "./slices/savedJobSlice";
 import categoryReducer from "./slices/categorySlice";
 import savedJobseekerReducer from "./slices/savedJobseekerSlice";
 import JSKReducer from "./slices/JSKerProfileSlice";
+import chatBoxReducer from "./slices/chatBoxSlice";
 import applicationReducer from "./slices/applySlice";
 import CompanyReducer from "./slices/companySlide";
 import CompanyReviewReducer from "./slices/companyReviewSlice";
@@ -44,6 +45,7 @@ const rootReducer = combineReducers({
   application: applicationReducer,
   company: CompanyReducer,
   companyReview: CompanyReviewReducer,
+  chatBox: chatBoxReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
