@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import companyReviewApi from "../../api/companyReview";
+import companyReviewApi from "../../api/companyReviewApi";
 import { toast } from "react-toastify";
 
 // --- Thunks ---
-
 export const fetchReviewsByCompanyId = createAsyncThunk(
   "companyReview/fetchByCompanyId",
   async (companyId, { rejectWithValue }) => {
     try {
       const response = await companyReviewApi.getReviewsByCompanyId(companyId);
+      console.log("response", response);
       return response;
     } catch (error) {
       toast.error("Lỗi khi tải đánh giá công ty");
@@ -71,7 +71,32 @@ const companyReviewSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    sortReviews: (state, action) => {
+      const sortType = action.payload;
+
+      switch (sortType) {
+        case "Mới nhất":
+          state.reviews.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          break;
+        case "Cũ nhất":
+          state.reviews.sort(
+            (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+          );
+          break;
+        case "Đánh giá cao":
+          state.reviews.sort((a, b) => a.rating - b.rating);
+          break;
+        case "Đánh giá thấp":
+          state.reviews.sort((a, b) => b.rating - a.rating);
+          break;
+        default:
+          break;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Get Reviews
@@ -110,4 +135,5 @@ const companyReviewSlice = createSlice({
   },
 });
 
+export const { sortReviews } = companyReviewSlice.actions;
 export default companyReviewSlice.reducer;
