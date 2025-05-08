@@ -12,7 +12,6 @@ import { useNavigate } from "react-router-dom";
 import createSlug from "../../untils/createSlug";
 
 const JobItemv2 = ({ job, iconHeart, isApply, isButtonSave }) => {
-  // console.log("job", job);
   const navigate = useNavigate();
 
   const scrollTop = () => {
@@ -56,7 +55,9 @@ const JobItemv2 = ({ job, iconHeart, isApply, isButtonSave }) => {
         <div className="pt-6 flex flex-col justify-center items-start text-sm text-gray-500 min-w-[120px]">
           <p className="flex items-center gap-1">
             📅 <span className="font-medium">Ngày Đăng:</span>{" "}
-            {formatDateTime(job.postedAt.slice(0, 10))}
+            {formatDateTime(
+              job.postedAt?.slice(0, 10) || job.created?.slice(0, 10)
+            )}
           </p>
           <p className="flex items-center gap-1">
             ⏰ <span className="font-medium">Hết hạn:</span>{" "}
@@ -87,7 +88,7 @@ JobItemv2.propTypes = {
   iconHeart: PropTypes.bool,
   isApply: PropTypes.bool,
   isButtonSave: PropTypes.bool,
-  job: jobPropTypes,
+  // job: jobPropTypes,
 };
 
 export default JobItemv2;
