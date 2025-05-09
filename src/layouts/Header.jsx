@@ -1,6 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/logo.png";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBell,
@@ -8,15 +7,14 @@ import {
   faAngleDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect, useRef } from "react";
-
-// import data
 import navItems from "../data/header_submenu";
 import { useSelector, useDispatch } from "react-redux";
-// component
 import MenuNotification from "../components/Menu/MenuNotification";
 import MenuMessage from "../components/Menu/MenuMessage";
 import MenuUser from "../components/Menu/MenuUser";
+import WebSocketService from "../services/WebSocketService";
 import conversationApi from "../api/conversationApi";
+import { TOPICS } from "../data/topics";
 import { setTotalUnreadCount } from "../redux/slices/chatBoxSlice";
 
 const Header = () => {
@@ -27,18 +25,35 @@ const Header = () => {
 
   if (!user || user === null) {
     user = JSON.parse(localStorage.getItem("user"));
-    // const token = JSON.parse(localStorage.getItem("token"));
   }
   const [isLogin, setIsLogin] = useState(!!user);
 
   useEffect(() => {
-    setIsLogin(!!user); // Cập nhật trạng thái khi user hoặc token thay đổi
+    setIsLogin(!!user);
     if (user?.id) {
+      const wsService = WebSocketService.getInstance();
+      if (!wsService.isConnected()) {
+        wsService.connect(user.id);
+      }
+      // Subscribe tổng unread count
+      const unreadCountTopic = TOPICS.UNREAD_COUNT(user.id.toString());
+      const handleUnreadCountUpdate = (data) => {
+        console.log(`📊 Nhận tổng unread count từ ${unreadCountTopic}:`, data);
+        dispatch(setTotalUnreadCount(data));
+      };
+      wsService.subscribe(unreadCountTopic, handleUnreadCountUpdate);
+
+      // Lấy totalUnreadCount lần đầu từ API
       conversationApi.countUnreadConversations(user.id)
-      .then((response) => {
-        dispatch(setTotalUnreadCount(response));
-      })
-      .catch((error) => console.error("Error fetching unread count:", error));
+        .then((response) => {
+          console.log('📥 Nhận totalUnreadCount từ API:', response);
+          dispatch(setTotalUnreadCount(response));
+        })
+        .catch((error) => console.error('Error fetching unread count:', error));
+
+      return () => {
+        wsService.unsubscribe(unreadCountTopic, handleUnreadCountUpdate);
+      };
     }
   }, [user, dispatch]);
 
@@ -75,7 +90,6 @@ const Header = () => {
         setIsOpenDropDownUserMenu(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -100,7 +114,7 @@ const Header = () => {
     };
   }, []);
 
-  // ==================== Sửa header cho từng role ====================
+  // Sửa header cho từng role
   let text = "";
   let link = "#";
   if (user?.role === "JOBSEEKER") {
@@ -114,10 +128,8 @@ const Header = () => {
     link = "/recruiter/home";
   }
 
-  // console.log(user.role);
-
   return (
-    <div className=" header flex justify-between items-center px-4 font-medium shadow">
+    <div className="header flex justify-between items-center px-4 font-medium shadow">
       <Link to="/" className="h-full">
         <img src={logo} alt="logo" className="h-full" />
       </Link>
@@ -125,15 +137,10 @@ const Header = () => {
       <ul className="flex grow justify-start items-center px-3">
         {navItems.map((item, index) => (
           <li key={index} className="nav-tab ps-4 pe-6 relative group">
-            <button className="">{item.title}</button>
-
-            {/* Submenu khi hover vào tab */}
+            <button>{item.title}</button>
             <ul className="submenu-item absolute left-0 top-full opacity-0 invisible group-hover:opacity-100 group-hover:visible bg-white shadow-lg transition-all duration-200 z-[999]">
               {item.subItems.map((subItem, index) => (
-                <li
-                  key={index}
-                  className="py-4 px-4 bg-slate-100 rounded-md mb-3"
-                >
+                <li key={index} className="py-4 px-4 bg-slate-100 rounded-md mb-3">
                   <Link>{subItem}</Link>
                 </li>
               ))}
@@ -142,37 +149,24 @@ const Header = () => {
         ))}
       </ul>
 
-      {/* Nút đăng nhập - đăng ký - đăng tuyển */}
       {isLogin ? (
-        // ============== Đã đăng nhập ===============
         <div className="button-group-login flex justify-end items-center">
-          {/* Nút đăng tuyển và tìm hồ sơ */}
           <Link
             to={link}
             className="bg-primary border-2 border-solid px-4 py-2 me-4 rounded-md text-white"
           >
             {text}
           </Link>
-
-          {/* ==================== thông báo =================== */}
           <div className="relative">
-            <div
-              className="btn-header"
-              onClick={openModelNotification}
-              ref={ref}
-            >
+            <div className="btn-header" onClick={openModelNotification} ref={ref}>
               <FontAwesomeIcon icon={faBell} className="text-xl text-primary" />
             </div>
-
-            {/* số lượng thông báo hiện có */}
             <div
               className="absolute top-0 right-4 p-2 bg-red-600 rounded-full flex items-center justify-center text-white text-xs"
               style={{ width: "18px", height: "18px" }}
             >
               1
             </div>
-
-            {/* model danh sách các thông báo */}
             {isOpenModelNotification && (
               <div
                 className="absolute top-full right-0 mt-6 p-4 bg-white rounded-lg shadow-lg z-[999]"
@@ -182,9 +176,6 @@ const Header = () => {
               </div>
             )}
           </div>
-          {/* ==================== End: thông báo =================== */}
-
-          {/* ==================== tin nhắn =================== */}
           <div className="relative" ref={messageRef}>
             <div
               className="btn-header p-2 hover:bg-gray-100 rounded-full cursor-pointer"
@@ -209,13 +200,7 @@ const Header = () => {
               </div>
             )}
           </div>
-          {/* ==================== End: tin nhắn =================== */}
-
-          {/* avatar */}
-          <div
-            className="relative flex items-center justify-center cursor-pointer"
-            ref={menuRef}
-          >
+          <div className="relative flex items-center justify-center cursor-pointer" ref={menuRef}>
             <div className="pe-4 p-1" onClick={openDropDownUserMenu}>
               <img
                 src={user?.avatar || "/image_user_default.jpg"}
@@ -223,12 +208,7 @@ const Header = () => {
                 className="w-12 h-12 rounded-full border-gray-300 border-[1px]"
               />
             </div>
-
-            <FontAwesomeIcon
-              icon={faAngleDown}
-              className="text-lg text-primary"
-            />
-            {/* =================== Menu User ======================= */}
+            <FontAwesomeIcon icon={faAngleDown} className="text-lg text-primary" />
             {isOpenDropDownUserMenu && user && (
               <div
                 className="absolute top-full right-0 mt-6 p-4 bg-white rounded-lg shadow-lg z-[999]"
@@ -237,24 +217,14 @@ const Header = () => {
                 <MenuUser user={user} isOpen={isOpenDropDownUserMenu} />
               </div>
             )}
-            {/* =================== End: Menu User ======================= */}
           </div>
-          {/* end: avatar */}
         </div>
       ) : (
-        // ============== End: Đã đăng nhập ===============
-        // Chưa đăng nhập
         <div className="button-group-login flex justify-end items-center">
-          <Link
-            to="/login"
-            className="btn-login border-solid border-2 rounded-md px-4 py-2 ml-4"
-          >
+          <Link to="/login" className="btn-login border-solid border-2 rounded-md px-4 py-2 ml-4">
             Đăng nhập
           </Link>
-          <Link
-            to="/signup"
-            className="btn-signup border-2 border-solid px-4 py-2 rounded-md ml-4 text-white"
-          >
+          <Link to="/signup" className="btn-signup border-2 border-solid px-4 py-2 rounded-md ml-4 text-white">
             Đăng ký
           </Link>
           <Link
