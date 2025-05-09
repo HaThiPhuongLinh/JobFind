@@ -18,6 +18,13 @@ const jobApi = {
 
   search: (keyword, location, jobCategoryId) => {
     const url = "/job/searchJobs";
+
+    // Không có tham số thì lấy tất cả job
+    if (!keyword && !location && !jobCategoryId) {
+      return axiosClient.get(url);
+    }
+
+    // Có tham số thì truyền vào
     const params = {};
 
     if (keyword && keyword.trim() !== "") params.keyword = keyword;
@@ -25,7 +32,6 @@ const jobApi = {
     if (jobCategoryId !== undefined && jobCategoryId !== null) {
       params.jobCategoryId = jobCategoryId;
     }
-    // console.log("params", params);
     return axiosClient.get(url, { params });
   },
 
@@ -40,6 +46,11 @@ const jobApi = {
 
   getByCategory: (categoryId) => {
     const url = `/job/category/${categoryId}`;
+    return axiosClient.get(url);
+  },
+
+  getPropposeJobs: (jskId) => {
+    const url = `/job/propposeJobs/${jskId}`;
     return axiosClient.get(url);
   },
 
