@@ -1,5 +1,7 @@
 package com.jobfind.controllers;
 
+import com.jobfind.constants.JobFindConstant;
+import com.jobfind.dto.request.MarkMessagesReadRequest;
 import com.jobfind.dto.request.SendFileMessageRequest;
 import com.jobfind.dto.request.SendTextMessageRequest;
 import com.jobfind.dto.response.ConversationResponse;
@@ -7,6 +9,8 @@ import com.jobfind.dto.response.MessageResponse;
 import com.jobfind.services.IConversationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,9 +21,14 @@ public class ConversationController {
     @Autowired
     private IConversationService conversationServiceImpl;
 
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
     @PostMapping("/conversation")
     public ResponseEntity<ConversationResponse> createConversation(@RequestParam Integer jobSeekerId, @RequestParam Integer employerId) {
         ConversationResponse conversation = conversationServiceImpl.createConversation(jobSeekerId, employerId);
+        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_DATA_CONVERSATION + jobSeekerId, conversation);
+        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_DATA_CONVERSATION + employerId, conversation);
         return ResponseEntity.ok(conversation);
     }
 
@@ -38,16 +47,16 @@ public class ConversationController {
         return ResponseEntity.ok(conversation);
     }
 
-    @PostMapping("/message/text")
-    public ResponseEntity<MessageResponse> sendTextMessage(@RequestBody SendTextMessageRequest request) {
+    @MessageMapping("/message/text")
+    public void sendTextMessage(@RequestBody SendTextMessageRequest request) {
         MessageResponse message = conversationServiceImpl.sendTextMessage(request);
-        return ResponseEntity.ok(message);
+        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_CONVERSATION + request.getConversationId(), message);
     }
 
-    @PostMapping("/message/file")
-    public ResponseEntity<MessageResponse> sendFileMessage(@RequestBody SendFileMessageRequest request) {
+    @MessageMapping("/message/file")
+    public void sendFileMessage(@RequestBody SendFileMessageRequest request) {
         MessageResponse message = conversationServiceImpl.sendFileMessage(request);
-        return ResponseEntity.ok(message);
+        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_CONVERSATION + request.getConversationId(), message);
     }
 
     @GetMapping("/messages/{conversationId}")
@@ -56,10 +65,9 @@ public class ConversationController {
         return ResponseEntity.ok(messages);
     }
 
-    @PostMapping("/messages/read")
-    public ResponseEntity<Void> markMessagesAsRead(@RequestParam Integer conversationId, @RequestParam Integer userId) {
-        conversationServiceImpl.markMessagesAsRead(conversationId, userId);
-        return ResponseEntity.ok().build();
+    @MessageMapping("/messages/read")
+    public void markMessagesAsRead(@RequestBody MarkMessagesReadRequest request) {
+        conversationServiceImpl.markMessagesAsRead(request.getConversationId(), request.getUserId());
     }
 
     @GetMapping("/conversations/unread/{userId}")

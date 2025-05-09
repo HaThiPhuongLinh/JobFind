@@ -1,8 +1,10 @@
 package com.jobfind.services.impl;
 
+import com.jobfind.constants.JobFindConstant;
 import com.jobfind.converters.MessageConverter;
 import com.jobfind.dto.request.SendFileMessageRequest;
 import com.jobfind.dto.request.SendTextMessageRequest;
+import com.jobfind.dto.response.ConversationMeta;
 import com.jobfind.dto.response.ConversationResponse;
 import com.jobfind.dto.response.MessageResponse;
 import com.jobfind.exception.BadRequestException;
@@ -15,6 +17,7 @@ import com.jobfind.models.enums.Role;
 import com.jobfind.repositories.*;
 import com.jobfind.services.IConversationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,6 +31,7 @@ public class ConversationServiceImpl implements IConversationService {
     private final AttachmentRepository attachmentRepository;
     private final UserRepository userRepository;
     private final MessageConverter messageConverter;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public ConversationResponse createConversation(Integer jobSeekerId, Integer employerId) {
@@ -124,6 +128,33 @@ public class ConversationServiceImpl implements IConversationService {
     }
 
     @Override
+    public ConversationMeta getConversationMetaById(Integer conversationId, Integer userId) {
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new BadRequestException("Conversation not found"));
+        User jobSeeker = conversation.getJobSeeker();
+        User company = conversation.getCompany();
+
+        boolean isCurrentUserJobSeeker = jobSeeker.getUserId().equals(userId);
+        User otherUser = isCurrentUserJobSeeker ? company : jobSeeker;
+        int unreadCount = isCurrentUserJobSeeker
+                ? conversation.getUnreadCountJobSeeker()
+                : conversation.getUnreadCountCompany();
+
+        return ConversationMeta.builder()
+                .conversationId(conversation.getId())
+                .senderId(otherUser.getUserId())
+                .roleId(otherUser.getRole() == Role.JOBSEEKER ? otherUser.getJobSeekerProfile().getProfileId() : otherUser.getCompany().getCompanyId())
+                .senderName(otherUser.getCompany() != null
+                        ? otherUser.getCompany().getCompanyName()
+                        : otherUser.getJobSeekerProfile().getFirstName() + " " + otherUser.getJobSeekerProfile().getLastName())
+                .senderAvatar(otherUser.getCompany() != null
+                        ? otherUser.getCompany().getLogoPath()
+                        : otherUser.getJobSeekerProfile().getAvatar())
+                .unreadCount(unreadCount)
+                .build();
+    }
+
+    @Override
     public MessageResponse sendTextMessage(SendTextMessageRequest sendTextMessageRequest) {
         Conversation conversation = conversationRepository.findById(sendTextMessageRequest.getConversationId()).orElseThrow();
         Message message = Message.builder()
@@ -137,6 +168,10 @@ public class ConversationServiceImpl implements IConversationService {
 
         messageRepository.save(message);
 
+        Integer recipientId = conversation.getJobSeeker().getUserId().equals(sendTextMessageRequest.getSenderId())
+                ? conversation.getCompany().getUserId()
+                : conversation.getJobSeeker().getUserId();
+
         if (conversation.getJobSeeker().getUserId().equals(sendTextMessageRequest.getSenderId())) {
             conversation.setUnreadCountCompany(conversation.getUnreadCountCompany() + 1);
         } else {
@@ -145,7 +180,12 @@ public class ConversationServiceImpl implements IConversationService {
 
         conversation.setLastMessageAt(LocalDateTime.now());
         conversationRepository.save(conversation);
+//        ConversationMeta meta = getConversationMetaById(conversation.getId(), sendTextMessageRequest.getSenderId());
 
+        Long totalUnread = conversationRepository.countUnreadConversations(recipientId);
+        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_COUNT_UNREAD + recipientId, totalUnread);
+//        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_DATA_CONVERSATION + recipientId, meta);
+//        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_DATA_CONVERSATION + conversation.getId(), meta);
         return messageConverter.convertToMessageResponse(message);
     }
 
@@ -174,13 +214,21 @@ public class ConversationServiceImpl implements IConversationService {
                 .uploadTime(LocalDateTime.now())
                 .build();
 
+        Integer recipientId = conversation.getJobSeeker().getUserId().equals(sendFileMessageRequest.getSenderId())
+                ? conversation.getCompany().getUserId()
+                : conversation.getJobSeeker().getUserId();
         if (conversation.getJobSeeker().getUserId().equals(sendFileMessageRequest.getSenderId())) {
             conversation.setUnreadCountCompany(conversation.getUnreadCountCompany() + 1);
         } else {
             conversation.setUnreadCountJobSeeker(conversation.getUnreadCountJobSeeker() + 1);
         }
+//        ConversationMeta meta = getConversationMetaById(conversation.getId(), sendFileMessageRequest.getSenderId());
 
         attachmentRepository.save(attachment);
+        Long totalUnread = conversationRepository.countUnreadConversations(recipientId);
+        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_COUNT_UNREAD + recipientId, totalUnread);
+//        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_DATA_CONVERSATION + recipientId, meta);
+//        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_DATA_CONVERSATION + conversation.getId(), meta);
 
         return messageConverter.convertToMessageResponse(savedMessage);
     }
@@ -203,11 +251,24 @@ public class ConversationServiceImpl implements IConversationService {
                 messageRepository.save(message);
             }
         }
+
+        Integer otherUserId = conversation.getJobSeeker().getUserId().equals(userId)
+                ? conversation.getCompany().getUserId()
+                : conversation.getJobSeeker().getUserId();
+
         if (conversation.getJobSeeker().getUserId().equals(userId)) {
             conversation.setUnreadCountJobSeeker(0);
         } else {
             conversation.setUnreadCountCompany(0);
         }
+//        ConversationMeta meta = getConversationMetaById(conversation.getId(), userId);
+//        ConversationMeta otherMeta = getConversationMetaById(conversation.getId(), otherUserId);
+
+        Long totalUnread = conversationRepository.countUnreadConversations(userId);
+        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_COUNT_UNREAD + userId, totalUnread);
+//        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_DATA_CONVERSATION + userId, meta);
+//        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_DATA_CONVERSATION + otherMeta, meta);
+//        messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_DATA_CONVERSATION + conversationId, meta);
         conversationRepository.save(conversation);
     }
 
