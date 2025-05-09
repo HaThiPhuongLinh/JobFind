@@ -14,7 +14,7 @@ const JobItemVertical = ({ job }) => {
   // navigate to job detail
   const navigateToJobDetail = () => {
     dispatch(setSelectedJob(job));
-    navigate(`/job-detail/${createSlug(job.title)}`, { state: job });
+    navigate(`/job-detail/${createSlug(job.title)}?id=${job.jobId}`);
   };
 
   return (
