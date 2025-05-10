@@ -40,7 +40,7 @@ const JobItemv2 = ({ job, iconHeart, isApply, isButtonSave }) => {
         onClick={navigateToJobDetail}
       >
         <p className="font-bold pb-2">{job.title}</p>
-        <p className="pb-2 text-slate-600">
+        <p className="pb-2 text-black font-bold">
           {job.company?.companyName || job.companyName}
         </p>
         <div className="flex flex-wrap gap-2">
