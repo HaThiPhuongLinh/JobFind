@@ -50,7 +50,7 @@ const jobApi = {
     return axiosClient.get(url);
   },
 
-  getPropposeJobs: (jskId) => {
+  getProposedJobs: (jskId) => {
     const url = `/job/proposedJobs/${jskId}`;
     return axiosClient.get(url);
   },

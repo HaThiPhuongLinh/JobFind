@@ -7,27 +7,67 @@ import {
   openChatBox,
   setTotalUnreadCount,
 } from "../../redux/slices/chatBoxSlice";
+import WebSocketService from "../../services/WebSocketService";
+import { TOPICS } from "../../data/topics";
 
 const MenuMessage = ({ userId, onClose }) => {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [totalUnreadCount, setTotalUnreadCountt] = useState(0);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!user?.id) {
+      console.error("User ID is missing");
+      setLoading(false);
+      return;
+    }
+
+    const wsService = WebSocketService.getInstance();
+    if (!wsService.isConnected()) {
+      wsService.connect(user.id, []);
+    }
+
+    const unreadCountTopic = TOPICS.UNREAD_COUNT(user.id.toString());
+    const handleUnreadCount = (data) => {
+      console.log(`📊 Nhận tổng unread count từ ${unreadCountTopic}:`, data);
+      setTotalUnreadCountt(data);
+      dispatch(setTotalUnreadCount(data));
+    };
+    wsService.subscribe(unreadCountTopic, handleUnreadCount);
+
+    const metaTopic = TOPICS.CONVERSATION_DATA(user.id.toString());
+    console.log("topiccccccccccccccccccccccccccccccccccc " + metaTopic);
+    const handleMetaUpdate = (data) => {
+      console.log(`📊 Nhận metadata conversation từ ${metaTopic}:`, data);
+      setConversations((prev) => {
+        const updatedConversations = prev.map((conv) =>
+          conv.conversationId === data.conversationId
+            ? { ...conv, ...data }
+            : conv
+        );
+        if (
+          !updatedConversations.some(
+            (conv) => conv.conversationId === data.conversationId
+          )
+        ) {
+          updatedConversations.push(data);
+        }
+        return updatedConversations.sort(
+          (a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt)
+        );
+      });
+    };
+    wsService.subscribe(metaTopic, handleMetaUpdate);
 
     const fetchConversations = async () => {
       try {
         setLoading(true);
-        const convResponse = await conversationApi.getUserConversations(userId);
-        setConversations(convResponse || []);
-
-        const totalUnread = await conversationApi.countUnreadConversations(
-          user.id
-        );
-        // console.log("Total unread count:", totalUnread);
-        dispatch(setTotalUnreadCount(totalUnread.data));
+        const conversationsResponse =
+          await conversationApi.getUserConversations(user.id);
+        console.log("📥 Nhận conversations từ API:", conversationsResponse);
+        setConversations(conversationsResponse || []);
       } catch (error) {
         console.error("Error fetching conversations:", error);
       } finally {
@@ -36,32 +76,44 @@ const MenuMessage = ({ userId, onClose }) => {
     };
 
     fetchConversations();
-  }, [userId]);
 
-  const handleSelectConversation = async (conversationId) => {
-    try {
-      // await conversationApi.markMessagesAsRead(conversationId, userId);
-      setConversations(
-        conversations.map((conv) =>
-          conv.conversationId === conversationId
-            ? { ...conv, unreadCount: 0 }
-            : conv
-        )
-      );
-      const totalUnread = await conversationApi.countUnreadConversations(
-        user.id
-      );
-      dispatch(setTotalUnreadCount(totalUnread));
-      dispatch(openChatBox({ conversationId }));
-    } catch (error) {
-      console.error("Error marking messages as read:", error);
-    }
+    return () => {
+      wsService.unsubscribe(unreadCountTopic, handleUnreadCount);
+      wsService.unsubscribe(metaTopic, handleMetaUpdate);
+    };
+  }, [user?.id, dispatch]);
+
+  const handleSelectConversation = (
+    conversationId,
+    senderName,
+    senderAvatar,
+    roleId
+  ) => {
+    const wsService = WebSocketService.getInstance();
+    wsService.sendMessage("/app/messages/read", {
+      conversationId,
+      userId: user.id,
+    });
+    console.log(`📤 Dispatch openChatBox cho conversationId ${conversationId}`);
+    dispatch(
+      openChatBox({
+        conversationId,
+        profileId: roleId,
+        userId: user.id,
+        displayName: senderName,
+      })
+    );
   };
 
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-semibold text-gray-800">Tin nhắn</h3>
+        {totalUnreadCount > 0 && (
+          <span className="bg-blue-500 text-white text-xs font-semibold rounded-full px-2 py-1">
+            {totalUnreadCount}
+          </span>
+        )}
       </div>
       {loading ? (
         <div className="text-center text-gray-500 text-sm">Đang tải...</div>
@@ -80,7 +132,14 @@ const MenuMessage = ({ userId, onClose }) => {
             return (
               <li
                 key={conv.conversationId}
-                onClick={() => handleSelectConversation(conv.conversationId)}
+                onClick={() =>
+                  handleSelectConversation(
+                    conv.conversationId,
+                    conv.senderName,
+                    conv.senderAvatar,
+                    conv.roleId
+                  )
+                }
                 className="flex items-center p-2 rounded-md hover:bg-gray-100 cursor-pointer transition-colors duration-200"
               >
                 <img

@@ -12,6 +12,7 @@ import applicationReducer from "./slices/applySlice";
 import CompanyReducer from "./slices/companySlide";
 import CompanyReviewReducer from "./slices/companyReviewSlice";
 import SearchJobReducer from "./slices/searchJobSlice";
+import filterJobReducer from "./slices/filterJobSlice";
 import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "redux";
 import storage from "redux-persist/lib/storage";
@@ -47,6 +48,7 @@ const rootReducer = combineReducers({
   companyReview: CompanyReviewReducer,
   chatBox: chatBoxReducer,
   searchJob: SearchJobReducer,
+  filterJob: filterJobReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -17,6 +17,8 @@ const JobItemVertical = ({ job }) => {
     navigate(`/job-detail/${createSlug(job.title)}?id=${job.jobId}`);
   };
 
+  // format experience
+
   return (
     <div className="p-4 rounded-md border border-gray-300 bg-white border-primary flex flex-col h-full">
       {/* thông tin công ty */}
@@ -47,7 +49,9 @@ const JobItemVertical = ({ job }) => {
             {job.location || "Hồ Chí Minh"}
           </p>
           <p className="py-1 px-2 rounded-full bg-slate-200 cursor-pointer">
-            {job.yearOfExperience || 5} năm kinh nghiệm
+            {job.yearsOfExperience
+              ? formatData.formatExperience(job.yearsOfExperience)
+              : "Không yêu cầu kinh nghiệm"}
           </p>
         </div>
       </div>

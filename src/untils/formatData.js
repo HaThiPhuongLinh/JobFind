@@ -28,6 +28,17 @@ const formatData = {
       (hasTime ? ` ${hours}:${minutes}:${seconds}` : "")
     );
   },
+
+  formatExperience: (experience) => {
+    if (experience === "Không") return "Không yêu cầu kinh nghiệm";
+
+    const match = experience.match(/(\d+)-(\d+)/);
+    if (match) {
+      const min = parseInt(match[1], 10);
+      const max = parseInt(match[2], 10);
+      return `${min} - ${max} năm`;
+    }
+  },
 };
 
 export default formatData;

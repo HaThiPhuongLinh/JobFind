@@ -8,8 +8,8 @@ const axiosClient = axios.create({
   // headers: {
   //   "content-type": "application/json",
   // },
-  // paramsSerializer: (params) => new URLSearchParams(params).toString(),
-  paramsSerializer: (params) => qs.stringify(params, { arrayFormat: "repeat" }),
+  paramsSerializer: (params) => new URLSearchParams(params).toString(),
+  // paramsSerializer: (params) => qs.stringify(params, { arrayFormat: "repeat" }),
 });
 
 axiosClient.interceptors.request.use(async (config) => {
