@@ -29,6 +29,7 @@ public class JobSeekerProfilePopulator {
         target.setAvatar(source.getAvatar());
         target.setEmail(source.getUser().getEmail());
         target.setPhone(source.getUser().getPhone());
+        target.setBirthDay(source.getUser().getJobSeekerProfile().getBirthDay());
         target.setSkills(source.getSkills().stream()
                 .map(skillConverter::convertToSkillDTO)
                 .collect(Collectors.toList()));

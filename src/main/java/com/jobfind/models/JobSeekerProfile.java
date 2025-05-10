@@ -3,6 +3,7 @@ package com.jobfind.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -23,6 +24,7 @@ public class JobSeekerProfile {
     private String address;
     private String title;
     private String avatar;
+    private LocalDate birthDay;
 
     @OneToOne
     @JoinColumn(name = "user_id")

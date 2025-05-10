@@ -61,11 +61,13 @@ public class SavedJobServiceImpl implements ISavedJobService {
                         .companyId(savedJob.getJob().getCompany().getCompanyId())
                         .jobName(savedJob.getJob().getTitle())
                         .companyName(savedJob.getJob().getCompany().getCompanyName())
+                        .companyLogo(savedJob.getJob().getCompany().getLogoPath())
                         .salaryMin(savedJob.getJob().getSalaryMin())
                         .salaryMax(savedJob.getJob().getSalaryMax())
                         .jobType(savedJob.getJob().getJobType())
                         .location(savedJob.getJob().getLocation())
                         .postedAt(savedJob.getJob().getPostedAt())
+                        .deadline(savedJob.getJob().getDeadline())
                         .savedAt(savedJob.getSavedAt())
                         .build())
                 .toList();
