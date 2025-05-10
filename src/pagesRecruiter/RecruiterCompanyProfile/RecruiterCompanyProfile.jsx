@@ -9,6 +9,8 @@ import ReviewCompanyItem from "../../components/ui/ReviewCompanyItem";
 import Pagination from "../../components/ui/Pagination";
 import { fetchJobsByCompanyId } from "../../redux/slices/jobSlice";
 import { fetchReviewsByCompanyId } from "../../redux/slices/companyReviewSlice";
+import { FiCamera, FiX } from 'react-icons/fi';
+import TipTapEditor from '../../untils/tipTapEditorHelper';
 
 const RecruiterCompanyProfile = () => {
   const dispatch = useDispatch();
@@ -205,13 +207,13 @@ const RecruiterCompanyProfile = () => {
               className="text-gray-600 mt-2 text-base"
               dangerouslySetInnerHTML={{ __html: company.description }}
             />
-            
-          <button
-            onClick={openEditModal}
-            className="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Cập nhật thông tin
-          </button>
+
+            <button
+              onClick={openEditModal}
+              className="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              Cập nhật thông tin
+            </button>
           </div>
 
           <div className="w-full md:w-1/3 flex flex-col gap-4">
@@ -307,81 +309,112 @@ const RecruiterCompanyProfile = () => {
 
       {/* Modal chỉnh sửa (giữ nguyên) */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
-            <h2 className="text-xl font-bold mb-4">Cập nhật thông tin công ty</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Tên công ty</label>
-                <input
-                  type="text"
-                  value={editData.companyName || ""}
-                  onChange={(e) => handleEditorChange("companyName")(e.target.value)}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Website</label>
-                <input
-                  type="text"
-                  value={editData.website || ""}
-                  onChange={(e) => handleEditorChange("website")(e.target.value)}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Số điện thoại</label>
-                <input
-                  type="text"
-                  value={editData.phoneNumber || ""}
-                  onChange={(e) => handleEditorChange("phoneNumber")(e.target.value)}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Mô tả</label>
-                <textarea
-                  value={editData.description || ""}
-                  onChange={(e) => handleEditorChange("description")(e.target.value)}
-                  className="w-full p-2 border rounded"
-                  rows="4"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Logo công ty</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setNewAvatar(e.target.files[0])}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Ngành nghề</label>
-                <select
-                  value={selectedIndustryId || ""}
-                  onChange={(e) => setSelectedIndustryId(e.target.value)}
-                  className="w-full p-2 border rounded"
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-md w-full max-w-3xl relative overflow-auto max-h-[90vh]">
+            {/* Avatar + camera icon */}
+            <div className="flex justify-center mb-4 relative">
+              <img
+                src={newAvatar ? URL.createObjectURL(newAvatar) : company.logoPath}
+                alt="Logo công ty"
+                className="w-24 h-24 object-contain rounded-full border-2 border-gray-300"
+              />
+              <label
+                htmlFor="avatar"
+                className="absolute bottom-0 right-[calc(45%-12px)] bg-gray-100 p-2 rounded-full shadow cursor-pointer"
+              >
+                <FiCamera className="text-gray-600" />
+              </label>
+              {newAvatar && (
+                <button
+                  onClick={() => setNewAvatar(null)}
+                  className="absolute top-0 right-[calc(50%-12px)] bg-white border rounded-full p-1 shadow text-gray-500 hover:text-red-600"
                 >
-                  <option value="">Chọn ngành nghề</option>
-                  {industryList.map((industry) => (
-                    <option key={industry.industryId} value={industry.industryId}>
-                      {industry.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <FiX />
+                </button>
+              )}
+              <input
+                type="file"
+                id="avatar"
+                className="hidden"
+                onChange={(e) => setNewAvatar(e.target.files[0])}
+              />
             </div>
-            <div className="mt-6 flex justify-end gap-4">
+
+            {/* Các field */}
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tên công ty</label>
+              <input
+                type="text"
+                value={editData.companyName || ''}
+                onChange={(e) => setEditData({ ...editData, companyName: e.target.value })}
+                className="w-full border rounded px-3 py-2 mb-2"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                value={company.email || ''}
+                disabled
+                className="w-full border rounded px-3 py-2 mb-2 bg-gray-100"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
+              <input
+                type="text"
+                value={editData.phoneNumber || ''}
+                onChange={(e) => setEditData({ ...editData, phoneNumber: e.target.value })}
+                className="w-full border rounded px-3 py-2 mb-2"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Ngành nghề</label>
+              <select
+                value={selectedIndustryId || ''}
+                onChange={(e) => setSelectedIndustryId(Number(e.target.value) || null)}
+                className="w-full border rounded px-3 py-2 mb-2"
+              >
+                <option value="" disabled>Chọn ngành nghề</option>
+                {industryList.map((industry) => (
+                  <option key={industry.industryId} value={industry.industryId}>
+                    {industry.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+              <input
+                type="text"
+                value={editData.website || ''}
+                onChange={(e) => setEditData({ ...editData, website: e.target.value })}
+                className="w-full border rounded px-3 py-2 mb-2"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
+              <TipTapEditor
+                content={editData.description || ''}
+                onChange={handleEditorChange("description")}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-300 rounded"
               >
                 Hủy
               </button>
               <button
                 onClick={handleSubmit}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-blue-700"
               >
                 Lưu
               </button>
