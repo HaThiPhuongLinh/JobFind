@@ -142,21 +142,22 @@ const Header = () => {
       <ul className="flex grow justify-start items-center px-3">
         {navItems.map((item, index) => (
           <li key={index} className="nav-tab ps-4 pe-6 relative group">
-            <button className="">
-              <Link to={item.path ? item.path : ""}>{item.title}</Link>
+            <button>
+              <Link to={item.path || ""}>{item.title}</Link>
             </button>
 
-            {/* Submenu khi hover vào tab */}
-            <ul className="submenu-item absolute left-0 top-full opacity-0 invisible group-hover:opacity-100 group-hover:visible bg-white shadow-lg transition-all duration-200 z-[999]">
-              {item.subItems?.map((subItem, index) => (
-                <li
-                  key={index}
-                  className="py-4 px-4 bg-slate-100 rounded-md mb-3"
-                >
-                  <Link>{subItem}</Link>
-                </li>
-              ))}
-            </ul>
+            {item.subItems?.length > 0 && (
+              <ul className="submenu-item absolute left-0 top-full opacity-0 invisible group-hover:opacity-100 group-hover:visible bg-white shadow-lg transition-all duration-200 z-[999]">
+                {item.subItems.map((subItem, subIndex) => (
+                  <li
+                    key={subIndex}
+                    className="py-4 px-4 bg-slate-100 rounded-md mb-3"
+                  >
+                    <Link>{subItem}</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         ))}
       </ul>
@@ -169,20 +170,20 @@ const Header = () => {
           >
             {text}
           </Link>
-          <div className="relative">
-            <div
-              className="btn-header"
-              onClick={openModelNotification}
-              ref={ref}
-            >
+
+          {/* Notification Bell */}
+          <div className="relative" ref={ref}>
+            <div className="btn-header" onClick={openModelNotification}>
               <FontAwesomeIcon icon={faBell} className="text-xl text-primary" />
             </div>
-            <div
-              className="absolute top-0 right-4 p-2 bg-red-600 rounded-full flex items-center justify-center text-white text-xs"
-              style={{ width: "18px", height: "18px" }}
-            >
-              1
-            </div>
+            {text && (
+              <div
+                className="absolute top-0 right-4 p-2 bg-red-600 rounded-full flex items-center justify-center text-white text-xs"
+                style={{ width: "18px", height: "18px" }}
+              >
+                {text}
+              </div>
+            )}
             {isOpenModelNotification && (
               <div
                 className="absolute top-full right-0 mt-6 p-4 bg-white rounded-lg shadow-lg z-[999]"
@@ -192,6 +193,8 @@ const Header = () => {
               </div>
             )}
           </div>
+
+          {/* Message Icon */}
           <div className="relative" ref={messageRef}>
             <div
               className="btn-header p-2 hover:bg-gray-100 rounded-full cursor-pointer"
@@ -219,6 +222,8 @@ const Header = () => {
               </div>
             )}
           </div>
+
+          {/* User Avatar + Dropdown */}
           <div
             className="relative flex items-center justify-center cursor-pointer"
             ref={menuRef}
