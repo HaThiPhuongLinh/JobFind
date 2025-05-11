@@ -46,4 +46,10 @@ public class ApplicationController {
         List<ApplicationOfJobResponse> response = applicationServiceImpl.getApplicationOfJob(jobId);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<ApplicationStatusResponse>> getAllApplications() {
+        List<ApplicationStatusResponse> response = applicationServiceImpl.getAllApplications();
+        return ResponseEntity.ok(response);
+    }
 }

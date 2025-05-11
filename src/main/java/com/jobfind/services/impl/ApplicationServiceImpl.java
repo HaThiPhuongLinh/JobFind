@@ -2,8 +2,7 @@ package com.jobfind.services.impl;
 
 import com.jobfind.constants.JobFindConstant;
 import com.jobfind.converters.ResumeConverter;
-import com.jobfind.dto.dto.ApplicationStatusDTO;
-import com.jobfind.dto.dto.NotificationDTO;
+import com.jobfind.dto.dto.*;
 import com.jobfind.dto.request.ApplicationRequest;
 import com.jobfind.dto.request.CreateNotiRequest;
 import com.jobfind.dto.response.ApplicationOfJobResponse;
@@ -20,6 +19,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +38,35 @@ public class ApplicationServiceImpl implements IApplicationService {
     private final ResumeConverter resumeConverter;
     private final JobConverter jobConverter;
     private final SimpMessagingTemplate messagingTemplate;
+
+    @Override
+    public List<ApplicationStatusResponse> getAllApplications() {
+        List<Application> applications = applicationRepository.findAll();
+        if (applications.isEmpty()) {
+            throw new BadRequestException("No applications found");
+        }
+
+        return getApplicationStatusResponses(applications);
+    }
+
+    private List<ApplicationStatusResponse> getApplicationStatusResponses(List<Application> applications) {
+        return applications.stream()
+                .map(application -> ApplicationStatusResponse.builder()
+                        .applicationId(application.getApplicationId())
+                        .job(jobConverter.convertToJobDTO(application.getJob()))
+                        .jobSeekerProfile(jobSeekerProfileConverter.convertToJobSeekerProfileDTO(application.getJobSeekerProfile()))
+                        .resumeApplied(resumeConverter.convertToResumeDTO(application.getResume()))
+                        .statusDTOList(
+                                historyRepository.findByApplicationApplicationId(application.getApplicationId()).stream()
+                                        .map(history -> ApplicationStatusDTO.builder()
+                                                .status(history.getApplicationStatus())
+                                                .time(history.getTime())
+                                                .build())
+                                        .collect(Collectors.toList())
+                        )
+                        .build())
+                .collect(Collectors.toList());
+    }
 
     public void applyForJob(ApplicationRequest request) {
         Job job = jobRepository.findById(request.getJobId())
@@ -96,22 +127,7 @@ public class ApplicationServiceImpl implements IApplicationService {
             throw new BadRequestException("No applications found for the given job seeker ID");
         }
 
-        return applications.stream()
-                .map(application -> ApplicationStatusResponse.builder()
-                        .applicationId(application.getApplicationId())
-                        .job(jobConverter.convertToJobDTO(application.getJob()))
-                        .jobSeekerProfile(jobSeekerProfileConverter.convertToJobSeekerProfileDTO(application.getJobSeekerProfile()))
-                        .resumeApplied(resumeConverter.convertToResumeDTO(application.getResume()))
-                        .statusDTOList(
-                                historyRepository.findByApplicationApplicationId(application.getApplicationId()).stream()
-                                        .map(history -> ApplicationStatusDTO.builder()
-                                                .status(history.getApplicationStatus())
-                                                .time(history.getTime())
-                                                .build())
-                                        .collect(Collectors.toList())
-                        )
-                        .build())
-                .collect(Collectors.toList());
+        return getApplicationStatusResponses(applications);
     }
 
     @Override
@@ -152,11 +168,94 @@ public class ApplicationServiceImpl implements IApplicationService {
         CreateNotiRequest notificationRequest = CreateNotiRequest.builder()
                 .applicationId(application.getApplicationId())
                 .userId(application.getJobSeekerProfile().getUser().getUserId())
-                .content("Your application status has been updated to: " + newStatus)
+                .content(newStatus.toString())
                 .build();
 
         NotificationDTO notification = notificationServiceImpl.createNoti(notificationRequest);
         messagingTemplate.convertAndSend(JobFindConstant.WS_TOPIC_NOTIFICATION  + application.getJobSeekerProfile().getUser().getUserId(), notification);
+    }
+
+    @Override
+    public List<RecentApplicationDTO> getRecentApplications() {
+        List<Application> applications = applicationRepository.findTop5ByOrderByAppliedAtDesc();
+        List<RecentApplicationDTO> dtos = applications.stream().map(app -> {
+            RecentApplicationDTO dto = RecentApplicationDTO.builder()
+                    .id(app.getApplicationId())
+                    .applicant(app.getJobSeekerProfile().getFirstName() + " " + app.getJobSeekerProfile().getLastName())
+                    .jobTitle(app.getJob().getTitle())
+                    .status(app.getApplicationStatus().toString())
+                    .date(app.getAppliedAt().toString())
+                    .build();
+            return dto;
+        }).collect(Collectors.toList());
+        return dtos;
+    }
+
+    @Override
+    public ChartDataDTO getApplicationTrends(String type, Integer month) {
+        ChartDataDTO dto = new ChartDataDTO();
+        LocalDateTime now = LocalDateTime.now();
+        int currentYear = now.getYear();
+
+        if ("range".equals(type)) {
+            List<String> labels = new ArrayList<>();
+            List<Long> counts = new ArrayList<>();
+            for (int m = 1; m <= now.getMonthValue(); m++) {
+                LocalDateTime start = LocalDateTime.of(currentYear, m, 1, 0, 0);
+                LocalDateTime end = start.plusMonths(1);
+                long count = applicationRepository.countByAppliedAtBetween(start, end);
+                labels.add(Month.of(m).name().substring(0, 3));
+                counts.add(count);
+            }
+            dto.setLabels(labels);
+            dto.setCounts(counts);
+
+        } else if ("month".equals(type) && month != null) {
+            YearMonth yearMonth = YearMonth.of(currentYear, month);
+            List<String> labels = new ArrayList<>();
+            List<Long> counts = new ArrayList<>();
+            for (int day = 1; day <= yearMonth.lengthOfMonth(); day++) {
+                LocalDateTime start = LocalDateTime.of(currentYear, month, day, 0, 0);
+                LocalDateTime end = start.plusDays(1);
+                long count = applicationRepository.countByAppliedAtBetween(start, end);
+                labels.add(String.format("%02d", day));
+                counts.add(count);
+            }
+            dto.setLabels(labels);
+            dto.setCounts(counts);
+
+        } else {
+            throw new BadRequestException("Invalid type or month");
+        }
+
+        return dto;
+    }
+
+    @Override
+    public RegionChartDataDTO getActiveRegions(String type, Integer month) {
+        RegionChartDataDTO dto = new RegionChartDataDTO();
+        LocalDateTime now = LocalDateTime.now();
+        int currentYear = now.getYear();
+
+        List<Object[]> results;
+        if ("range".equals(type)) {
+            LocalDateTime start = LocalDateTime.of(currentYear, 1, 1, 0, 0);
+            LocalDateTime end = LocalDateTime.of(currentYear, now.getMonthValue() + 1, 1, 0, 0);
+            results = applicationRepository.countByLocationAndCreatedAtBetween(start, end);
+        } else if ("month".equals(type) && month != null) {
+            LocalDateTime start = LocalDateTime.of(currentYear, month, 1, 0, 0);
+            LocalDateTime end = start.plusMonths(1);
+            results = applicationRepository.countByLocationAndCreatedAtBetween(start, end);
+        } else {
+            throw new BadRequestException("Invalid type or month");
+        }
+
+        List<String> labels = results.stream().map(row -> (String) row[0]).collect(Collectors.toList());
+        List<Long> counts = results.stream().map(row -> ((Number) row[1]).longValue()).collect(Collectors.toList());
+        dto.setLabels(labels);
+        dto.setCounts(counts);
+
+        return dto;
     }
 
     private void saveApplicationStatusHistory(Application application, ApplicationStatus status) {

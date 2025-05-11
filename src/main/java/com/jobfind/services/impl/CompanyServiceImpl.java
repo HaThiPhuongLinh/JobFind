@@ -18,6 +18,12 @@ public class CompanyServiceImpl implements ICompanyService {
     private final CompanyConverter companyConverter;
 
     @Override
+    public List<CompanyDTO> getAllCompanies() {
+        List<Company> companies = companyRepository.findAll();
+        return companies.stream().map(companyConverter::convertToCompanyDTO).toList();
+    }
+
+    @Override
     public CompanyDTO getCompanyById(Integer companyId) {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new BadRequestException("Company not found"));

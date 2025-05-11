@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import java.util.List;
 
 public interface IJobService {
+    List<JobDTO> getAllJobs();
     void createJob(CreateJobRequest request, BindingResult bindingResult);
     JobDTO getJobByID(Integer jobId);
     List<JobDTO> searchJobs(String keyword, List<String> locations, List<Integer> jobCategoryIds);

@@ -21,6 +21,11 @@ public class JobSeekerProfileController {
     @Autowired
     private IJobSeekerProfileService jobSeekerProfileServiceImpl;
 
+    @GetMapping("/all")
+    public ResponseEntity<List<JobSeekerProfileDTO>> getAllJobSeekerProfiles() {
+        return ResponseEntity.ok(jobSeekerProfileServiceImpl.getAllJobSeekerProfiles());
+    }
+
     @GetMapping("/getProfileByUserId")
     public ResponseEntity<JobSeekerProfileResponse> getJobSeekerProfile(@RequestParam Integer userId) {
         return ResponseEntity.ok(jobSeekerProfileServiceImpl.getProfileByUserId(userId));

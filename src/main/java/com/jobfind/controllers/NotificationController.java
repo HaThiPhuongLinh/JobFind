@@ -5,10 +5,7 @@ import com.jobfind.dto.response.SuccessResponse;
 import com.jobfind.services.INotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,14 +15,25 @@ import java.util.List;
 public class NotificationController {
     private final INotificationService notificationServiceImpl;
 
-    @GetMapping("/getAll")
-    public ResponseEntity<List<NotificationDTO>> getAllNotifications() {
-        return ResponseEntity.ok(notificationServiceImpl.getAllNotifications());
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<NotificationDTO>> getNotificationsByUserId(@PathVariable Integer userId) {
+        return ResponseEntity.ok(notificationServiceImpl.getNotificationsByUserId(userId));
     }
 
-    @PutMapping("/read/{notiId}")
-    public ResponseEntity<SuccessResponse> updateReadStatus(Integer notiId) {
-        notificationServiceImpl.updateReadStatus(notiId);
+    @GetMapping("/user/{userId}/unread-count")
+    public ResponseEntity<Long> countUnreadNotifications(@PathVariable Integer userId) {
+        return ResponseEntity.ok(notificationServiceImpl.countUnreadNotifications(userId));
+    }
+
+    @PutMapping("/{notificationId}/read")
+    public ResponseEntity<SuccessResponse> markAsRead(@PathVariable Integer notificationId) {
+        notificationServiceImpl.markAsRead(notificationId);
         return ResponseEntity.ok(new SuccessResponse("Update read status successfully"));
+    }
+
+    @PutMapping("/user/{userId}/read-all")
+    public ResponseEntity<Void> markAllAsRead(@PathVariable Integer userId) {
+        notificationServiceImpl.markAllAsRead(userId);
+        return ResponseEntity.ok().build();
     }
 }

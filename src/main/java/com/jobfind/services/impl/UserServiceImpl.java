@@ -1,6 +1,7 @@
 package com.jobfind.services.impl;
 
 import com.jobfind.config.AwsS3Service;
+import com.jobfind.dto.dto.UserDTO;
 import com.jobfind.dto.request.ResetPasswordRequest;
 import com.jobfind.dto.request.UpdatePersonalInfoRequest;
 import com.jobfind.exception.BadRequestException;
@@ -38,6 +39,22 @@ public class UserServiceImpl implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final ValidateField validateField;
     private final AwsS3Service awsS3Service;
+
+    @Override
+    public List<UserDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        List<UserDTO> userDTOs = new ArrayList<>();
+        for (User user : users) {
+            UserDTO userDTO = UserDTO.builder()
+                    .userId(user.getUserId())
+                    .email(user.getEmail())
+                    .phone(user.getPhone())
+                    .role(user.getRole().name())
+                    .build();
+            userDTOs.add(userDTO);
+        }
+        return userDTOs;
+    }
 
     @Override
     public void updateProfileInfo(UpdatePersonalInfoRequest request, BindingResult bindingResult) {

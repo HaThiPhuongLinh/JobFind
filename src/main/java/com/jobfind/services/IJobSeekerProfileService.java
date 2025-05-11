@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import java.util.List;
 
 public interface IJobSeekerProfileService {
+    List<JobSeekerProfileDTO> getAllJobSeekerProfiles();
     JobSeekerProfileResponse getProfileByUserId(Integer userId);
     JobSeekerProfileDTO getProfileById(Integer jobSeekerId);
     void addWorkExperience(Integer jobSeekerId, CreateWorkExperienceRequest request, BindingResult result);

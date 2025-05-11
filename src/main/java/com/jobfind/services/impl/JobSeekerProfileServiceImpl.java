@@ -62,6 +62,17 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
     }
 
     @Override
+    public List<JobSeekerProfileDTO> getAllJobSeekerProfiles() {
+        List<JobSeekerProfile> jobSeekerProfiles = jobSeekerProfileRepository.findAll();
+        if (jobSeekerProfiles.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return jobSeekerProfiles.stream()
+                .map(jobSeekerProfileConverter::convertToJobSeekerProfileDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public JobSeekerProfileResponse getProfileByUserId(Integer userId) {
         JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(userId);
 

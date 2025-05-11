@@ -14,6 +14,11 @@ import java.util.List;
 public class CompanyController {
     private final ICompanyService companyServiceImpl;
 
+    @GetMapping("/all")
+    public ResponseEntity<List<CompanyDTO>> getAllCompanies() {
+        return ResponseEntity.ok(companyServiceImpl.getAllCompanies());
+    }
+
     @GetMapping("/{companyId}")
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Integer companyId) {
         return ResponseEntity.ok(companyServiceImpl.getCompanyById(companyId));

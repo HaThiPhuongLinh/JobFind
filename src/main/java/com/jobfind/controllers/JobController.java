@@ -19,6 +19,12 @@ public class JobController {
     @Autowired
     private IJobService jobServiceImpl;
 
+    @GetMapping("/all")
+    public ResponseEntity<List<JobDTO>> getAllJobs() {
+        List<JobDTO> jobs = jobServiceImpl.getAllJobs();
+        return ResponseEntity.ok(jobs);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<SuccessResponse> createJob(@Valid @RequestBody CreateJobRequest request, BindingResult bindingResult) {
         jobServiceImpl.createJob(request, bindingResult);

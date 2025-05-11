@@ -42,4 +42,6 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "AND j.isActive = true AND j.isDeleted = false AND j.isApproved = true")
     List<Job> findProposedJobs(@Param("skillIds") List<Integer> skillIds,
                                @Param("categoryIds") List<Integer> categoryIds);
+
+    long countByIsApprovedIsFalse();
 }

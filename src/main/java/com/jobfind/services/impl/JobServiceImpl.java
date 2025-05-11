@@ -34,6 +34,14 @@ public class JobServiceImpl implements IJobService {
     private final JobConverter jobConverter;
 
     @Override
+    public List<JobDTO> getAllJobs() {
+        List<Job> jobs = jobRepository.findAll();
+        return jobs.stream()
+                .map(jobConverter::convertToJobDTO)
+                .toList();
+    }
+
+    @Override
     public void createJob(CreateJobRequest request, BindingResult bindingResult) {
         Map<String, String> errors = validateField.getErrors(bindingResult);
 

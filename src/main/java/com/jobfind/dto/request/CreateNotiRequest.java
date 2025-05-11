@@ -13,4 +13,5 @@ public class CreateNotiRequest {
     private String content;
     private Integer applicationId;
     private Integer userId;
+    private String status;
 }

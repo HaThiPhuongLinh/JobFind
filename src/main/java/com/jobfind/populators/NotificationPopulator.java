@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 public class NotificationPopulator {
     public void populate(Notification source, NotificationDTO target) {
         target.setNotiId(source.getNotificationId());
+        target.setJobTitle(source.getApplication().getJob().getTitle());
         target.setContent(source.getContent());
         target.setIsRead(source.getIsRead());
         target.setCreatedAt(source.getCreatedAt());

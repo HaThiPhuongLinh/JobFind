@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,12 +26,13 @@ public class NotificationServiceImplService implements INotificationService {
     private final UserRepository userRepository;
     private final ApplicationRepository applicationRepository;
     private final NotificationConverter notificationConverter;
+
     @Override
-    public List<NotificationDTO> getAllNotifications() {
-        List<Notification> notifications = notificationRepository.findAll();
-        return notifications.stream()
+    public List<NotificationDTO> getNotificationsByUserId(Integer userId) {
+        List<Notification> notification = notificationRepository.findByUserUserIdOrderByCreatedAtDesc(userId);
+        return notification.stream()
                 .map(notificationConverter::convertToNotificationDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -49,10 +51,22 @@ public class NotificationServiceImplService implements INotificationService {
     }
 
     @Override
-    public void updateReadStatus(Integer notiId) {
-        Notification notification = notificationRepository.findById(notiId)
+    public Long countUnreadNotifications(Integer userId) {
+        return notificationRepository.countByUserUserIdAndIsReadFalse(userId);
+    }
+
+    @Override
+    public void markAsRead(Integer notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new BadRequestException("Notification not found"));
         notification.setIsRead(true);
         notificationRepository.save(notification);
+    }
+
+    @Override
+    public void markAllAsRead(Integer userId) {
+        List<Notification> notifications = notificationRepository.findByUserUserIdOrderByCreatedAtDesc(userId);
+        notifications.forEach(notification -> notification.setIsRead(true));
+        notificationRepository.saveAll(notifications);
     }
 }

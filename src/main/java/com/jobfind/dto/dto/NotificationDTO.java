@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class NotificationDTO {
     private Integer notiId;
+    private String jobTitle;
     private String content;
     private Boolean isRead;
     private Integer applicationId;
