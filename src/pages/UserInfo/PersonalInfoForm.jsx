@@ -218,6 +218,13 @@ const PersonalInfoForm = () => {
 
   const handleUpdateWorkExperience = async (index, updatedWorkExp) => {
     try {
+      if (updatedWorkExp === null) {
+        console.log("vv0 " + JSON.stringify(workExperiences[index].id))
+        await jobSeekerApi.deleteWorkExperience(user.id, workExperiences[index].id);
+        setWorkExperiences((prev) => prev.filter((_, i) => i !== index));
+        toast.success("Xóa kinh nghiệm làm việc thành công!", { autoClose: 1000 });
+        return;
+      }
       const workExpRequest = {
         workExperienceId: updatedWorkExp.id,
         jobPositionId: updatedWorkExp.jobPositionId,

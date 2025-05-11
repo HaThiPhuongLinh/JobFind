@@ -20,6 +20,11 @@ const jobSeekerApi = {
     return axiosClient.post(url, workExpRequest);
   },
 
+  deleteWorkExperience: (jobSeekerId, workExpId) => {
+    const url = `/jobseeker/deleteWorkExperience?jobSeekerId=${jobSeekerId}&workExperienceId=${workExpId}`;
+    return axiosClient.delete(url);
+  },
+
   updateWorkExperience: (jobSeekerId, workExpRequest) => {
     const url = `/jobseeker/updateWorkExperience?jobSeekerId=${jobSeekerId}`;
     return axiosClient.post(url, workExpRequest);
