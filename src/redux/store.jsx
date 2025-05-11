@@ -14,6 +14,7 @@ import CompanyReviewReducer from "./slices/companyReviewSlice";
 import SearchJobReducer from "./slices/searchJobSlice";
 import filterJobReducer from "./slices/filterJobSlice";
 import notificationReducer from "./slices/notificationSlice"
+import skillSlice from "./slices/skillSlice";
 import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "redux";
 import storage from "redux-persist/lib/storage";
@@ -51,6 +52,7 @@ const rootReducer = combineReducers({
   notification: notificationReducer,
   searchJob: SearchJobReducer,
   filterJob: filterJobReducer,
+  skill: skillSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
