@@ -13,6 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 public class WorkExperienceDTO {
     private String jobTitle;
+    private Integer id;
+    private Integer jobPositionId;
+    private Integer companyId;
     private String companyName;
     private String logo;
     private String description;

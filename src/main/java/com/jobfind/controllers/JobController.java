@@ -4,6 +4,7 @@ import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.dto.request.CreateJobRequest;
 import com.jobfind.dto.request.UpdateJobRequest;
 import com.jobfind.dto.response.SuccessResponse;
+import com.jobfind.models.JobPosition;
 import com.jobfind.services.IJobService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,5 +77,11 @@ public class JobController {
     public ResponseEntity<List<JobDTO>> getProposedJobs(@PathVariable Integer jobSeekerId) {
         List<JobDTO> jobs = jobServiceImpl.getProposedJobs(jobSeekerId);
         return ResponseEntity.ok(jobs);
+    }
+
+    @GetMapping("/jobPosition")
+    public ResponseEntity<List<JobPosition>> getAllJobPosition() {
+        List<JobPosition> jobPositions = jobServiceImpl.getAllJobPosition();
+        return ResponseEntity.ok(jobPositions);
     }
 }

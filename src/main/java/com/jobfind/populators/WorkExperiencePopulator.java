@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 public class WorkExperiencePopulator {
     private final SkillConverter skillConverter;
     public void populate(WorkExperience source, WorkExperienceDTO target) {
+        target.setId(source.getWorkExperienceId());
+        target.setJobPositionId(source.getJobPosition().getJobPositionId());
+        target.setCompanyId(source.getCompany().getCompanyId());
         target.setCompanyName(source.getCompany().getCompanyName());
         target.setStartDate(source.getStartDate().toString());
         target.setEndDate(source.getEndDate().toString());

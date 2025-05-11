@@ -30,6 +30,7 @@ public class JobServiceImpl implements IJobService {
     private final JobCategoryRepository jobCategoryRepository;
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
     private final UserRepository userRepository;
+    private final JobPositionRepository jobPositionRepository;
     private final ValidateField validateField;
     private final JobConverter jobConverter;
 
@@ -145,6 +146,15 @@ public class JobServiceImpl implements IJobService {
 
         job.setIsApproved(true);
         jobRepository.save(job);
+    }
+
+    @Override
+    public List<JobPosition> getAllJobPosition() {
+        List<JobPosition> jobPositions = jobPositionRepository.findAll();
+        if (jobPositions.isEmpty()) {
+            throw new BadRequestException("No job positions found");
+        }
+        return jobPositions;
     }
 
     @Override
