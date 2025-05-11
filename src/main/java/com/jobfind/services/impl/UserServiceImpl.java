@@ -103,6 +103,7 @@ public class UserServiceImpl implements IUserService {
             profile.setFirstName(request.getFirstName());
             profile.setLastName(request.getLastName());
             profile.setTitle(request.getTitle());
+            profile.setBirthDay(request.getBirthDay());
             profile.setAddress(request.getAddress());
 
             if (avatarPath != null) {
