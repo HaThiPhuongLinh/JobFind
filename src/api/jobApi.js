@@ -5,7 +5,7 @@ const jobApi = {
     const url = '/job/all';
     return axiosClient.get(url);
   },
-  
+
   create: (jobData) => {
     const url = "/job/create";
     return axiosClient.post(url, jobData);
@@ -68,6 +68,11 @@ const jobApi = {
   approve: (jobId) => {
     const url = `/job/approve/${jobId}`;
     return axiosClient.put(url);
+  },
+
+  getPosition: () => {
+    const url = '/job/jobPosition';
+    return axiosClient.get(url);
   },
 };
 
