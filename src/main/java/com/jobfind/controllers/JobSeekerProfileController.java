@@ -48,6 +48,12 @@ public class JobSeekerProfileController {
         return ResponseEntity.ok(new SuccessResponse("Work Experience updated successfully"));
     }
 
+    @DeleteMapping("/deleteWorkExperience")
+    public ResponseEntity<SuccessResponse> deleteWorkExperience(@RequestParam Integer jobSeekerId, @RequestParam Integer workExperienceId) {
+        jobSeekerProfileServiceImpl.deleteWorkExperience(jobSeekerId, workExperienceId);
+        return ResponseEntity.ok(new SuccessResponse("Work Experience deleted successfully"));
+    }
+
     @PostMapping("/addSkill")
     public ResponseEntity<SuccessResponse> createSkills(@Valid @RequestBody SkillRequest createSkillsRequest, BindingResult result) {
         jobSeekerProfileServiceImpl.addSkills(createSkillsRequest, result);

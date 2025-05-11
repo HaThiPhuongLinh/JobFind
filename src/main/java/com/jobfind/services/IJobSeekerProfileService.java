@@ -15,6 +15,7 @@ public interface IJobSeekerProfileService {
     JobSeekerProfileDTO getProfileById(Integer jobSeekerId);
     void addWorkExperience(Integer jobSeekerId, CreateWorkExperienceRequest request, BindingResult result);
     void updateWorkExperience(Integer jobSeekerId, UpdateWorkExperienceRequest request, BindingResult result);
+    void deleteWorkExperience(Integer jobSeekerId, Integer workExperienceId);
     void addSkills(SkillRequest createSkillsRequest, BindingResult result);
     void updateSkills(SkillRequest skillRequest, BindingResult bindingResult);
     List<JobSeekerProfileDTO> searchJobSeekers(String keyword, List<Integer> categoryIds, List<String> locations, Integer companyId);
