@@ -121,6 +121,7 @@ const JobFilters = ({ filters, setFilters }) => {
                             <option value="true">Đã đăng</option>
                             <option value="false">Ẩn</option>
                             <option value="pending">Chờ duyệt</option>
+                            <option value="rejected">Bị từ chối</option>
                         </select>
                     </div>
                     <div className="flex flex-col">

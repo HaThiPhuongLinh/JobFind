@@ -70,6 +70,11 @@ const jobApi = {
     return axiosClient.put(url);
   },
 
+  reject: (rejectJobRequest) => {
+    const url = `/job/reject`;
+    return axiosClient.put(url, rejectJobRequest);
+  },
+
   getPosition: () => {
     const url = '/job/jobPosition';
     return axiosClient.get(url);

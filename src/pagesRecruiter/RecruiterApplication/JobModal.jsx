@@ -30,7 +30,7 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
         deadline: "",
         skillIds: [],
         categoryIds: [],
-        isActive: true, 
+        isActive: true,
     };
 
     const [formData, setFormData] = useState(initialJobState);
@@ -186,6 +186,23 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
                                 <label className="text-sm font-medium text-gray-700">Trạng thái</label>
                                 <p className="border p-3 rounded-lg bg-gray-50">{formData.isActive ? 'Đăng' : 'Ẩn'}</p>
                             </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Trạng thái duyệt</label>
+                                <p className={`border p-3 rounded-lg bg-gray-50 font-semibold
+                                    ${formData.isApproved ? 'text-green-600' : formData.note && formData.note.trim() !== '' ? 'text-red-600' : 'text-yellow-600'}`}>
+                                    {formData.isApproved
+                                        ? '🟢 Đã duyệt'
+                                        : formData.note && formData.note.trim() !== ''
+                                            ? '❌ Đã từ chối'
+                                            : '⏳ Chờ duyệt'}
+                                </p>
+                            </div>
+                            {formData.isApproved === false && formData.note && formData.note.trim() !== '' && (
+                                <div>
+                                    <label className="text-sm font-medium text-gray-700">Lý do từ chối</label>
+                                    <p className="border p-3 rounded-lg bg-gray-50">{formData.note}</p>
+                                </div>
+                            )}
                             <div className="flex justify-end space-x-3 pt-6">
                                 <button
                                     onClick={() => onEdit(job)}
@@ -373,7 +390,7 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
                             <div className="flex justify-end mt-6 gap-4">
                                 <button
                                     type="button"
-                                    onClick={isCreateMode ? onClose : () => setMode('view')} // Close modal in create mode
+                                    onClick={isCreateMode ? onClose : () => setMode('view')}
                                     className="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition"
                                 >
                                     {isViewMode ? 'Đóng' : 'Hủy'}

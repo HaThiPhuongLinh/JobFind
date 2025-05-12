@@ -25,7 +25,6 @@ import { logout } from "../redux/slices/authSlice";
 import JobDetailModal from "./JobDetailModal";
 import ApplicationListModal from "./ApplicationListModal.JSX";
 
-// Register Chart.js components
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const AdminDashboard = () => {
@@ -133,10 +132,12 @@ const AdminDashboard = () => {
     };
 
     const filteredJobs = jobs.filter((job) => {
-        if (approvalFilter === "approved") return job.isApproved;
-        if (approvalFilter === "pending") return !job.isApproved;
-        return true;
-    })
+        if (approvalFilter === "approved") return job.isApproved === true;
+        if (approvalFilter === "pending") return job.isApproved === false && (!job.note || job.note.trim() === "");
+        if (approvalFilter === "rejected") return job.isApproved === false && job.note && job.note.trim() !== "" && job.isPending === false;
+        if (approvalFilter === "review") return job.isApproved === false && job.note && job.note.trim() !== "" && job.isPending === true;
+        return true; // "all"
+    });
 
     const handleOpenJobModal = (job) => {
         setSelectedJob(job);
@@ -528,6 +529,24 @@ const AdminDashboard = () => {
                                 >
                                     Chờ duyệt
                                 </Button>
+                                <Button
+                                    variant={approvalFilter === "rejected" ? "contained" : "outlined"}
+                                    onClick={() => {
+                                        setApprovalFilter("rejected");
+                                        setJobPage(1);
+                                    }}
+                                >
+                                    Đã từ chối
+                                </Button>
+                                <Button
+                                    variant={approvalFilter === "review" ? "contained" : "outlined"}
+                                    onClick={() => {
+                                        setApprovalFilter("review");
+                                        setJobPage(1);
+                                    }}
+                                >
+                                    Duyệt lại
+                                </Button>
                             </div>
                             <Table>
                                 <TableHead>
@@ -552,10 +571,22 @@ const AdminDashboard = () => {
                                             <TableCell>{job.company?.companyName || "N/A"}</TableCell>
                                             <TableCell>
                                                 <span
-                                                    className={`px-3 py-1 text-sm font-medium rounded-full ${job.isApproved ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+                                                    className={`px-3 py-1 text-sm font-medium rounded-full ${job.isApproved
+                                                            ? "bg-green-100 text-green-700"
+                                                            : !job.note || job.note.trim() === ""
+                                                                ? "bg-yellow-100 text-yellow-700"
+                                                                : job.isPending
+                                                                    ? "bg-orange-100 text-orange-700"
+                                                                    : "bg-red-100 text-red-700"
                                                         }`}
                                                 >
-                                                    {job.isApproved ? "Đã duyệt" : "Chờ duyệt"}
+                                                    {job.isApproved
+                                                        ? "🟢 Đã duyệt"
+                                                        : !job.note || job.note.trim() === ""
+                                                            ? "⏳ Chờ duyệt"
+                                                            : job.isPending
+                                                                ? "🔄 Duyệt lại"
+                                                                : "❌ Đã từ chối"}
                                                 </span>
                                             </TableCell>
                                             <TableCell>{job.location}</TableCell>
@@ -563,7 +594,6 @@ const AdminDashboard = () => {
                                         </TableRow>
                                     ))}
                                 </TableBody>
-
                             </Table>
                             <div className="flex justify-between items-center mt-4">
                                 <div>
