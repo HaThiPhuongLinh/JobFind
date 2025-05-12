@@ -44,6 +44,7 @@ public class AuthServiceImpl implements IAuthService {
     private final EmailService emailService;
 
     private final Map<String, RegistrationRequest> pendingRegistrations = new HashMap<>();
+    private final Map<String, String> pendingLogoPaths = new HashMap<>();
     private final Map<String, String> pendingOtps = new HashMap<>();
     private final Map<String, LocalDateTime> pendingOtpExpiries = new HashMap<>();
 
@@ -51,7 +52,7 @@ public class AuthServiceImpl implements IAuthService {
     public void register(RegistrationRequest registrationRequest, BindingResult result) throws IOException {
         Map<String, String> errors = validateField.getErrors(result);
         if (registrationRequest.getRole() == Role.JOBSEEKER) {
-            validateField.getJobSeekerFieldErrors(errors, registrationRequest.getFirstName(), registrationRequest.getLastName(), registrationRequest.getAddress());
+            validateField.getJobSeekerFieldErrors(errors, registrationRequest.getFirstName(), registrationRequest.getLastName());
         } else if (registrationRequest.getRole() == Role.COMPANY) {
             validateField.getCompanyFieldErrors(errors, registrationRequest.getCompanyName());
         }
@@ -85,8 +86,28 @@ public class AuthServiceImpl implements IAuthService {
         } else if (registrationRequest.getRole() == Role.COMPANY) {
             String otp = String.format("%06d", new Random().nextInt(999999));
             LocalDateTime otpExpiry = LocalDateTime.now().plusMinutes(10);
-
+            String logoPath = JobFindConstant.AVATAR_URL_DEFAULT;
+            if (registrationRequest.getLogoPath() != null && !registrationRequest.getLogoPath().isEmpty()) {
+                try {
+                    String originalFileName = registrationRequest.getLogoPath().getOriginalFilename();
+                    String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+                    String baseName = originalFileName.substring(0, originalFileName.lastIndexOf("."));
+                    String s3Key = baseName + "_" + System.currentTimeMillis() + extension;
+                    logoPath = awsS3Service.uploadFileToS3(
+                            registrationRequest.getLogoPath().getInputStream(),
+                            s3Key,
+                            registrationRequest.getLogoPath().getContentType()
+                    );
+                    System.out.println("S3 upload in register, logoPath: " + logoPath);
+                } catch (IOException e) {
+                    System.err.println("S3 upload failed in register: " + e.getMessage());
+                    throw new BadRequestException("Failed to upload logo: " + e.getMessage());
+                }
+            } else {
+                System.out.println("No logo file provided in register, using default: " + logoPath);
+            }
             pendingRegistrations.put(registrationRequest.getEmail(), registrationRequest);
+            pendingLogoPaths.put(registrationRequest.getEmail(), logoPath);
             pendingOtps.put(registrationRequest.getEmail(), otp);
             pendingOtpExpiries.put(registrationRequest.getEmail(), otpExpiry);
 
@@ -161,6 +182,7 @@ public class AuthServiceImpl implements IAuthService {
 
         if (LocalDateTime.now().isAfter(otpExpiry)) {
             pendingRegistrations.remove(request.getEmail());
+            pendingLogoPaths.remove(request.getEmail());
             pendingOtps.remove(request.getEmail());
             pendingOtpExpiries.remove(request.getEmail());
             throw new BadRequestException("OTP has expired");
@@ -171,6 +193,7 @@ public class AuthServiceImpl implements IAuthService {
         }
 
         RegistrationRequest registrationRequest = pendingRegistrations.get(request.getEmail());
+        String logoPath = pendingLogoPaths.getOrDefault(request.getEmail(), JobFindConstant.AVATAR_URL_DEFAULT);
 
         User user = User.builder()
                 .email(registrationRequest.getEmail())
@@ -182,21 +205,6 @@ public class AuthServiceImpl implements IAuthService {
                 .build();
 
         userRepository.save(user);
-
-        String logoPath = null;
-
-        if (registrationRequest.getLogoPath() != null && !registrationRequest.getLogoPath().isEmpty()) {
-            String originalFileName = registrationRequest.getLogoPath().getOriginalFilename();
-            String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-            String baseName = originalFileName.substring(0, originalFileName.lastIndexOf("."));
-            String s3Key = baseName + "_" + System.currentTimeMillis() + extension;
-            try {
-                logoPath = awsS3Service.uploadFileToS3(registrationRequest.getLogoPath().getInputStream(), s3Key, registrationRequest.getLogoPath().getContentType());
-            } catch (IOException e) {
-                userRepository.delete(user);
-                throw new BadRequestException("Failed to upload avatar.");
-            }
-        }
 
         companyRepository.save(Company.builder()
                 .companyName(registrationRequest.getCompanyName())
@@ -212,6 +220,7 @@ public class AuthServiceImpl implements IAuthService {
                 .build());
 
         pendingRegistrations.remove(request.getEmail());
+        pendingLogoPaths.remove(request.getEmail());
         pendingOtps.remove(request.getEmail());
         pendingOtpExpiries.remove(request.getEmail());
     }

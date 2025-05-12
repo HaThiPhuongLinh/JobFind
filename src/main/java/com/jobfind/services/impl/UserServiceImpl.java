@@ -98,7 +98,7 @@ public class UserServiceImpl implements IUserService {
             JobSeekerProfile profile = jobSeekerProfileRepository.findByUser_UserId(user.getUserId())
                     .orElseThrow(() -> new BadRequestException("JobSeekerProfile not found with this user id"));
 
-            validateField.getJobSeekerFieldErrors(errors, request.getFirstName(), request.getLastName(), request.getAddress());
+            validateField.getJobSeekerFieldErrors(errors, request.getFirstName(), request.getLastName());
 
             profile.setFirstName(request.getFirstName());
             profile.setLastName(request.getLastName());
