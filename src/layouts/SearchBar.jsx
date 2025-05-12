@@ -20,11 +20,12 @@ import MenuCategory from "../components/Menu/MenuCategory";
 // redux
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedCategories } from "../redux/slices/categorySlice";
-import { searchJobs } from "../redux/slices/searchJobSlice";
+import { useLocation } from "react-router-dom";
 
 const SearchBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
 
   // load data từ redux
   const user = useSelector((state) => state.auth.user);
@@ -78,6 +79,7 @@ const SearchBar = () => {
   }, []);
 
   const handleButtonSearch = () => {
+    const pathname = window.location.pathname;
     const companyId = user ? user.userId : "";
     const queryParams = new URLSearchParams();
 
@@ -90,35 +92,29 @@ const SearchBar = () => {
     }
 
     if (hasCity) {
-      if (auth_role === "JOBSEEKER" || auth_role === undefined) {
-        const cities = citysSelected.join(",");
-        queryParams.append("location", cities);
-      } else {
-        citysSelected.forEach((city) => {
-          queryParams.append("location", city);
-        });
-      }
+      const cities = citysSelected.join(",");
+      queryParams.append("location", cities);
     }
 
-    if (hasCategory && (auth_role === "JOBSEEKER" || auth_role === undefined)) {
+    // === CASE 1: /recruiter/home + role = company => search-cv ===
+    if (pathname === "/recruiter/home" && auth_role === "COMPANY") {
+      queryParams.append("companyId", companyId);
+      navigate(`/search-cv?${queryParams.toString()}`);
+      return;
+    }
+
+    // === CASE 2: other paths or JOBSEEKER => search job ===
+    if (hasCategory) {
       const categoryIds = categoriesSelected
         .map((cat) => cat.jobCategoryId)
         .join(",");
       queryParams.append("jobCategoryId", categoryIds);
     }
 
-    if (auth_role !== "JOBSEEKER" && auth_role !== undefined) {
-      queryParams.append("companyId", companyId);
-    }
-
     localStorage.setItem("searchText", JSON.stringify(searchText));
-
-    if (auth_role === "JOBSEEKER" || auth_role === undefined) {
-      navigate(`/search?${queryParams.toString()}`);
-    } else {
-      navigate(`/search-cv?${queryParams.toString()}`);
-    }
+    navigate(`/search?${queryParams.toString()}`);
   };
+
 
   return (
     <div
