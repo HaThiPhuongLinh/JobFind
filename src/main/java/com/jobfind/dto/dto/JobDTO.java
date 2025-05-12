@@ -26,6 +26,8 @@ public class JobDTO {
     private LocalDate deadline;
     private Boolean isActive;
     private Boolean isApproved;
+    private Boolean isPending;
     private List<SkillDTO> skills;
     private List<JobCategory> categories;
+    private String note;
 }

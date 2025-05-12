@@ -2,6 +2,7 @@ package com.jobfind.services.impl;
 
 import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.dto.request.CreateJobRequest;
+import com.jobfind.dto.request.RejectJobRequest;
 import com.jobfind.dto.request.UpdateJobRequest;
 import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.*;
@@ -11,7 +12,7 @@ import com.jobfind.repositories.*;
 import com.jobfind.services.IJobService;
 import com.jobfind.utils.ValidateField;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -29,7 +30,6 @@ public class JobServiceImpl implements IJobService {
     private final SkillRepository skillRepository;
     private final JobCategoryRepository jobCategoryRepository;
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
-    private final UserRepository userRepository;
     private final JobPositionRepository jobPositionRepository;
     private final ValidateField validateField;
     private final JobConverter jobConverter;
@@ -81,6 +81,7 @@ public class JobServiceImpl implements IJobService {
                 .postedAt(LocalDateTime.now())
                 .deadline(request.getDeadline())
                 .isActive(true)
+                .isPending(false)
                 .isDeleted(false)
                 .skills(skills)
                 .categories(categories)
@@ -123,6 +124,7 @@ public class JobServiceImpl implements IJobService {
         job.setLocation(request.getLocation());
         job.setDeadline(request.getDeadline());
         job.setIsActive(request.getIsActive());
+        job.setIsPending(true);
         job.setSkills(skills);
         job.setCategories(categories);
         job.setIsApproved(false);
@@ -145,6 +147,17 @@ public class JobServiceImpl implements IJobService {
                 .orElseThrow(() -> new BadRequestException("Job not found"));
 
         job.setIsApproved(true);
+        jobRepository.save(job);
+    }
+
+    @Override
+    public void rejectJob(RejectJobRequest request) {
+        Job job = jobRepository.findById(request.getJobId())
+                .orElseThrow(() -> new BadRequestException("Job not found"));
+
+        job.setIsApproved(false);
+        job.setNote(request.getReason());
+        job.setIsPending(false);
         jobRepository.save(job);
     }
 

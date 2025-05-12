@@ -44,6 +44,8 @@ public class Job {
     private LocalDateTime postedAt;
 
     private LocalDate deadline;
+    private String note;
+    private Boolean isPending;
 
     @Column(columnDefinition = "boolean default true")
     private Boolean isActive;

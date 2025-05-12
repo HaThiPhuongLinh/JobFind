@@ -2,6 +2,7 @@ package com.jobfind.services;
 
 import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.dto.request.CreateJobRequest;
+import com.jobfind.dto.request.RejectJobRequest;
 import com.jobfind.dto.request.UpdateJobRequest;
 import com.jobfind.models.JobPosition;
 import org.springframework.validation.BindingResult;
@@ -19,5 +20,7 @@ public interface IJobService {
     void updateJob(UpdateJobRequest request, BindingResult bindingResult);
     void deleteJob(Integer jobId);
     void approveJob(Integer jobId);
+    void rejectJob(RejectJobRequest request);
+
     List<JobPosition> getAllJobPosition();
 }

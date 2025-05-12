@@ -2,6 +2,7 @@ package com.jobfind.controllers;
 
 import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.dto.request.CreateJobRequest;
+import com.jobfind.dto.request.RejectJobRequest;
 import com.jobfind.dto.request.UpdateJobRequest;
 import com.jobfind.dto.response.SuccessResponse;
 import com.jobfind.models.JobPosition;
@@ -71,6 +72,12 @@ public class JobController {
     public ResponseEntity<SuccessResponse> approveJob(@PathVariable Integer jobId) {
         jobServiceImpl.approveJob(jobId);
         return ResponseEntity.ok(new SuccessResponse("Job approved successfully"));
+    }
+
+    @PutMapping("/reject")
+    public ResponseEntity<SuccessResponse> rejectJob(@RequestBody RejectJobRequest request) {
+        jobServiceImpl.rejectJob(request);
+        return ResponseEntity.ok(new SuccessResponse("Job rejected successfully"));
     }
 
     @GetMapping("/proposedJobs/{jobSeekerId}")

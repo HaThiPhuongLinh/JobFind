@@ -33,6 +33,8 @@ public class JobPopulator {
         target.setDeadline(source.getDeadline());
         target.setIsActive(source.getIsActive());
         target.setIsApproved(source.getIsApproved());
+        target.setNote(source.getNote());
+        target.setIsPending(source.getIsPending());
 
         List<SkillDTO> skillDTOList = source.getSkills().stream()
                 .map(skillConverter::convertToSkillDTO)
