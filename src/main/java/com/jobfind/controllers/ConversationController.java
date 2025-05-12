@@ -75,4 +75,10 @@ public class ConversationController {
         Long unreadCount = conversationServiceImpl.countUnreadConversations(userId);
         return ResponseEntity.ok(unreadCount);
     }
+
+    @GetMapping("/conversationIdByUserIdAndEmployerId")
+    public ResponseEntity<Long> findConversationIdByUserIdAndEmployerId(@RequestParam Integer userId, @RequestParam Integer employerId) {
+        Long conversationId = conversationServiceImpl.findConversationIdByUserIdAndEmployerId(userId, employerId);
+        return ResponseEntity.ok(conversationId);
+    }
 }

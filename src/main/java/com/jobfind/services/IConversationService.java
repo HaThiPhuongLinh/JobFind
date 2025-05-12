@@ -18,4 +18,5 @@ public interface IConversationService {
     List<MessageResponse> getMessagesByConversationId(Integer conversationId);
     void markMessagesAsRead(Integer conversationId, Integer userId);
     Long countUnreadConversations(Integer userId);
+    Long findConversationIdByUserIdAndEmployerId(Integer userId, Integer employerId);
 }

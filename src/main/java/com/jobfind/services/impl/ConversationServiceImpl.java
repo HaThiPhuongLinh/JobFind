@@ -276,4 +276,10 @@ public class ConversationServiceImpl implements IConversationService {
     public Long countUnreadConversations(Integer userId) {
         return conversationRepository.countUnreadConversations(userId);
     }
+
+    @Override
+    public Long findConversationIdByUserIdAndEmployerId(Integer userId, Integer employerId) {
+        Long conversationId = conversationRepository.findConversationIdByJobSeekerUserIdAndCompanyUserId(userId, employerId);
+        return conversationId != null ? conversationId : 0L;
+    }
 }
