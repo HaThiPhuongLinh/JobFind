@@ -5,6 +5,7 @@ import com.jobfind.config.JwtService;
 import com.jobfind.constants.JobFindConstant;
 import com.jobfind.dto.request.AuthRequest;
 import com.jobfind.dto.request.RegistrationRequest;
+import com.jobfind.dto.request.VerifyOtpRequest;
 import com.jobfind.dto.response.AuthResponse;
 import com.jobfind.exception.BadRequestException;
 import com.jobfind.models.Company;
@@ -15,6 +16,7 @@ import com.jobfind.models.enums.Role;
 import com.jobfind.repositories.CompanyRepository;
 import com.jobfind.repositories.JobSeekerProfileRepository;
 import com.jobfind.repositories.UserRepository;
+import com.jobfind.services.EmailService;
 import com.jobfind.services.IAuthService;
 import com.jobfind.utils.ValidateField;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,9 +41,15 @@ public class AuthServiceImpl implements IAuthService {
     private final JwtService jwtService;
     private final ValidateField validateField;
     private final AwsS3Service awsS3Service;
+    private final EmailService emailService;
+
+    private final Map<String, RegistrationRequest> pendingRegistrations = new HashMap<>();
+    private final Map<String, String> pendingOtps = new HashMap<>();
+    private final Map<String, LocalDateTime> pendingOtpExpiries = new HashMap<>();
+
     @Override
     public void register(RegistrationRequest registrationRequest, BindingResult result) throws IOException {
-        Map<String,String> errors = validateField.getErrors(result);
+        Map<String, String> errors = validateField.getErrors(result);
         if (registrationRequest.getRole() == Role.JOBSEEKER) {
             validateField.getJobSeekerFieldErrors(errors, registrationRequest.getFirstName(), registrationRequest.getLastName(), registrationRequest.getAddress());
         } else if (registrationRequest.getRole() == Role.COMPANY) {
@@ -51,37 +60,22 @@ public class AuthServiceImpl implements IAuthService {
             throw new BadRequestException("Please complete all required fields to proceed.", errors);
         }
 
-        if(userRepository.existsByEmail(registrationRequest.getEmail()))
+        if (userRepository.existsByEmail(registrationRequest.getEmail())) {
             throw new BadRequestException("Email already in use");
-
-        User user = User.builder()
-                .email(registrationRequest.getEmail())
-                .passwordHash(passwordEncoder.encode(registrationRequest.getPassword()))
-                .phone(registrationRequest.getPhone())
-                .role(registrationRequest.getRole())
-                .createdAt(LocalDateTime.now())
-                .isActive(true)
-                .build();
-
-        userRepository.save(user);
-
-        Boolean isVerified = registrationRequest.getIsVerified() != null && registrationRequest.getIsVerified();
-
-        String logoPath = null;
-
-        if (registrationRequest.getLogoPath() != null && !registrationRequest.getLogoPath().isEmpty()) {
-            String originalFileName = registrationRequest.getLogoPath().getOriginalFilename();
-            String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-            String baseName = originalFileName.substring(0, originalFileName.lastIndexOf("."));
-            String s3Key = baseName + "_" + System.currentTimeMillis() + extension;
-            try {
-                logoPath = awsS3Service.uploadFileToS3(registrationRequest.getLogoPath().getInputStream(), s3Key, registrationRequest.getLogoPath().getContentType());
-            } catch (IOException e) {
-                throw new BadRequestException("Failed to upload avatar.");
-            }
         }
 
         if (registrationRequest.getRole() == Role.JOBSEEKER) {
+            User user = User.builder()
+                    .email(registrationRequest.getEmail())
+                    .passwordHash(passwordEncoder.encode(registrationRequest.getPassword()))
+                    .phone(registrationRequest.getPhone())
+                    .role(registrationRequest.getRole())
+                    .createdAt(LocalDateTime.now())
+                    .isVerified(true)
+                    .build();
+
+            userRepository.save(user);
+
             jobSeekerProfileRepository.save(JobSeekerProfile.builder()
                     .firstName(registrationRequest.getFirstName())
                     .lastName(registrationRequest.getLastName())
@@ -89,18 +83,21 @@ public class AuthServiceImpl implements IAuthService {
                     .user(user)
                     .build());
         } else if (registrationRequest.getRole() == Role.COMPANY) {
-            companyRepository.save(Company.builder()
-                    .companyName(registrationRequest.getCompanyName())
-                    .industry(registrationRequest.getIndustryIds()
-                            .stream()
-                            .map(industryId -> Industry.builder().industryId(industryId).build())
-                            .collect(Collectors.toList()))
-                    .logoPath(logoPath)
-                    .website(registrationRequest.getWebsite())
-                    .description(registrationRequest.getDescription())
-                    .isVerified(isVerified)
-                    .user(user)
-                    .build());
+            String otp = String.format("%06d", new Random().nextInt(999999));
+            LocalDateTime otpExpiry = LocalDateTime.now().plusMinutes(10);
+
+            pendingRegistrations.put(registrationRequest.getEmail(), registrationRequest);
+            pendingOtps.put(registrationRequest.getEmail(), otp);
+            pendingOtpExpiries.put(registrationRequest.getEmail(), otpExpiry);
+
+            try {
+                emailService.sendOtpEmail(registrationRequest.getEmail(), otp);
+            } catch (Exception e) {
+                pendingRegistrations.remove(registrationRequest.getEmail());
+                pendingOtps.remove(registrationRequest.getEmail());
+                pendingOtpExpiries.remove(registrationRequest.getEmail());
+                throw new BadRequestException("Failed to send OTP email: " + e.getMessage());
+            }
         }
     }
 
@@ -108,13 +105,15 @@ public class AuthServiceImpl implements IAuthService {
     public AuthResponse login(AuthRequest authRequest, BindingResult result) {
         validateField.getErrors(result);
 
-        if(!userRepository.existsByEmail(authRequest.getEmail()))
+        if (!userRepository.existsByEmail(authRequest.getEmail())) {
             throw new BadRequestException("Email not exists");
+        }
 
         User user = userRepository.findByEmail(authRequest.getEmail()).get();
 
-        if(!passwordEncoder.matches(authRequest.getPassword(), user.getPasswordHash()))
+        if (!passwordEncoder.matches(authRequest.getPassword(), user.getPasswordHash())) {
             throw new BadRequestException("Password is incorrect");
+        }
 
         String token = jwtService.generateToken(user.getEmail());
 
@@ -145,5 +144,94 @@ public class AuthServiceImpl implements IAuthService {
                 .phone(user.getPhone())
                 .role(user.getRole())
                 .build();
+    }
+
+    @Override
+    public void verifyOtp(VerifyOtpRequest request) {
+        if (!pendingRegistrations.containsKey(request.getEmail())) {
+            throw new BadRequestException("No registration found for this email");
+        }
+
+        String storedOtp = pendingOtps.get(request.getEmail());
+        LocalDateTime otpExpiry = pendingOtpExpiries.get(request.getEmail());
+
+        if (storedOtp == null || otpExpiry == null) {
+            throw new BadRequestException("No OTP found for this email");
+        }
+
+        if (LocalDateTime.now().isAfter(otpExpiry)) {
+            pendingRegistrations.remove(request.getEmail());
+            pendingOtps.remove(request.getEmail());
+            pendingOtpExpiries.remove(request.getEmail());
+            throw new BadRequestException("OTP has expired");
+        }
+
+        if (!storedOtp.equals(request.getOtp())) {
+            throw new BadRequestException("Invalid OTP");
+        }
+
+        RegistrationRequest registrationRequest = pendingRegistrations.get(request.getEmail());
+
+        User user = User.builder()
+                .email(registrationRequest.getEmail())
+                .passwordHash(passwordEncoder.encode(registrationRequest.getPassword()))
+                .phone(registrationRequest.getPhone())
+                .role(registrationRequest.getRole())
+                .createdAt(LocalDateTime.now())
+                .isVerified(true)
+                .build();
+
+        userRepository.save(user);
+
+        String logoPath = null;
+
+        if (registrationRequest.getLogoPath() != null && !registrationRequest.getLogoPath().isEmpty()) {
+            String originalFileName = registrationRequest.getLogoPath().getOriginalFilename();
+            String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            String baseName = originalFileName.substring(0, originalFileName.lastIndexOf("."));
+            String s3Key = baseName + "_" + System.currentTimeMillis() + extension;
+            try {
+                logoPath = awsS3Service.uploadFileToS3(registrationRequest.getLogoPath().getInputStream(), s3Key, registrationRequest.getLogoPath().getContentType());
+            } catch (IOException e) {
+                userRepository.delete(user);
+                throw new BadRequestException("Failed to upload avatar.");
+            }
+        }
+
+        companyRepository.save(Company.builder()
+                .companyName(registrationRequest.getCompanyName())
+                .industry(registrationRequest.getIndustryIds()
+                        .stream()
+                        .map(industryId -> Industry.builder().industryId(industryId).build())
+                        .collect(Collectors.toList()))
+                .logoPath(logoPath)
+                .website(registrationRequest.getWebsite())
+                .description(registrationRequest.getDescription())
+                .isVerified(true)
+                .user(user)
+                .build());
+
+        pendingRegistrations.remove(request.getEmail());
+        pendingOtps.remove(request.getEmail());
+        pendingOtpExpiries.remove(request.getEmail());
+    }
+
+    @Override
+    public void resendOtp(String email) {
+        if (!pendingRegistrations.containsKey(email)) {
+            throw new BadRequestException("No registration found for this email");
+        }
+
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        LocalDateTime otpExpiry = LocalDateTime.now().plusMinutes(10);
+
+        pendingOtps.put(email, otp);
+        pendingOtpExpiries.put(email, otpExpiry);
+
+        try {
+            emailService.sendOtpEmail(email, otp);
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to send OTP email: " + e.getMessage());
+        }
     }
 }

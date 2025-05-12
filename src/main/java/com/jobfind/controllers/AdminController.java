@@ -35,7 +35,7 @@ public class AdminController {
                                 .filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved())
                                 .count()
                 )
-                .activeUsers(userRepository.countByIsActiveIsTrue())
+                .activeUsers(userRepository.countByIsVerifiedIsTrue())
                 .pendingApprovals(jobRepository.countByIsApprovedIsFalse())
                 .build();
         return ResponseEntity.ok(stats);

@@ -27,8 +27,11 @@ public class User {
 
     private LocalDateTime createdAt;
 
-    @Column(columnDefinition = "boolean default true")
-    private Boolean isActive;
+    private String otp;
+
+    private LocalDateTime otpExpiry;
+
+    private boolean isVerified;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private JobSeekerProfile jobSeekerProfile;
