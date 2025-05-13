@@ -20,8 +20,18 @@ import JobItemv2 from "../../components/ui/JobItemv2";
 import jobApi from "../../api/jobApi";
 import ReviewCompanyItem from "../../components/ui/ReviewCompanyItem";
 import { sortReviews } from "../../redux/slices/companyReviewSlice";
-import { fetchReviewsByCompanyId } from "../../redux/slices/companyReviewSlice";
-import { filterJob, fetchJobsByCompanyId } from "../../redux/slices/jobSlice";
+import {
+  fetchReviewsByCompanyId,
+  updateCompanyReview,
+  deleteCompanyReview,
+} from "../../redux/slices/companyReviewSlice";
+import {
+  filterJob,
+  fetchJobsByCompanyId,
+  applyAdvancedFilters,
+} from "../../redux/slices/jobSlice";
+import CompanyReviewInput from "./CompanyReviewInput";
+import companyReviewApi from "../../api/companyReviewApi";
 
 const filters = [
   {
@@ -74,13 +84,22 @@ const CompanyDetail = () => {
   const [selectedFilters, setSelectedFilters] = useState({});
   const [isReviewDropdownOpen, setIsReviewDropdownOpen] = useState(false);
   const [selectedReviewFilter, setSelectedReviewFilter] = useState("Mới nhất");
+  const [isComment, setIsComment] = useState(false);
 
   // selector from redux
   const categoriesRedux = useSelector((state) => state.category.categories);
   const reviewsRedux = useSelector((state) => state.companyReview.reviews);
   const jobsByCompanyId = useSelector((state) => state.jobs.jobsByCompanyId);
-  const filterJobsRedux = useSelector((state) => state.jobs.filterJobs);
-  // console.log("filterJobsRedux", filterJobsRedux);
+  const applicationListByJSKReux = useSelector(
+    (state) => state.application.list
+  );
+  const user = JSON.parse(localStorage.getItem("user"));
+  console.log("review list: ", reviewsRedux);
+
+  const isApply = applicationListByJSKReux.some((item) => {
+    return item.job.company.companyId + "" === companyId + "";
+  });
+
   useEffect(() => {
     // console.log("categoriesRedux", categoriesRedux);
     if (categoriesRedux && categoriesRedux.length > 0) {
@@ -129,6 +148,40 @@ const CompanyDetail = () => {
     fetchCompanyData();
     fetchReviews();
   }, [companyId, dispatch]);
+
+  // Lấy danh sách review của company đang mở
+  useEffect(() => {
+    const fetchReviewsByCompanyId = async () => {
+      try {
+        const listReviewByMe = await companyReviewApi.getReviewsByCompanyId(
+          companyId
+        );
+
+        // Kiểm tra xem user hiện tại đã comment cho company này chưa
+        const isCommend = listReviewByMe.some((item) => {
+          return item.jobSeekerProfileId === user.id;
+        });
+        setIsComment(isCommend);
+      } catch (error) {
+        console.log("Lỗi khi lấy danh sách đánh giá của công ty:", error);
+      }
+    };
+
+    fetchReviewsByCompanyId();
+  }, [companyId, user]);
+
+  // Handle update + delete review
+  const handleUpdateReview = async (updateData) => {
+    dispatch(updateCompanyReview(updateData));
+    // reload laij trang
+    window.location.reload();
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    dispatch(deleteCompanyReview(reviewId));
+    // reload laij trang
+    // window.location.reload();
+  };
 
   // handle filter dropdown selected
   const handleSelectFilterOption = (filterId, option) => {
@@ -183,20 +236,22 @@ const CompanyDetail = () => {
           {/* Các tabs */}
           <div className="flex border-b border-gray-200">
             <button
-              className={`px-4 py-4 text-sm font-medium ${activeTab === "jobs"
+              className={`px-4 py-4 text-sm font-medium ${
+                activeTab === "jobs"
                   ? "text-green-600 border-b-2 border-green-600"
                   : "text-gray-500 hover:text-gray-700"
-                } cursor-pointer !rounded-button whitespace-nowrap`}
+              } cursor-pointer !rounded-button whitespace-nowrap`}
               onClick={() => setActiveTab("jobs")}
             >
               {/* Jobs ({company.jobCount}) */}
               Công việc ( {jobsByCompanyId.length || 0} công việc)
             </button>
             <button
-              className={`px-4 py-4 text-sm font-medium ${activeTab === "reviews"
+              className={`px-4 py-4 text-sm font-medium ${
+                activeTab === "reviews"
                   ? "text-green-600 border-b-2 border-green-600"
                   : "text-gray-500 hover:text-gray-700"
-                } cursor-pointer !rounded-button whitespace-nowrap`}
+              } cursor-pointer !rounded-button whitespace-nowrap`}
               onClick={() => setActiveTab("reviews")}
             >
               Reviews
@@ -306,8 +361,9 @@ const CompanyDetail = () => {
                 >
                   <FontAwesomeIcon
                     icon={faRotate}
-                    className={`transition-transform duration-500 ${rotating ? "rotate-[180deg]" : ""
-                      }`}
+                    className={`transition-transform duration-500 ${
+                      rotating ? "rotate-[180deg]" : ""
+                    }`}
                   />
                   <span className="px-2">Đặt lại bộ lọc</span>
                 </button>
@@ -391,8 +447,9 @@ const CompanyDetail = () => {
                 <span className="px-2">{selectedReviewFilter}</span>
                 <FontAwesomeIcon
                   icon={faAngleDown}
-                  className={`transition-transform ${isReviewDropdownOpen ? "rotate-180" : ""
-                    }`}
+                  className={`transition-transform ${
+                    isReviewDropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -421,8 +478,13 @@ const CompanyDetail = () => {
           <div>
             {reviewsRedux.length > 0 ? (
               <div>
-                {reviewsRedux.map((review) => (
-                  <ReviewCompanyItem key={review.reviewId} review={review} />
+                {reviewsRedux.map((review, index) => (
+                  <ReviewCompanyItem
+                    key={index}
+                    review={review}
+                    onEdit={handleUpdateReview}
+                    onDelete={handleDeleteReview}
+                  />
                 ))}
               </div>
             ) : (
@@ -435,6 +497,12 @@ const CompanyDetail = () => {
             )}
           </div>
           {/* End: reviews list */}
+
+          {/* Start: review input */}
+          {isApply && !isComment && (
+            <CompanyReviewInput companyId={companyId} jobSeekerId={user.id} />
+          )}
+          {/* End: review input */}
         </div>
       )}
     </div>
