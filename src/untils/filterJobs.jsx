@@ -22,7 +22,6 @@ export const filterJobs = (jobs, filter) => {
 
   // DATE
   if (filter.DATE && filter.DATE !== "Tất cả ngày đăng") {
-    console.log("filter.DATE", filter.DATE);
     if (filter.DATE === "Mới nhất") {
       temp.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
     } else if (filter.DATE === "Cũ nhất") {
@@ -32,61 +31,80 @@ export const filterJobs = (jobs, filter) => {
     } else if (filter.DATE === "Hạn nộp xa nhất") {
       temp.sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
     }
-    console.log("temp", temp);
+  }
+
+  // FILTER BY SALARY
+  if (filter.SALARY && filter.SALARY !== "Tất cả") {
+    switch (filter.SALARY) {
+      case "Dưới 5 triệu":
+        temp = temp.filter((job) => job.salaryMin < 5000000);
+        break;
+      case "5 triệu - 10 triệu":
+        temp = temp.filter(
+          (job) => job.salaryMin >= 5000000 && job.salaryMin <= 10000000
+        );
+        break;
+      case "10 triệu - 15 triệu":
+        temp = temp.filter(
+          (job) => job.salaryMin >= 10000000 && job.salaryMin <= 15000000
+        );
+        break;
+      case "15 triệu - 20 triệu":
+        temp = temp.filter(
+          (job) => job.salaryMin >= 15000000 && job.salaryMin <= 20000000
+        );
+        break;
+      case "Trên 20 triệu":
+        temp = temp.filter((job) => job.salaryMin > 20000000);
+        break;
+      default:
+        break;
+    }
+  }
+
+  // FILTER BY EXPERIENCE
+  if (filter.EXPERIENCE && filter.EXPERIENCE !== "Tất cả") {
+    temp = temp.filter((job) => {
+      const [minExp, maxExp] = parseExperienceRange(job.yearsOfExperience);
+      console.log("minExp - maxExp", minExp, maxExp);
+
+      switch (filter.EXPERIENCE) {
+        case "Dưới 1 năm":
+          return minExp < 1;
+        case "1 năm":
+          return minExp == 1 || maxExp == 1;
+        case "2 năm":
+          return minExp == 2 || maxExp == 2;
+        case "3 năm":
+          return minExp == 3 || maxExp == 3;
+        case "4 năm":
+          return minExp == 4 || maxExp == 4;
+        case "5 năm":
+          return minExp == 5 || maxExp == 5;
+        case "Trên 5 năm":
+          return minExp >= 5;
+        default:
+          return true;
+      }
+    });
   }
 
   return temp;
-
-  //   return (
-  //     jobs
-  //       ?.filter((job) => {
-  //         // 1. CATEGORY
-  //         if (filter.CATEGORY && job.category !== filter.CATEGORY) return false;
-
-  //         // 2. LOCATION
-  //         if (filter.LOCATION && job.location !== filter.LOCATION) return false;
-
-  //         // 3. WORKTYPE
-  //         if (filter.WORKTYPE && job.workType !== filter.WORKTYPE) return false;
-
-  //         // 4. EXPERIENCE (giả sử filter.EXPERIENCE là chuỗi: "0-1 năm", "1-3 năm", ...)
-  //         if (filter.EXPERIENCE) {
-  //           const jobExp = parseFloat(job.experience); // giả sử job.experience là số
-  //           const [minExp, maxExp] = filter.EXPERIENCE.split("-").map((v) =>
-  //             parseFloat(v)
-  //           );
-  //           if (jobExp < minExp || jobExp > maxExp) return false;
-  //         }
-
-  //         // 5. SALARY (giả sử là khoảng như "500-1000", hoặc "Trên 1000")
-  //         if (filter.SALARY) {
-  //           const jobSalary = parseInt(job.salary); // job.salary là số
-  //           if (filter.SALARY.includes("-")) {
-  //             const [minSalary, maxSalary] = filter.SALARY.split("-").map((v) =>
-  //               parseInt(v)
-  //             );
-  //             if (jobSalary < minSalary || jobSalary > maxSalary) return false;
-  //           } else if (filter.SALARY.includes("Trên")) {
-  //             const min = parseInt(filter.SALARY.replace("Trên ", ""));
-  //             if (jobSalary <= min) return false;
-  //           }
-  //         }
-
-  //         // 6. SKILL (giả sử filter.SKILL là 1 chuỗi, job.skills là mảng)
-  //         if (filter.SKILL && Array.isArray(job.skills)) {
-  //           if (!job.skills.includes(filter.SKILL)) return false;
-  //         }
-
-  //         return true;
-  //       })
-  //       // 7. Sắp xếp theo ngày
-  //       .sort((a, b) => {
-  //         if (filter.DATE === "Mới nhất") {
-  //           return new Date(b.createdAt) - new Date(a.createdAt);
-  //         } else if (filter.DATE === "Cũ nhất") {
-  //           return new Date(a.createdAt) - new Date(b.createdAt);
-  //         }
-  //         return 0;
-  //       })
-  //   );
 };
+
+// Helper function to parse experience range string like "1-4"
+function parseExperienceRange(expString) {
+  if (!expString) return [0, 0];
+
+  if (expString.includes("-")) {
+    const [min, max] = expString.split("-").map(Number);
+    return [min, max];
+  }
+
+  if (expString.includes("+")) {
+    const min = parseInt(expString);
+    return [min, 99]; // Trên 3 năm -> 3+
+  }
+
+  return [0, 0];
+}
