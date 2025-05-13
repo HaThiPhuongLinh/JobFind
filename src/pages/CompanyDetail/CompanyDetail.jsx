@@ -32,14 +32,10 @@ import {
 } from "../../redux/slices/jobSlice";
 import CompanyReviewInput from "./CompanyReviewInput";
 import companyReviewApi from "../../api/companyReviewApi";
+import { filterJobs } from "../../untils/filterJobs";
+import jobs from "../../data/jobs";
 
 const filters = [
-  {
-    id: "CATEGORY",
-    icon: faList,
-    name: "Nghề nghiệp",
-    options: [],
-  },
   {
     id: "LOCATION",
     icon: faLocationDot,
@@ -53,9 +49,9 @@ const filters = [
     options: [
       { id: 1, name: "Tất cả ngày đăng" },
       { id: 2, name: "Mới nhất" },
-      { id: 3, name: "Tuần trước" },
-      { id: 4, name: "Tháng trước" },
-      { id: 5, name: "3 tháng qua" },
+      { id: 3, name: "Cũ nhất" },
+      { id: 4, name: "Hạn nộp gần nhất" },
+      { id: 5, name: "Hạn nộp xa nhất" },
     ],
   },
   {
@@ -85,27 +81,27 @@ const CompanyDetail = () => {
   const [isReviewDropdownOpen, setIsReviewDropdownOpen] = useState(false);
   const [selectedReviewFilter, setSelectedReviewFilter] = useState("Mới nhất");
   const [isComment, setIsComment] = useState(false);
+  const [jobsFiltered, setJobsFiltered] = useState([]);
 
   // selector from redux
+  const user = JSON.parse(localStorage.getItem("user"));
   const categoriesRedux = useSelector((state) => state.category.categories);
   const reviewsRedux = useSelector((state) => state.companyReview.reviews);
   const jobsByCompanyId = useSelector((state) => state.jobs.jobsByCompanyId);
   const applicationListByJSKReux = useSelector(
     (state) => state.application.list
   );
-  const user = JSON.parse(localStorage.getItem("user"));
-  console.log("review list: ", reviewsRedux);
 
+  useEffect(() => {
+    if (jobsByCompanyId && jobsByCompanyId.length > 0) {
+      setJobsFiltered(jobsByCompanyId);
+    }
+  }, [jobsByCompanyId]);
+
+  // Kiểm tra xem người dùng đã apply công việc của công ty này hay chưa
   const isApply = applicationListByJSKReux.some((item) => {
     return item.job.company.companyId + "" === companyId + "";
   });
-
-  useEffect(() => {
-    // console.log("categoriesRedux", categoriesRedux);
-    if (categoriesRedux && categoriesRedux.length > 0) {
-      filters[0].options = categoriesRedux;
-    }
-  }, [categoriesRedux]);
 
   // fetch data
   useEffect(() => {
@@ -149,27 +145,6 @@ const CompanyDetail = () => {
     fetchReviews();
   }, [companyId, dispatch]);
 
-  // Lấy danh sách review của company đang mở
-  useEffect(() => {
-    const fetchReviewsByCompanyId = async () => {
-      try {
-        const listReviewByMe = await companyReviewApi.getReviewsByCompanyId(
-          companyId
-        );
-
-        // Kiểm tra xem user hiện tại đã comment cho company này chưa
-        const isCommend = listReviewByMe.some((item) => {
-          return item.jobSeekerProfileId === user.id;
-        });
-        setIsComment(isCommend);
-      } catch (error) {
-        console.log("Lỗi khi lấy danh sách đánh giá của công ty:", error);
-      }
-    };
-
-    fetchReviewsByCompanyId();
-  }, [companyId, user]);
-
   // Handle update + delete review
   const handleUpdateReview = async (updateData) => {
     dispatch(updateCompanyReview(updateData));
@@ -185,9 +160,12 @@ const CompanyDetail = () => {
 
   // handle filter dropdown selected
   const handleSelectFilterOption = (filterId, option) => {
-    setSelectedFilters((prev) => ({ ...prev, [filterId]: option }));
+    const newFilter = { ...selectedFilters, [filterId]: option };
+    setSelectedFilters(newFilter);
     setOpenDropdownId(null);
-    dispatch(filterJob(selectedFilters));
+    // dispatch(filterJob(selectedFilters));
+    const jobsFiltered = filterJobs(jobsByCompanyId, newFilter);
+    setJobsFiltered(jobsFiltered);
   };
 
   const handleSelectReviewOption = (option) => {
@@ -201,18 +179,15 @@ const CompanyDetail = () => {
     setSelectedFilters({});
     setOpenDropdownId(null);
     setTimeout(() => setRotating(false), 600);
-    dispatch(filterJob({}));
+    setJobsFiltered(jobsByCompanyId);
   };
 
   // Tính toán phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 4;
-  const totalPages = Math.ceil(jobsByCompanyId.length / jobsPerPage);
+  const totalPages = Math.ceil(jobsFiltered.length / jobsPerPage);
   const startIndex = (currentPage - 1) * jobsPerPage;
-  const currentJobs = jobsByCompanyId.slice(
-    startIndex,
-    startIndex + jobsPerPage
-  );
+  const currentJobs = jobsFiltered.slice(startIndex, startIndex + jobsPerPage);
 
   return (
     <div className="container mx-auto py-4">
@@ -335,9 +310,9 @@ const CompanyDetail = () => {
 
                     {openDropdownId === filter.id && (
                       <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
-                        {filter.options.map((option) => (
+                        {filter.options.map((option, index) => (
                           <button
-                            key={option.id || option.name}
+                            key={index}
                             className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 cursor-pointer !rounded-button whitespace-nowrap"
                             onClick={() =>
                               handleSelectFilterOption(
@@ -373,7 +348,7 @@ const CompanyDetail = () => {
 
             {/* jobs list + pagination */}
             <div className="space-y-4">
-              {jobsByCompanyId ? (
+              {jobsFiltered ? (
                 currentJobs.slice(0, 4).map((job, index) => (
                   <div
                     key={index}
