@@ -407,7 +407,6 @@ const CompanyDetail = () => {
                     />
                   </div>
                 </div>
-                <span className="text-gray-500">Dựa trên 127 đánh giá</span>
               </div>
             </div>
             {/* End: rating star + rating count */}
@@ -475,7 +474,7 @@ const CompanyDetail = () => {
 
           {/* Start: review input */}
           {isApply && !isComment && (
-            <CompanyReviewInput companyId={companyId} jobSeekerId={user.id} />
+            <CompanyReviewInput companyId={companyId} jobSeekerId={user.userId} />
           )}
           {/* End: review input */}
         </div>

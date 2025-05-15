@@ -10,26 +10,28 @@ const BestCategory = () => {
       <p className="text-2xl text-primary font-bold">Top danh mục nổi bật</p>
       <div className="grid grid-cols-4 gap-6 pt-4">
         {categories.map((item) => (
-          <div
-            key={item.jobCategoryId}
-            className="flex flex-col justify-center items-center bg-slate-200 rounded-lg cursor-pointer hover:bg-white
-            hover:shadow-lg transition duration-300 ease-in-out border hover:border-green-400"
-            style={{ height: "200px" }}
+          <Link
+            to={`/search?jobCategoryId=${item.jobCategoryId}`}
+            className="pt-4 font-bold"
           >
-            <img
-              src={item.image || "/image_cv.webp"}
-              alt="icon"
-              style={{ width: "100px", height: "100px" }}
-              className=""
-            />
-            <Link
-              to={`/search?jobCategoryId=${item.jobCategoryId}`}
-              className="pt-4 font-bold"
+            <div
+              key={item.jobCategoryId}
+              className="flex flex-col justify-center items-center bg-slate-200 rounded-lg cursor-pointer hover:bg-white
+            hover:shadow-lg transition duration-300 ease-in-out border hover:border-green-400"
+              style={{ height: "200px" }}
             >
+              <img
+                src={item.image || "/image_cv.webp"}
+                alt="icon"
+                style={{ width: "100px", height: "100px" }}
+                className=""
+              />
+
               {item.name}
-            </Link>
-            {/* <p className="text-primary text-sm pt-2">{item.count} việc làm</p> */}
-          </div>
+
+              {/* <p className="text-primary text-sm pt-2">{item.count} việc làm</p> */}
+            </div>
+          </Link>
         ))}
       </div>
     </div>

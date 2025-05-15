@@ -205,7 +205,7 @@ const PersonalInfoForm = () => {
         skills: workExp.skills.filter((id) => id != null && !isNaN(id)),
         categories: workExp.categories.filter((id) => id != null && !isNaN(id)),
       };
-      await jobSeekerApi.addWorkExperience(user.id, workExpRequest);
+      await jobSeekerApi.addWorkExperience(user.userId, workExpRequest);
       setWorkExperiences((prev) => [
         ...prev,
         { ...workExp, id: Date.now() },

@@ -21,7 +21,12 @@ const WorkExperience = ({
     jobPositionId: null,
     companyId: null,
     description: "",
-  })
+    jobType: "",
+    startDate: "",
+    endDate: "",
+    skills: [], 
+    categories: [], 
+  });
 
   const [skillOptions, setSkillOptions] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -216,9 +221,9 @@ const WorkExperience = ({
   };
 
   const jobTypeOptions = [
-    { value: "FULL_TIME", label: "Toàn thời gian" },
-    { value: "PART_TIME", label: "Bán thời gian" },
-    { value: "CONTRACT", label: "Hợp đồng" },
+    { value: "FULLTIME", label: "Toàn thời gian" },
+    { value: "PARTTIME", label: "Bán thời gian" },
+    { value: "FREELANCE", label: "Freelance" },
     { value: "INTERNSHIP", label: "Thực tập" },
   ];
 

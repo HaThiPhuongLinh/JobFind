@@ -79,6 +79,11 @@ const jobApi = {
     const url = '/job/jobPosition';
     return axiosClient.get(url);
   },
+
+  getJobPriority: () => {
+    const url = '/job/priority';
+    return axiosClient.get(url);
+  },
 };
 
 export default jobApi;

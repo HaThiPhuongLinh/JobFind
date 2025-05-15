@@ -46,7 +46,7 @@ export const addCV = createAsyncThunk(
       formData.append("resumeName", nameWithoutExtension);
       formData.append("resume", file);
 
-      await resumeApi.cretaeResume(userId, formData);
+      await resumeApi.createResume(userId, formData);
       await thunkAPI.dispatch(fetchJobSeekerProfileByUserId(userId));
     } catch (error) {
       console.error("Lỗi khi thêm CV:", error);

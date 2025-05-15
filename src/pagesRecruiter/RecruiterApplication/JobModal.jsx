@@ -9,6 +9,11 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
     const isEditMode = mode === 'edit';
     const isCreateMode = mode === 'create';
 
+    const educationLevelOptions = [
+        { value: 'Đại Học', label: 'Đại Học' },
+        { value: 'Cao Đẳng', label: 'Cao Đẳng' },
+    ];
+
     const initialJobState = isViewMode || isEditMode ? {
         ...(job || {}),
         skillIds: job?.skills?.map(s => {
@@ -17,6 +22,8 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
         }) || [],
         categoryIds: job?.categories?.map(c => c.jobCategoryId) || [],
         isActive: job?.isActive ?? false,
+        yearsOfExperience: job?.yearsOfExperience ?? 0,
+        educationLevel: job?.educationLevel ?? '',
     } : {
         companyId,
         title: "",
@@ -31,6 +38,8 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
         skillIds: [],
         categoryIds: [],
         isActive: true,
+        yearsOfExperience: 0,
+        educationLevel: "",
     };
 
     const [formData, setFormData] = useState(initialJobState);
@@ -68,6 +77,11 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
         setErrors({ ...errors, [fieldName]: "" });
     };
 
+    const handleEducationLevelChange = (selectedOption) => {
+        setFormData({ ...formData, educationLevel: selectedOption ? selectedOption.value : '' });
+        setErrors({ ...errors, educationLevel: "" });
+    };
+
     const validateForm = () => {
         const newErrors = {};
         if (!formData.title) newErrors.title = "Tiêu đề là bắt buộc";
@@ -80,6 +94,8 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
         if (!formData.location) newErrors.location = "Địa điểm là bắt buộc";
         if (!formData.deadline) newErrors.deadline = "Hạn chót là bắt buộc";
         if (isEditMode && formData.isActive === undefined) newErrors.isActive = "Trạng thái là bắt buộc";
+        if (formData.yearsOfExperience === undefined || formData.yearsOfExperience < 0) newErrors.yearsOfExperience = "Số năm kinh nghiệm phải >= 0";
+        if (!formData.educationLevel) newErrors.educationLevel = "Trình độ học vấn là bắt buộc";
         return newErrors;
     };
 
@@ -157,6 +173,14 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
                                     <label className="text-sm font-medium text-gray-700">Lương tối đa</label>
                                     <p className="border p-3 px-10 rounded-lg bg-gray-50">{formData.salaryMax} triệu</p>
                                 </div>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Số năm kinh nghiệm</label>
+                                <p className="border p-3 rounded-lg bg-gray-50">{formData.yearsOfExperience} năm</p>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Trình độ học vấn</label>
+                                <p className="border p-3 rounded-lg bg-gray-50">{formData.educationLevel || 'Không có'}</p>
                             </div>
                             <div>
                                 <label className="text-sm font-medium text-gray-700">Kỹ năng</label>
@@ -298,6 +322,30 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
                                         min="0"
                                     />
                                     {errors.salaryMax && <p className="text-red-500 text-sm mt-1">{errors.salaryMax}</p>}
+                                </div>
+                                <div className="flex flex-col">
+                                    <label className="text-sm font-medium text-gray-700 mb-1">Số năm kinh nghiệm *</label>
+                                    <input
+                                        type="number"
+                                        name="yearsOfExperience"
+                                        value={formData.yearsOfExperience}
+                                        onChange={handleChange}
+                                        className="border p-3 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500"
+                                        min="0"
+                                    />
+                                    {errors.yearsOfExperience && <p className="text-red-500 text-sm mt-1">{errors.yearsOfExperience}</p>}
+                                </div>
+                                <div className="flex flex-col">
+                                    <label className="text-sm font-medium text-gray-700 mb-1">Trình độ học vấn *</label>
+                                    <Select
+                                        options={educationLevelOptions}
+                                        value={educationLevelOptions.find(opt => opt.value === formData.educationLevel)}
+                                        onChange={handleEducationLevelChange}
+                                        className="react-select-container"
+                                        classNamePrefix="react-select"
+                                        placeholder="Chọn trình độ học vấn..."
+                                    />
+                                    {errors.educationLevel && <p className="text-red-500 text-sm mt-1">{errors.educationLevel}</p>}
                                 </div>
                                 <div className="flex flex-col md:col-span-2">
                                     <label className="text-sm font-medium text-gray-700 mb-1">Kỹ năng</label>

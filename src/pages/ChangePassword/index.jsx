@@ -50,7 +50,7 @@ const ChangePassword = () => {
           </label>
           <input
             type="email"
-            value="nhatnguyen15062019@gmail.com"
+            value={user.email}
             className="w-full p-2 border rounded bg-gray-200"
             disabled
           />
