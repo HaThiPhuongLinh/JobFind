@@ -125,20 +125,21 @@ const JobInfo = ({ job }) => {
         {/* Mô tả công việc */}
         <div className="pt-4">
           <p className="font-bold">Mô tả công việc</p>
-          <p>- {job.description}</p>
+          <div dangerouslySetInnerHTML={{ __html: job.description }} />
         </div>
 
         {/* Yêu cầu ứng viên */}
         <div className="pt-4">
           <p className="font-bold">Yêu cầu ứng viên</p>
-          <p>- {job.requirements}</p>
+          <div dangerouslySetInnerHTML={{ __html: job.requirements }} />
         </div>
 
         {/* Quyền lợi */}
         <div className="pt-4">
           <p className="font-bold">Quyền lợi</p>
-          <p>- {job.benefits}</p>
+          <div dangerouslySetInnerHTML={{ __html: job.benefits }} />
         </div>
+
 
         {/* Việc làm liên quan */}
         <div className="mt-8">

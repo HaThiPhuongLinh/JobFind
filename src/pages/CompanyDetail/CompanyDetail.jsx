@@ -211,22 +211,20 @@ const CompanyDetail = () => {
           {/* Các tabs */}
           <div className="flex border-b border-gray-200">
             <button
-              className={`px-4 py-4 text-sm font-medium ${
-                activeTab === "jobs"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              } cursor-pointer !rounded-button whitespace-nowrap`}
+              className={`px-4 py-4 text-sm font-medium ${activeTab === "jobs"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
+                } cursor-pointer !rounded-button whitespace-nowrap`}
               onClick={() => setActiveTab("jobs")}
             >
               {/* Jobs ({company.jobCount}) */}
               Công việc ( {jobsByCompanyId.length || 0} công việc)
             </button>
             <button
-              className={`px-4 py-4 text-sm font-medium ${
-                activeTab === "reviews"
-                  ? "text-green-600 border-b-2 border-green-600"
-                  : "text-gray-500 hover:text-gray-700"
-              } cursor-pointer !rounded-button whitespace-nowrap`}
+              className={`px-4 py-4 text-sm font-medium ${activeTab === "reviews"
+                ? "text-green-600 border-b-2 border-green-600"
+                : "text-gray-500 hover:text-gray-700"
+                } cursor-pointer !rounded-button whitespace-nowrap`}
               onClick={() => setActiveTab("reviews")}
             >
               Reviews
@@ -238,7 +236,7 @@ const CompanyDetail = () => {
 
       {/* Banner */}
       {company && (
-        <div className="relative rounded-xl overflow-hidden mb-12 mt-2">
+        <div className="relative rounded-xl overflow-hidden mb-2 mt-2">
           <div className="h-80 w-full">
             <img
               src={company.logoPath ? company.logoPath : "/image_error.png"}
@@ -281,7 +279,15 @@ const CompanyDetail = () => {
         </div>
       )}
       {/* End: Banner */}
-
+      {company && company.description && (
+        <div className="bg-white/70 rounded-xl shadow-md p-8 mb-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Giới thiệu công ty</h2>
+          <div
+            className="text-gray-800 text-lg leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: company.description }}
+          />
+        </div>
+      )}
       {/* Tab jobs */}
       {activeTab === "jobs" && (
         <>
@@ -336,9 +342,8 @@ const CompanyDetail = () => {
                 >
                   <FontAwesomeIcon
                     icon={faRotate}
-                    className={`transition-transform duration-500 ${
-                      rotating ? "rotate-[180deg]" : ""
-                    }`}
+                    className={`transition-transform duration-500 ${rotating ? "rotate-[180deg]" : ""
+                      }`}
                   />
                   <span className="px-2">Đặt lại bộ lọc</span>
                 </button>
@@ -421,9 +426,8 @@ const CompanyDetail = () => {
                 <span className="px-2">{selectedReviewFilter}</span>
                 <FontAwesomeIcon
                   icon={faAngleDown}
-                  className={`transition-transform ${
-                    isReviewDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`transition-transform ${isReviewDropdownOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
