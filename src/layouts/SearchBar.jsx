@@ -7,7 +7,7 @@ import {
   faAngleDown,
   faList,
 } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // image
 import background from "../assets/bg_search_section.jpg";
@@ -15,12 +15,10 @@ import background from "../assets/bg_search_section.jpg";
 // component
 import MenuLocation from "../components/Menu/MenuLocation";
 import MenuCategory from "../components/Menu/MenuCategory";
-// import MenuIndustry from "../components/Menu/MenuIndustry";
 
 // redux
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedCategories } from "../redux/slices/categorySlice";
-import { useLocation } from "react-router-dom";
 
 const SearchBar = () => {
   const navigate = useNavigate();
@@ -29,7 +27,7 @@ const SearchBar = () => {
 
   // load data từ redux
   const user = useSelector((state) => state.auth.user);
-  const auth_role = useSelector((state) => state.auth.user)?.role;
+  const auth_role = user?.role;
   const citysSelected = useSelector((state) => state.location.citySelected);
   const categoriesSelected = useSelector(
     (state) => state.category.selectedCategories
@@ -42,17 +40,16 @@ const SearchBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenCategory, setIsOpenCategory] = useState(false);
 
-  // Lấy dữu liệu search Text từ localstorage
+  // Lấy dữ liệu search Text từ localStorage
   useEffect(() => {
     const savedSearchData = JSON.parse(localStorage.getItem("searchData"));
-
     if (savedSearchData) {
       setSearchText(savedSearchData.keyword);
       dispatch(setSelectedCategories(savedSearchData.categories));
     }
-  }, []);
+  }, [dispatch]);
 
-  // Đóng model chọn location khi click bên ngoài
+  // Đóng menu location khi click bên ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (ref.current && !ref.current.contains(event.target)) {
@@ -65,7 +62,7 @@ const SearchBar = () => {
     };
   }, []);
 
-  // ============ Đóng/mở menu categories
+  // Đóng menu categories khi click bên ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (refCategory.current && !refCategory.current.contains(event.target)) {
@@ -79,7 +76,8 @@ const SearchBar = () => {
   }, []);
 
   const handleButtonSearch = () => {
-    const pathname = window.location.pathname;
+    const jobMarketPaths = ["/", "/search", "/company"];
+    const isJobMarket = jobMarketPaths.includes(location.pathname);
     const companyId = user ? user.userId : "";
     const queryParams = new URLSearchParams();
 
@@ -96,14 +94,28 @@ const SearchBar = () => {
       queryParams.append("location", cities);
     }
 
-    // === CASE 1: /recruiter/home + role = company => search-cv ===
-    if (pathname === "/recruiter/home" && auth_role === "COMPANY") {
-      queryParams.append("companyId", companyId);
-      navigate(`/search-cv?${queryParams.toString()}`);
+    // Logic cho COMPANY
+    if (auth_role === "COMPANY") {
+      if (isJobMarket) {
+        // Ở job market => tìm kiếm job
+        if (hasCategory) {
+          const categoryIds = categoriesSelected
+            .map((cat) => cat.jobCategoryId)
+            .join(",");
+          queryParams.append("jobCategoryId", categoryIds);
+        }
+        localStorage.setItem("searchData", JSON.stringify({ keyword: searchText, categories: categoriesSelected }));
+        navigate(`/search?${queryParams.toString()}`);
+      } else {
+        // Không ở job market => tìm kiếm CV
+        queryParams.append("companyId", companyId);
+        localStorage.setItem("searchData", JSON.stringify({ keyword: searchText, categories: [] }));
+        navigate(`/search-cv?${queryParams.toString()}`);
+      }
       return;
     }
 
-    // === CASE 2: other paths or JOBSEEKER => search job ===
+    // Logic cho JOBSEEKER hoặc không đăng nhập
     if (hasCategory) {
       const categoryIds = categoriesSelected
         .map((cat) => cat.jobCategoryId)
@@ -111,10 +123,9 @@ const SearchBar = () => {
       queryParams.append("jobCategoryId", categoryIds);
     }
 
-    localStorage.setItem("searchText", JSON.stringify(searchText));
+    localStorage.setItem("searchData", JSON.stringify({ keyword: searchText, categories: categoriesSelected }));
     navigate(`/search?${queryParams.toString()}`);
   };
-
 
   return (
     <div
@@ -148,13 +159,14 @@ const SearchBar = () => {
 
         {/* Search text input */}
         <div className="flex grow justify-between items-center bg-white rounded-l-full px-4 py-3 w-3/5">
-          {/* input nhập */}
           <input
             type="text"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder={
-              auth_role == "JOBSEEKER" ? "Nhập công việc..." : "Nhập từ khóa..."
+              auth_role === "COMPANY" && !["/", "/search", "/company"].includes(location.pathname)
+                ? "Tìm kiếm CV..."
+                : "Nhập công việc..."
             }
             className="w-full text-gray-800 outline-none p-1"
           />
@@ -175,7 +187,6 @@ const SearchBar = () => {
 
         {/* Chọn địa điểm */}
         <div className="relative w-1/5" ref={ref}>
-          {/* label chọn địa điểm */}
           <div
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center justify-between text-gray-600 cursor-pointer"
@@ -186,17 +197,13 @@ const SearchBar = () => {
                 className="text-xl flex-none"
               />
               <span className="ml-2 flex-none">
-                {citysSelected.length == 0
+                {citysSelected.length === 0
                   ? "Địa điểm"
-                  : citysSelected[0] + " (+" + citysSelected.length + ")"}
+                  : citysSelected[0] + (citysSelected.length > 1 ? ` (+${citysSelected.length - 1})` : "")}
               </span>
             </div>
-            {/* Biểu tượng mũi tên */}
-            <FontAwesomeIcon icon={faAngleDown} className="" />
+            <FontAwesomeIcon icon={faAngleDown} />
           </div>
-          {/* end: label chọn địa điểm */}
-
-          {/* Submenu chọn địa điểm */}
           {isOpen && (
             <div className="absolute top-10 right-0">
               <MenuLocation setIsOpen={setIsOpen} />
@@ -218,7 +225,6 @@ const SearchBar = () => {
           Tìm kiếm
         </button>
       </div>
-      {/* End: Search section */}
     </div>
   );
 };
