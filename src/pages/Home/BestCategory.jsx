@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const BestCategory = () => {
   // Lấy danh sách danh mục việc làm
@@ -21,7 +22,12 @@ const BestCategory = () => {
               style={{ width: "100px", height: "100px" }}
               className=""
             />
-            <p className="pt-4 font-bold">{item.name}</p>
+            <Link
+              to={`/search?jobCategoryId=${item.jobCategoryId}`}
+              className="pt-4 font-bold"
+            >
+              {item.name}
+            </Link>
             {/* <p className="text-primary text-sm pt-2">{item.count} việc làm</p> */}
           </div>
         ))}
