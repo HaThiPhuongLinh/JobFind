@@ -32,6 +32,7 @@ public class User {
     private LocalDateTime otpExpiry;
 
     private boolean isVerified;
+    private boolean isVip;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private JobSeekerProfile jobSeekerProfile;
