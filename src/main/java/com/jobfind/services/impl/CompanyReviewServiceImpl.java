@@ -38,25 +38,25 @@ public class CompanyReviewServiceImpl implements ICompanyReviewService {
         JobSeekerProfile jobSeeker = jobSeekerProfileRepository.findById(addCompanyReviewRequest.getJobSeekerId())
                 .orElseThrow(() -> new BadRequestException("Job Seeker Profile not found"));
 
-        boolean hasWorkedAtCompany = jobSeeker.getWorkExperiences().stream()
-                .anyMatch(exp -> exp.getCompany().getCompanyId().equals(company.getCompanyId()));
-
-        boolean hasInterviewedAtCompany = jobSeeker.getApplications().stream()
-                .anyMatch(app -> app.getJob().getCompany().getCompanyId().equals(company.getCompanyId()) &&
-                        (app.getApplicationStatus() == ApplicationStatus.INTERVIEWING || app.getApplicationStatus() == ApplicationStatus.HIRED
-                          || app.getApplicationStatus() == ApplicationStatus.REJECTED));
-
-        boolean hasOnlyApplied = jobSeeker.getApplications().stream()
-                .anyMatch(app -> app.getJob().getCompany().getCompanyId().equals(company.getCompanyId()) &&
-                        (app.getApplicationStatus() == ApplicationStatus.PENDING || app.getApplicationStatus() == ApplicationStatus.REVIEWING));
-
-        if (!hasWorkedAtCompany && !hasInterviewedAtCompany) {
-            throw new BadRequestException("You can only review a company you have worked for or interviewed with.");
-        }
-
-        if (hasOnlyApplied) {
-            throw new BadRequestException("You cannot review a company if you have only applied but never interviewed.");
-        }
+//        boolean hasWorkedAtCompany = jobSeeker.getWorkExperiences().stream()
+//                .anyMatch(exp -> exp.getCompany().getCompanyId().equals(company.getCompanyId()));
+//
+//        boolean hasInterviewedAtCompany = jobSeeker.getApplications().stream()
+//                .anyMatch(app -> app.getJob().getCompany().getCompanyId().equals(company.getCompanyId()) &&
+//                        (app.getApplicationStatus() == ApplicationStatus.INTERVIEWING || app.getApplicationStatus() == ApplicationStatus.HIRED
+//                          || app.getApplicationStatus() == ApplicationStatus.REJECTED));
+//
+//        boolean hasOnlyApplied = jobSeeker.getApplications().stream()
+//                .anyMatch(app -> app.getJob().getCompany().getCompanyId().equals(company.getCompanyId()) &&
+//                        (app.getApplicationStatus() == ApplicationStatus.PENDING || app.getApplicationStatus() == ApplicationStatus.REVIEWING));
+//
+//        if (!hasWorkedAtCompany && !hasInterviewedAtCompany) {
+//            throw new BadRequestException("You can only review a company you have worked for or interviewed with.");
+//        }
+//
+//        if (hasOnlyApplied) {
+//            throw new BadRequestException("You cannot review a company if you have only applied but never interviewed.");
+//        }
 
         CompanyReview review = CompanyReview.builder()
                 .company(company)

@@ -91,4 +91,10 @@ public class JobController {
         List<JobPosition> jobPositions = jobServiceImpl.getAllJobPosition();
         return ResponseEntity.ok(jobPositions);
     }
+
+    @GetMapping("/priority")
+    public ResponseEntity<List<JobDTO>> getJobsPriority() {
+        List<JobDTO> jobs = jobServiceImpl.getJobsPriority();
+        return ResponseEntity.ok(jobs);
+    }
 }

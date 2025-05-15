@@ -27,6 +27,8 @@ public class JobDTO {
     private Boolean isActive;
     private Boolean isApproved;
     private Boolean isPending;
+    private Boolean isPriority;
+    private Integer priorityLevel;
     private List<SkillDTO> skills;
     private List<JobCategory> categories;
     private String note;

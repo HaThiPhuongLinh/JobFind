@@ -24,6 +24,10 @@ public class CompanyPopulator {
         target.setWebsite(source.getWebsite());
         target.setEmail(source.getUser().getEmail());
         target.setPhoneNumber(source.getUser().getPhone());
+        target.setVip(source.getUser().isVip());
+        target.setVipLevel(source.getUser().getVipLevel());
+        target.setVipExpiryDate(source.getUser().getVipExpiryDate());
+        target.setCreateJobCount(source.getCreateJobCount());
     }
 }
 

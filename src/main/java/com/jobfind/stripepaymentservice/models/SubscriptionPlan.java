@@ -23,9 +23,12 @@ public class SubscriptionPlan {
     private String name;
     private String description;
     private Double price;
-    private String durationMonths;
+    private Long durationMonths;
 
     private Boolean isActive;
+    private Integer monthlyJobPostLimit;
+    private Integer jobPriorityLevel;
+    private Boolean isFeaturedOnHomepage;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

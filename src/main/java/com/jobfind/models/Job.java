@@ -46,6 +46,8 @@ public class Job {
     private LocalDate deadline;
     private String note;
     private Boolean isPending;
+    private Boolean isPriority;
+    private Integer priorityLevel;
 
     @Column(columnDefinition = "boolean default true")
     private Boolean isActive;

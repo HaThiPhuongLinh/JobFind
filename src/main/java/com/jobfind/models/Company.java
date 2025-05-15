@@ -37,4 +37,6 @@ public class Company {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    private Integer createJobCount;
 }

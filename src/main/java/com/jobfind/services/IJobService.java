@@ -21,6 +21,6 @@ public interface IJobService {
     void deleteJob(Integer jobId);
     void approveJob(Integer jobId);
     void rejectJob(RejectJobRequest request);
-
     List<JobPosition> getAllJobPosition();
+    List<JobDTO> getJobsPriority();
 }

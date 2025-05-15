@@ -44,4 +44,8 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
                                @Param("categoryIds") List<Integer> categoryIds);
 
     long countByIsApprovedIsFalse();
+
+    @Query("SELECT j FROM Job j " +
+            "WHERE j.isActive = true AND j.isDeleted = false AND j.isApproved = true AND j.priorityLevel = 2")
+    List<Job> findJobsWithPriorityLevel2();
 }

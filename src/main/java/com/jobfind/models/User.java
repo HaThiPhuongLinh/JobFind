@@ -33,6 +33,8 @@ public class User {
 
     private boolean isVerified;
     private boolean isVip;
+    private Integer vipLevel;
+    private LocalDateTime vipExpiryDate;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private JobSeekerProfile jobSeekerProfile;

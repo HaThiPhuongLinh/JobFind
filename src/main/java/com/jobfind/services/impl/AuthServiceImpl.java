@@ -202,6 +202,9 @@ public class AuthServiceImpl implements IAuthService {
                 .role(registrationRequest.getRole())
                 .createdAt(LocalDateTime.now())
                 .isVerified(true)
+                .isVip(false)
+                .vipExpiryDate(null)
+                .vipLevel(null)
                 .build();
 
         userRepository.save(user);
@@ -217,6 +220,7 @@ public class AuthServiceImpl implements IAuthService {
                 .description(registrationRequest.getDescription())
                 .isVerified(true)
                 .user(user)
+                .createJobCount(5)
                 .build());
 
         pendingRegistrations.remove(request.getEmail());

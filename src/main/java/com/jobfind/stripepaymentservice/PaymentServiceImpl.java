@@ -140,6 +140,14 @@ public class PaymentServiceImpl implements IPaymentService{
         order.setStatus(PaymentStatus.COMPLETED);
         User user = order.getUser();
         user.setVip(true);
+        if(order.getSubscriptionPlan().getId() == 1){
+            user.setVipLevel(1);
+            user.getCompany().setCreateJobCount(order.getSubscriptionPlan().getMonthlyJobPostLimit());
+        } else if(order.getSubscriptionPlan().getId() == 2){
+            user.setVipLevel(2);
+            user.getCompany().setCreateJobCount(order.getSubscriptionPlan().getMonthlyJobPostLimit());
+        }
+        user.setVipExpiryDate(order.getSubscriptionPlan().getCreatedAt().plusMonths(order.getSubscriptionPlan().getDurationMonths()));
 
         int retrieveTime = 0;
         Boolean isHasStripeError = Boolean.FALSE;
@@ -336,11 +344,13 @@ public class PaymentServiceImpl implements IPaymentService{
         orderResponse.setIntentSecret(paymentIntent.getClientSecret());
         orderResponse.setPublishableKey(stripePaymentPublicKey);
         orderResponse.setStatus(order.getStatus());
+        order.setTotalPrice(paymentIntent.getAmountCapturable() / 100.0);
 
         CreditCardPaymentInfo cardPaymentInfo = order.getCreditCardPaymentInfo();
         if(cardPaymentInfo != null){
             PaymentDetailsResponse paymentDetailsResponse = new PaymentDetailsResponse();
             paymentDetailsResponse.setId(cardPaymentInfo.getId());
+            paymentDetailsResponse.setCardNumber(cardPaymentInfo.getNumber());
             paymentDetailsResponse.setExpiryMonth(cardPaymentInfo.getValidToMonth());
             paymentDetailsResponse.setExpiryYear(cardPaymentInfo.getValidToYear());
             paymentDetailsResponse.setSubscriptionId(cardPaymentInfo.getSubscriptionId());
@@ -365,6 +375,7 @@ public class PaymentServiceImpl implements IPaymentService{
         orderResponse.setStatus(order.getStatus());
         orderResponse.setTotalPrice(order.getTotalPrice());
         orderResponse.setCreatedAt(order.getCreatedAt());
+        orderResponse.setIntentSecret(order.getPaymentIntentId());
 
         CreditCardPaymentInfo cardPaymentInfo = order.getCreditCardPaymentInfo();
         if(cardPaymentInfo != null){

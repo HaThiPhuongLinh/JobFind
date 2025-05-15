@@ -35,6 +35,8 @@ public class JobPopulator {
         target.setIsApproved(source.getIsApproved());
         target.setNote(source.getNote());
         target.setIsPending(source.getIsPending());
+        target.setIsPriority(source.getIsPriority());
+        target.setPriorityLevel(source.getPriorityLevel());
 
         List<SkillDTO> skillDTOList = source.getSkills().stream()
                 .map(skillConverter::convertToSkillDTO)

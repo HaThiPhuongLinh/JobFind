@@ -16,7 +16,7 @@ public class OrderResponse {
     private String name;
     private String description;
     private Double totalPrice;
-    private String durationMonths;
+    private Long durationMonths;
     private PaymentStatus status;
     private String intentSecret;
     private String publishableKey;

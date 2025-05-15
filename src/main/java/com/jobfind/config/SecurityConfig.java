@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/job/searchJobs").permitAll()
                         .requestMatchers("/job/{companyId}/jobs").permitAll()
                         .requestMatchers("/jobCategory/all").permitAll()
+                        .requestMatchers("/job/category/**").permitAll()
                         .requestMatchers("/companyIndustry/all").permitAll()
                         .requestMatchers("company/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()

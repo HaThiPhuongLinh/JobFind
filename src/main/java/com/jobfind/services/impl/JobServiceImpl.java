@@ -51,6 +51,11 @@ public class JobServiceImpl implements IJobService {
         }
 
         Company company = companyRepository.findById(request.getCompanyId()).orElseThrow(() -> new BadRequestException("Company not found"));
+        if(company.getCreateJobCount() <= 0){
+            throw new BadRequestException("You have reached the maximum number of job postings");
+        }
+
+        company.setCreateJobCount(company.getCreateJobCount() - 1);
 
         if(!company.getIsVerified()){
             throw new BadRequestException("Company must be verified to post a job");
@@ -88,6 +93,19 @@ public class JobServiceImpl implements IJobService {
                 .isApproved(false)
                 .build();
 
+        if(company.getUser().isVip() && company.getUser().getVipExpiryDate().isAfter(LocalDateTime.now())){
+            if(company.getUser().getVipLevel() == 1){
+                job.setIsPriority(true);
+                job.setPriorityLevel(1);
+            } else if(company.getUser().getVipLevel() == 2){
+                job.setIsPriority(true);
+                job.setPriorityLevel(2);
+                job.setIsActive(true);
+            }
+        } else {
+            job.setIsPriority(false);
+            job.setPriorityLevel(0);
+        }
         jobRepository.save(job);
     }
 
@@ -171,13 +189,24 @@ public class JobServiceImpl implements IJobService {
     }
 
     @Override
+    public List<JobDTO> getJobsPriority() {
+        List<Job> jobs = jobRepository.findJobsWithPriorityLevel2();
+        if (jobs.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return jobs.stream()
+                .map(jobConverter::convertToJobDTO)
+                .toList();
+    }
+
+    @Override
     public JobDTO getJobByID(Integer jobId) {
         Job job = jobRepository.findById(jobId).orElseThrow(() ->
                 new BadRequestException("Job not found"));
 
-        if(job.getIsDeleted() || !job.getIsActive() || !job.getIsApproved()){
-            throw new BadRequestException("Job is not available");
-        }
+//        if(job.getIsDeleted() || !job.getIsActive() || !job.getIsApproved()){
+//            throw new BadRequestException("Job is not available");
+//        }
 
         return jobConverter.convertToJobDTO(job);
     }
