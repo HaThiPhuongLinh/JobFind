@@ -90,21 +90,23 @@ public class JobServiceImpl implements IJobService {
                 .isDeleted(false)
                 .skills(skills)
                 .categories(categories)
-                .isApproved(false)
                 .build();
 
         if(company.getUser().isVip() && company.getUser().getVipExpiryDate().isAfter(LocalDateTime.now())){
             if(company.getUser().getVipLevel() == 1){
                 job.setIsPriority(true);
                 job.setPriorityLevel(1);
+                job.setIsApproved(false);
             } else if(company.getUser().getVipLevel() == 2){
                 job.setIsPriority(true);
                 job.setPriorityLevel(2);
                 job.setIsActive(true);
+                job.setIsApproved(true);
             }
         } else {
             job.setIsPriority(false);
             job.setPriorityLevel(0);
+            job.setIsApproved(false);
         }
         jobRepository.save(job);
     }

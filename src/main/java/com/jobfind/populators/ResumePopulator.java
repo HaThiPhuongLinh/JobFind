@@ -11,5 +11,6 @@ public class ResumePopulator {
         target.setResumeName(source.getResumeName());
         target.setResumePath(source.getResumePath());
         target.setUploadedAt(source.getUploadedAt());
+        target.setDeleted(source.isDeleted());
     }
 }

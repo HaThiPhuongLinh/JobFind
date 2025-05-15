@@ -55,6 +55,7 @@ public class ResumeServiceImpl implements IResumeService {
                 .resumeName(request.getResumeName())
                 .resumePath(s3Url)
                 .uploadedAt(LocalDateTime.now())
+                .isDeleted(false)
                 .build();
 
         resumeRepository.save(resume);
@@ -64,6 +65,10 @@ public class ResumeServiceImpl implements IResumeService {
     public void deleteResume(Integer resumeId) {
         Resume resume = resumeRepository.findById(resumeId)
                 .orElseThrow(() -> new BadRequestException("Resume not found"));
-        resumeRepository.delete(resume);
+        if (resume.isDeleted()) {
+            throw new BadRequestException("Resume has been deleted");
+        }
+        resume.setDeleted(true);
+        resumeRepository.save(resume);
     }
 }

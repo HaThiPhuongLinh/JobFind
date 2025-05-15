@@ -19,6 +19,7 @@ public class Resume {
     private String resumeName;
     private String resumePath;
     private LocalDateTime uploadedAt;
+    private boolean isDeleted;
 
     @ManyToOne
     @JoinColumn(name = "profile_id")

@@ -82,6 +82,7 @@ public class JobSeekerProfileServiceImpl implements IJobSeekerProfileService {
 
         return JobSeekerProfileResponse.builder()
                 .resumeList(jobSeekerProfile.getResumes().stream()
+                        .filter(resume -> !resume.isDeleted())
                         .map(resumeConverter::convertToResumeDTO)
                         .collect(Collectors.toList()))
                 .workExperiences(workExperiences)

@@ -22,7 +22,8 @@ public class JobSeekerProfilePopulator {
         target.setFirstName(source.getFirstName());
         target.setLastName(source.getLastName());
         target.setTitle(source.getTitle());
-        target.setResumeList(source.getResumes().stream()
+        target.setResumeList(source.getResumes().stream().
+                filter(resume -> !resume.isDeleted())
                 .map(resumeConverter::convertToResumeDTO)
                 .collect(Collectors.toList()));
         target.setAddress(source.getAddress());
