@@ -98,7 +98,6 @@ const ApplyModal = ({ onClose, jobId }) => {
         return;
       }
 
-      // Gọi API ứng tuyển với resumeId
       const response = await applicationApi.applyForJob({
         jobId: jobId || selectedJob?.jobId,
         jobSeekerProfileId: user?.userId,
@@ -108,9 +107,9 @@ const ApplyModal = ({ onClose, jobId }) => {
       toast.success("Nộp hồ sơ ứng tuyển thành công!");
       dispatch(addApplication(response)); // Cập nhật danh sách ứng tuyển trong Redux
       setTimeout(() => {
-        onClose(); // Đóng modal
-        window.location.reload(); // Tải lại trang
-      }, 2000); // 2000ms = 2 giây
+        onClose();
+        window.location.reload(); 
+      }, 500); 
     } catch (error) {
       console.error("Lỗi khi nộp hồ sơ:", error);
       toast.error(error.message || "Đã có lỗi xảy ra trong quá trình nộp hồ sơ ứng tuyển.");
