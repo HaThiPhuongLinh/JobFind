@@ -22,4 +22,5 @@ public class AuthResponse {
     private String token;
 
     private Role role;
+    private boolean isVip;
 }

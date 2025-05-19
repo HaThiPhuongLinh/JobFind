@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/job/getJobById/**").permitAll()
                         .requestMatchers("/job/searchJobs").permitAll()
+                        .requestMatchers("/job/priority").permitAll()
                         .requestMatchers("/job/{companyId}/jobs").permitAll()
                         .requestMatchers("/jobCategory/all").permitAll()
                         .requestMatchers("/job/category/**").permitAll()

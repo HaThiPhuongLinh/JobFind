@@ -14,9 +14,12 @@ import com.jobfind.utils.ValidateField;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -223,12 +226,12 @@ public class JobServiceImpl implements IJobService {
 
         if (isKeywordEmpty && isLocationsEmpty && isCategoryIdsEmpty) {
             jobs = jobRepository.findAll().stream()
-                    .filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved())
+                    .filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved() && !job.getIsExpired())
                     .toList();
         } else {
             jobs = jobRepository.searchJobs(keyword, locations, jobCategoryIds);
             jobs = jobs.stream()
-                    .filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved())
+                    .filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved() && !job.getIsExpired())
                     .toList();
         }
 
@@ -250,7 +253,7 @@ public class JobServiceImpl implements IJobService {
         } else {
             jobs = jobRepository.findByCompanyCompanyId(companyId)
                     .stream()
-                    .filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved())
+                    .filter(job -> job.getIsActive() && !job.getIsDeleted() && job.getIsApproved() && !job.getIsExpired())
                     .toList();
         }
 
@@ -310,5 +313,19 @@ public class JobServiceImpl implements IJobService {
     public List<JobDTO> getJobsByCategory(Integer categoryId) {
         List<Job> list = jobRepository.findByCategoryId(categoryId);
         return list.stream().map(jobConverter::convertToJobDTO).toList();
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void checkAndUpdateExpiredJobs() {
+        List<Job> activeJobs = jobRepository.findByIsActiveTrueAndIsExpiredFalseAndIsDeletedFalse();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Job job : activeJobs) {
+            if (job.getDeadline() != null && job.getDeadline().isBefore(ChronoLocalDate.from(now))) {
+                job.setIsExpired(true);
+                job.setIsActive(false);
+                jobRepository.save(job);
+            }
+        }
     }
 }

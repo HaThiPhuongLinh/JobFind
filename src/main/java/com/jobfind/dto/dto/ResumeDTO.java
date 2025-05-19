@@ -13,5 +13,5 @@ public class ResumeDTO {
     private String resumeName;
     private String resumePath;
     private LocalDateTime uploadedAt;
-    private boolean isDeleted;
+    private boolean deleted;
 }

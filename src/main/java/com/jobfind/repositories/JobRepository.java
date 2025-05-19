@@ -32,20 +32,22 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
 
     @Query("SELECT j FROM Job j " +
             "JOIN j.categories c " +
-            "WHERE c.jobCategoryId = :categoryId AND j.isActive = true AND j.isDeleted = false")
+            "WHERE c.jobCategoryId = :categoryId AND j.isActive = true AND j.isDeleted = false AND j.isExpired = false")
     List<Job> findByCategoryId(Integer categoryId);
 
     @Query("SELECT DISTINCT j FROM Job j " +
             "LEFT JOIN j.skills s " +
             "LEFT JOIN j.categories c " +
             "WHERE (s.skillId IN :skillIds OR c.jobCategoryId IN :categoryIds) " +
-            "AND j.isActive = true AND j.isDeleted = false AND j.isApproved = true")
+            "AND j.isActive = true AND j.isDeleted = false AND j.isApproved = true AND j.isExpired = false")
     List<Job> findProposedJobs(@Param("skillIds") List<Integer> skillIds,
                                @Param("categoryIds") List<Integer> categoryIds);
 
     long countByIsApprovedIsFalse();
 
     @Query("SELECT j FROM Job j " +
-            "WHERE j.isActive = true AND j.isDeleted = false AND j.isApproved = true AND j.priorityLevel = 2")
+            "WHERE j.isActive = true AND j.isDeleted = false AND j.isApproved = true AND j.priorityLevel = 2 AND j.isExpired = false")
     List<Job> findJobsWithPriorityLevel2();
+
+    List<Job> findByIsActiveTrueAndIsExpiredFalseAndIsDeletedFalse();
 }

@@ -48,10 +48,9 @@ public class Job {
     private Boolean isPending;
     private Boolean isPriority;
     private Integer priorityLevel;
-
-    @Column(columnDefinition = "boolean default true")
     private Boolean isActive;
-
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isExpired;
     @Column(columnDefinition = "boolean default false")
     private Boolean isDeleted;
     @ManyToMany

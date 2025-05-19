@@ -26,6 +26,7 @@ public class JobDTO {
     private LocalDate deadline;
     private Boolean isActive;
     private Boolean isApproved;
+    private boolean isExpired;
     private Boolean isPending;
     private Boolean isPriority;
     private Integer priorityLevel;

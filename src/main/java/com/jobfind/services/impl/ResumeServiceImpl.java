@@ -36,7 +36,7 @@ public class ResumeServiceImpl implements IResumeService {
         JobSeekerProfile profile = jobSeekerProfileRepository.findById(profileId)
                 .orElseThrow(() -> new BadRequestException("Profile not found"));
 
-        boolean isResumeExist = resumeRepository.existsByResumeNameAndJobSeekerProfileProfileId(request.getResumeName(), profile.getProfileId());
+        boolean isResumeExist = resumeRepository.existsByResumeNameAndJobSeekerProfileProfileIdAndDeletedIsFalse(request.getResumeName(), profile.getProfileId());
 
         if (isResumeExist) {
             throw new BadRequestException("Resume name has been used");
@@ -55,7 +55,7 @@ public class ResumeServiceImpl implements IResumeService {
                 .resumeName(request.getResumeName())
                 .resumePath(s3Url)
                 .uploadedAt(LocalDateTime.now())
-                .isDeleted(false)
+                .deleted(false)
                 .build();
 
         resumeRepository.save(resume);

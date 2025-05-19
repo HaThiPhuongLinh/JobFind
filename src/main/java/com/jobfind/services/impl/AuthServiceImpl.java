@@ -140,6 +140,7 @@ public class AuthServiceImpl implements IAuthService {
 
         Integer returnId = null;
         String avatar = null;
+        Boolean isVip = false;
 
         switch (user.getRole()) {
             case JOBSEEKER:
@@ -153,6 +154,7 @@ public class AuthServiceImpl implements IAuthService {
                         .orElseThrow(() -> new BadRequestException("Company not found"));
                 returnId = company.getCompanyId();
                 avatar = company.getLogoPath();
+                isVip = user.isVip();
                 break;
         }
 
@@ -164,6 +166,7 @@ public class AuthServiceImpl implements IAuthService {
                 .avatar(avatar)
                 .phone(user.getPhone())
                 .role(user.getRole())
+                .isVip(isVip)
                 .build();
     }
 
