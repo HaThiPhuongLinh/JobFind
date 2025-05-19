@@ -31,7 +31,6 @@ const JobDetail = () => {
     }
   }, [jobId]);
 
-  // ========== Phần này lấy công việc liên quan nhưn gapi đang bắt phải đăng nhập mới lấy
   useEffect(() => {
     const fetchRelatedJobs = async () => {
       try {

@@ -299,7 +299,7 @@ const WorkExperience = ({
                 <img
                   src={exp.logo}
                   alt={exp.companyName}
-                  className="w-12 h-12 object-contain rounded"
+                  className="w-14 h-14 object-cover rounded"
                 />
               )}
               <div className="flex flex-col">
@@ -312,10 +312,10 @@ const WorkExperience = ({
               </div>
             </div>
 
-            <p className="text-[#638863] text-sm font-normal leading-normal mt-1 ml-11">
+            <p className="text-[#638863] text-base font-normal leading-normal mt-1 ml-11">
               {exp.startDate} - {exp.endDate}
             </p>
-            <p className="text-[#111811] text-sm font-normal leading-normal mt-1 ml-11">
+            <p className="text-[#111811] text-base font-normal leading-normal mt-1 ml-11">
               {exp.description || "Chưa có mô tả"}
             </p>
             <div className="flex flex-wrap gap-2 mt-2 ml-11">
@@ -326,7 +326,7 @@ const WorkExperience = ({
                   return (
                     <span
                       key={`skill-${skillId}-${idx}`}
-                      className="bg-[#f0f4f0] text-[#111811] text-xs px-2 py-1 rounded"
+                      className="bg-[#f0f4f0] text-[#111811] text-sm px-2 py-1 rounded"
                     >
                       {name}
                     </span>

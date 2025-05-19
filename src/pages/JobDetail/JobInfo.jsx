@@ -13,7 +13,7 @@ import formatData from "../../untils/formatData";
 const JobInfo = ({ job }) => {
   // console.log(job);
   const userRole = useSelector((state) => state.auth?.user?.role || null);
-  const { title, location, yearsOfExperience, deadline } = job;
+  const { title, location, yearsOfExperience, deadline, expired } = job;
 
   // Kiểm tra job này được applied chưa
   const jobsApplied = useSelector((state) => state.application.list);
@@ -23,8 +23,21 @@ const JobInfo = ({ job }) => {
     <div>
       {/* Thông tin job */}
       <div className="p-4 rounded-lg bg-white ">
-        <p className="text-2xl font-bold pb-4">{title}</p>
+        <div className="flex items-center gap-4">
+          <p className="text-2xl font-bold pb-4">{title}</p>
+          <p className="text-xl font-bold pb-4">
+            {expired ? (
+              <>
+                <span className="text-gray-500 border border-gray-300 rounded-md px-2 py-1 text-sm">
+                  Hết hạn
+                </span>
 
+              </>
+            ) : (
+              ""
+            )}
+          </p>
+        </div>
         <div className="grid grid-cols-3 gap-4">
           {/* Lương */}
           <div className="flex items-center">
@@ -101,9 +114,17 @@ const JobInfo = ({ job }) => {
                 <ButtonApply isApply={isApplied} jobId={job.jobId} />
               </div>
 
-              <div className="ps-4">
-                <ButtonSave job={job} />
-              </div>
+              {expired ? (
+                <>
+                  <div className="ps-4">
+                    <ButtonSave job={job} />
+                  </div>
+
+                </>
+              ) : (
+                ""
+              )}
+
             </div>
           </>
         )}
