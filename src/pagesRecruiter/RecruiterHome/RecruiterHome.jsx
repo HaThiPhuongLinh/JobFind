@@ -16,10 +16,13 @@ const RecruiterHome = () => {
   const totalPages = 10;
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     const hasSeenPopup = sessionStorage.getItem("hasSeenPlanPopup");
-    if (!hasSeenPopup) {
+    const isVip = user?.vip;
+
+    if (!hasSeenPopup && isVip === false) {
       setShowPopup(true);
       sessionStorage.setItem("hasSeenPlanPopup", "true");
     }

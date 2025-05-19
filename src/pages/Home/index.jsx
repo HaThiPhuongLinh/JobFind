@@ -15,6 +15,7 @@ const Home = () => {
   const [direction, setDirection] = useState(0); // Track navigation direction
   const jobsPerPage = 3;
   const navigate = useNavigate();
+  const hasSeenPopup = sessionStorage.getItem("hasSeenPopup");
 
   useEffect(() => {
     const fetchPriorityJobs = async () => {
@@ -23,7 +24,10 @@ const Home = () => {
         const response = await jobApi.getJobPriority();
         if (response && response.length > 0) {
           setPriorityJobs(response);
-          setShowPopup(true);
+          if (!hasSeenPopup) {
+            setShowPopup(true);
+            sessionStorage.setItem("hasSeenPopup", "true");
+          }
         } else {
           setShowPopup(false);
         }

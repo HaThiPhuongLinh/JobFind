@@ -133,7 +133,7 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] shadow-2xl flex flex-col">
+            <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] shadow-2xl flex flex-col">
                 <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-white z-10 rounded-t-xl">
                     <h2 className="text-2xl font-bold text-gray-800">
                         {isViewMode ? 'Chi Tiết Công Việc' : isEditMode ? 'Chỉnh Sửa Công Việc' : 'Thêm Công Việc Mới'}

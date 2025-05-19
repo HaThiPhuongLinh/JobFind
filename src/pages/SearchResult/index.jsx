@@ -68,7 +68,9 @@ const SearchResult = () => {
   const keyword = queryParams.get("keyword") || "";
   const locationParam = queryParams.get("location") || "";
   const jobCategoryId = queryParams.get("jobCategoryId") || "";
-
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [location.pathname]);
   // fetch data search result
   useEffect(() => {
     // Xử lý dữ liệu
