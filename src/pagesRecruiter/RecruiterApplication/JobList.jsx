@@ -11,6 +11,9 @@ const JobList = ({ jobs, filters, onJobClick }) => {
             const postedDate = new Date(job.postedAt);
             const from = filters.fromDate ? new Date(filters.fromDate) : null;
             const to = filters.toDate ? new Date(filters.toDate) : null;
+            const matchKeyword =
+                !filters.keyword ||
+                job.title.toLowerCase().includes(filters.keyword.toLowerCase());
 
             const matchLocation = filters.location.length === 0 || filters.location.includes(job.location);
             const matchJobType = !filters.jobType || job.jobType === filters.jobType;
@@ -27,7 +30,7 @@ const JobList = ({ jobs, filters, onJobClick }) => {
                 matchStatus = job.isApproved === false && job.note && job.note.trim() !== "";
             }
 
-            return matchLocation && matchJobType && matchDate && matchStatus;
+            return matchLocation && matchJobType && matchDate && matchStatus && matchKeyword;
         })
         .sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
 
@@ -128,8 +131,8 @@ const JobList = ({ jobs, filters, onJobClick }) => {
                     <FontAwesomeIcon
                         icon={faAngleLeft}
                         className={`text-xl ${currentPage > 1
-                                ? "text-gray-700 cursor-pointer hover:text-green-600"
-                                : "opacity-40 cursor-not-allowed"
+                            ? "text-gray-700 cursor-pointer hover:text-green-600"
+                            : "opacity-40 cursor-not-allowed"
                             }`}
                         onClick={decreasePagination}
                     />
@@ -140,8 +143,8 @@ const JobList = ({ jobs, filters, onJobClick }) => {
                     <FontAwesomeIcon
                         icon={faAngleRight}
                         className={`text-xl ${currentPage < maxPageCount
-                                ? "text-gray-700 cursor-pointer hover:text-green-600"
-                                : "opacity-40 cursor-not-allowed"
+                            ? "text-gray-700 cursor-pointer hover:text-green-600"
+                            : "opacity-40 cursor-not-allowed"
                             }`}
                         onClick={increasePagination}
                     />
