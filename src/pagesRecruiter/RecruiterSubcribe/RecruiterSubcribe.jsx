@@ -167,7 +167,9 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="font-medium text-gray-600">Thành tiền:</span>
-                                            <span className="text-lg text-gray-800 font-semibold">${displayPlan.price}</span>
+                                            <span className="text-lg text-gray-800 font-semibold">
+                                                ${orderData?.totalPrice ?? displayPlan.price}
+                                            </span>
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="font-medium text-gray-600">Thời Hạn:</span>
@@ -375,7 +377,7 @@ const RecruiterSubcribe = () => {
 
                 if (orderResponse && orderResponse.status === "PENDING") {
                     setOrderData(orderResponse);
-                    setSelectedPlanId(orderResponse.subscriptionPlanId); 
+                    setSelectedPlanId(orderResponse.subscriptionPlanId);
                 }
             } catch (err) {
                 if (err.response && err.response.status === 400) {
