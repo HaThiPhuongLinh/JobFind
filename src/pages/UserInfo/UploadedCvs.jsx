@@ -2,19 +2,33 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { deleteCV } from "../../redux/slices/JSKerProfileSlice";
 import { useDispatch, useSelector } from "react-redux";
+import Swal from "sweetalert2";
 
 const UploadedCVs = () => {
   const dispatch = useDispatch();
   const cvsRedux = useSelector((state) => state.jobSeekerProfile.cvs);
 
   const handleDeleteCV = async (cvId) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa CV này không?")) {
+    const result = await Swal.fire({
+      title: "Xóa CV?",
+      text: "Bạn có chắc chắn muốn xóa CV này không?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+
+    if (result.isConfirmed) {
       dispatch(deleteCV(cvId));
+      Swal.fire("Đã xóa!", "CV đã được xóa thành công.", "success");
     }
   };
 
+
   return (
-    <div className="flex flex-col items-center gap-4 bg-white px-4 min-h-[72px] justify-between">
+    <div className="flex flex-col items-center gap-4 bg-white mt-2 min-h-[72px] justify-between">
       {cvsRedux.length === 0 ? (
         <p className="self-start text-[#111811] text-sm font-medium leading-normal">
           không có cv
@@ -41,7 +55,7 @@ const UploadedCVs = () => {
                       <path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Z" />
                     </svg>
                   </div>
-                  <div className="flex flex-col justify-center">
+                  <div className="flex flex-col justify-center ml-2">
                     <p className="text-[#111811] text-base font-medium leading-normal line-clamp-1">
                       {cv.resumeName}
                     </p>

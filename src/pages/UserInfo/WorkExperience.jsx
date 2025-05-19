@@ -299,7 +299,7 @@ const WorkExperience = ({
                 <img
                   src={exp.logo}
                   alt={exp.companyName}
-                  className="w-8 h-8 object-contain rounded"
+                  className="w-12 h-12 object-contain rounded"
                 />
               )}
               <div className="flex flex-col">

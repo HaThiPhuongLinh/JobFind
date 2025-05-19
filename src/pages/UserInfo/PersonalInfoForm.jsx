@@ -248,9 +248,24 @@ const PersonalInfoForm = () => {
 
   const handleUploadFiles = async (files) => {
     if (!files || files.length === 0) return;
+
     const file = files[0];
-    dispatch(addCV(file));
-    toast.success("Đã upload CV!", { autoClose: 1000 });
+
+    try {
+      await dispatch(addCV(file)).unwrap();
+      toast.success("Đã upload CV!", { autoClose: 600 });
+    } catch (error) {
+      const errorCode = error?.errorCode;
+      const message = error?.message;
+
+      if (errorCode === 400 && message?.includes("Resume name")) {
+        toast.error("CV với tên này đã tồn tại!", { autoClose: 2000 });
+      } else {
+        toast.error("Đã có lỗi xảy ra khi upload CV.", { autoClose: 2000 });
+      }
+
+      console.error("Lỗi khi thêm CV:", error);
+    }
   };
 
   const handleButtonClick = () => {
