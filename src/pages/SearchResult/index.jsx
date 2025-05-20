@@ -20,7 +20,7 @@ const filters = [
   {
     id: "WORK_TYPE",
     name: "Hình thức",
-    options: ["Tất cả", "Toàn thời gian", "Bán thời gian"],
+    options: ["Tất cả", "Toàn thời gian", "Bán thời gian", "Thực tập", "Freelance"],
   },
   {
     id: "SALARY",

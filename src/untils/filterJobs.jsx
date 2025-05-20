@@ -7,19 +7,21 @@ export const filterJobs = (jobs, filter) => {
 
   // WORK TYPE
   if (filter.WORK_TYPE && filter.WORK_TYPE !== "Tất cả") {
-    console.log("filter.WORKTYPE", filter.WORK_TYPE);
-    temp = temp.filter(
-      (job) =>
-        job.jobType ===
-        (filter.WORK_TYPE === "Toàn thời gian"
-          ? "FULLTIME"
-          : filter.WORK_TYPE === "Bán thời gian"
+    console.log("filter.WORK_TYPE", filter.WORK_TYPE);
+    temp = temp.filter((job) =>
+      job.jobType ===
+      (filter.WORK_TYPE === "Toàn thời gian"
+        ? "FULLTIME"
+        : filter.WORK_TYPE === "Bán thời gian"
           ? "PARTTIME"
-          : "")
+          : filter.WORK_TYPE === "Thực tập"
+            ? "INTERNSHIP"
+            : filter.WORK_TYPE === "Freelance"
+              ? "FREELANCE"
+              : "")
     );
     console.log("temp", temp);
   }
-
   // DATE
   if (filter.DATE && filter.DATE !== "Tất cả ngày đăng") {
     if (filter.DATE === "Mới nhất") {
