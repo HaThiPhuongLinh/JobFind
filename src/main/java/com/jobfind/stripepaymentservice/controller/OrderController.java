@@ -24,6 +24,12 @@ public class OrderController {
         return ResponseEntity.ok(orderResponse);
     }
 
+    @PutMapping("/change-plan/{userId}/{newPlanId}")
+    public ResponseEntity<OrderResponse> changeSubscriptionPlan(@PathVariable Integer userId, @PathVariable Integer newPlanId) throws Exception {
+        OrderResponse orderResponse = paymentServiceImpl.changeSubscriptionPlan(userId, newPlanId);
+        return ResponseEntity.ok(orderResponse);
+    }
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<OrderResponse> getOrderByUserId(@PathVariable Integer userId) throws Exception {
         OrderResponse orderResponse = paymentServiceImpl.getOrderByUserId(userId);

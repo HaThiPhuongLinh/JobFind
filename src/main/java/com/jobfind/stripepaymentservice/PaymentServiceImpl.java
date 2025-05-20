@@ -21,6 +21,7 @@ import com.stripe.model.*;
 import com.stripe.net.RequestOptions;
 import com.stripe.param.CustomerSearchParams;
 import com.stripe.param.PaymentIntentCreateParams;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -32,7 +33,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +69,6 @@ public class PaymentServiceImpl implements IPaymentService{
     private final UserRepository userRepository;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final CompanyConverter companyConverter;
-    private final CompanyServiceImpl companyServiceImpl;
 
     @Override
     public void updatePaymentIntentForOrderFirst(Order order) throws StripeException {
@@ -215,7 +218,7 @@ public class PaymentServiceImpl implements IPaymentService{
     }
 
     @Override
-    public void cancelPaymentIntent(Order order) throws StripeException {
+    public void cancelPaymentIntent(Order order) {
         RequestOptions options = buildRequestOptions();
         if (order == null || StringUtils.isEmpty(order.getPaymentIntentId())) {
             return;
@@ -240,45 +243,49 @@ public class PaymentServiceImpl implements IPaymentService{
             }
         }
         order.setPaymentIntentId(StringUtils.EMPTY);
+        order.setStatus(PaymentStatus.FAILED);
         orderRepository.save(order);
     }
 
     @Override
-    public OrderResponse createCardPaymentForOrder(Integer orderId) throws Exception {
-        Order order = orderRepository.getOrderByOrderId(orderId);
-        String intentSecret = StringUtils.EMPTY;
+    public OrderResponse createCardPaymentForOrder(Order order) throws Exception {
+        String intentSecret;
         if (StringUtils.isNotEmpty(order.getPaymentIntentId())) {
             intentSecret = updatePaymentIntentForOrderSecond(order);
-        }else{
+        } else {
             intentSecret = createPaymentIntent(order);
         }
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setIntentSecret(intentSecret);
         orderResponse.setPublishableKey(stripePaymentPublicKey);
 
-
         return orderResponse;
     }
 
     @Override
-    public String createPaymentIntent(Order order) throws StripeException {
-        RequestOptions options = buildRequestOptions();
-        Double totalPrice = order.getTotalPrice();
-        Stripe.apiKey = stripePaymentSecretKey;
-        String stripeCustomerId = getStripeCustomerId(order.getUser());
+    public String createPaymentIntent(Order order){
+        try {
+            RequestOptions options = buildRequestOptions();
+            Double totalPrice = order.getTotalPrice();
+            Stripe.apiKey = stripePaymentSecretKey;
+            String stripeCustomerId = getStripeCustomerId(order.getUser());
 
-        PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
-                .setAmount(Math.round(totalPrice * 100))
-                .setCurrency("AUD")
-                .setCaptureMethod(PaymentIntentCreateParams.CaptureMethod.MANUAL)
-                .setCustomer(stripeCustomerId)
-                .build();
+            PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
+                    .setAmount(Math.round(totalPrice * 100))
+                    .setCurrency("AUD")
+                    .setCaptureMethod(PaymentIntentCreateParams.CaptureMethod.MANUAL)
+                    .setCustomer(stripeCustomerId)
+                    .build();
 
-        PaymentIntent paymentIntent = PaymentIntent.create(createParams, options);
-        order.setPaymentIntentId(paymentIntent.getId());
-        orderRepository.save(order);
+            PaymentIntent paymentIntent = PaymentIntent.create(createParams, options);
+            order.setPaymentIntentId(paymentIntent.getId());
+            orderRepository.save(order);
 
-        return  paymentIntent.getClientSecret();
+            return paymentIntent.getClientSecret();
+        } catch (Exception e) {
+            LOG.error("Error while creating payment intent: {}", e.getMessage());
+            throw new BadRequestException("Error while creating payment intent");
+        }
     }
 
     @Override
@@ -292,9 +299,17 @@ public class PaymentServiceImpl implements IPaymentService{
     }
 
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public OrderResponse createOrder(OrderRequest orderRequest) throws Exception {
         User user = userRepository.findById(orderRequest.getUserId()).orElseThrow(() -> new BadRequestException("User not found"));
         SubscriptionPlan subscriptionPlan = subscriptionPlanRepository.findById(orderRequest.getSubscriptionPlanId()).orElseThrow(() -> new BadRequestException("Subscription plan not found"));
+
+        List<Order> pendingOrders = orderRepository.findByUserUserIdAndStatus(user.getUserId(), PaymentStatus.PENDING)
+                .stream()
+                .collect(Collectors.toList());
+        for (Order order : pendingOrders) {
+            cancelOrder(order);
+        }
 
         Order order = new Order();
         order.setUser(user);
@@ -303,9 +318,7 @@ public class PaymentServiceImpl implements IPaymentService{
         order.setStatus(PaymentStatus.PENDING);
         order.setTotalPrice(subscriptionPlan.getPrice());
 
-        orderRepository.save(order);
-
-        OrderResponse orderResponse = createCardPaymentForOrder(order.getOrderId());
+        OrderResponse orderResponse = createCardPaymentForOrder(order);
         orderResponse.setId(order.getOrderId());
         orderResponse.setName(subscriptionPlan.getName());
         orderResponse.setDescription(subscriptionPlan.getDescription());
@@ -313,6 +326,14 @@ public class PaymentServiceImpl implements IPaymentService{
         orderResponse.setCompanyDTO(companyConverter.convertToCompanyDTO(order.getUser().getCompany()));
 
         return orderResponse;
+    }
+
+    private void cancelOrder(Order order) {
+        if (StringUtils.isNotEmpty(order.getPaymentIntentId())) {
+            cancelPaymentIntent(order);
+        }
+        order.setStatus(PaymentStatus.FAILED);
+        orderRepository.save(order);
     }
 
     @Override
@@ -335,19 +356,43 @@ public class PaymentServiceImpl implements IPaymentService{
         updatePaymentIntentForOrderFirst(order);
         chargeForOrder(order);
 
+        order.setTotalPrice(paymentIntent.getAmountCapturable() / 100.0);
+        OrderResponse orderResponse = convertToOrderResponse(order);
+
+        return orderResponse;
+    }
+
+    @Override
+    public OrderResponse getOrderByUserId(Integer userId) throws Exception {
+        Optional<Order> pendingOrder = orderRepository.findByUserUserIdAndStatus(userId, PaymentStatus.PENDING);
+        if (pendingOrder.isPresent()) {
+            Order order = pendingOrder.get();
+            return convertToOrderResponse(order);
+        }
+
+        List<Order> orders = orderRepository.findLatestByUserId(userId);
+        if (orders.isEmpty()) {
+            throw new BadRequestException("Order not found");
+        }
+
+        Order latestOrder = orders.get(0);
+        return convertToOrderResponse(latestOrder);
+    }
+
+    private OrderResponse convertToOrderResponse(Order order) {
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setId(order.getOrderId());
         orderResponse.setName(order.getSubscriptionPlan().getName());
         orderResponse.setDescription(order.getSubscriptionPlan().getDescription());
         orderResponse.setDurationMonths(order.getSubscriptionPlan().getDurationMonths());
         orderResponse.setCompanyDTO(companyConverter.convertToCompanyDTO(order.getUser().getCompany()));
-        orderResponse.setIntentSecret(paymentIntent.getClientSecret());
-        orderResponse.setPublishableKey(stripePaymentPublicKey);
         orderResponse.setStatus(order.getStatus());
-        order.setTotalPrice(paymentIntent.getAmountCapturable() / 100.0);
+        orderResponse.setTotalPrice(order.getTotalPrice());
+        orderResponse.setCreatedAt(order.getCreatedAt());
+        orderResponse.setIntentSecret(order.getPaymentIntentId());
 
         CreditCardPaymentInfo cardPaymentInfo = order.getCreditCardPaymentInfo();
-        if(cardPaymentInfo != null){
+        if (cardPaymentInfo != null) {
             PaymentDetailsResponse paymentDetailsResponse = new PaymentDetailsResponse();
             paymentDetailsResponse.setId(cardPaymentInfo.getId());
             paymentDetailsResponse.setCardNumber(cardPaymentInfo.getNumber());
@@ -361,34 +406,20 @@ public class PaymentServiceImpl implements IPaymentService{
     }
 
     @Override
-    public OrderResponse getOrderByUserId(Integer userId) throws Exception {
-        Order order = orderRepository.getOrderByUserUserId(userId);
-        if(order == null){
-            throw new BadRequestException("Order not found");
-        }
-        OrderResponse orderResponse = new OrderResponse();
-        orderResponse.setId(order.getOrderId());
-        orderResponse.setName(order.getSubscriptionPlan().getName());
-        orderResponse.setDescription(order.getSubscriptionPlan().getDescription());
-        orderResponse.setDurationMonths(order.getSubscriptionPlan().getDurationMonths());
-        orderResponse.setCompanyDTO(companyConverter.convertToCompanyDTO(order.getUser().getCompany()));
-        orderResponse.setStatus(order.getStatus());
-        orderResponse.setTotalPrice(order.getTotalPrice());
-        orderResponse.setCreatedAt(order.getCreatedAt());
-        orderResponse.setIntentSecret(order.getPaymentIntentId());
-
-        CreditCardPaymentInfo cardPaymentInfo = order.getCreditCardPaymentInfo();
-        if(cardPaymentInfo != null){
-            PaymentDetailsResponse paymentDetailsResponse = new PaymentDetailsResponse();
-            paymentDetailsResponse.setId(cardPaymentInfo.getId());
-            paymentDetailsResponse.setCardNumber(cardPaymentInfo.getNumber());
-            paymentDetailsResponse.setExpiryMonth(cardPaymentInfo.getValidToMonth());
-            paymentDetailsResponse.setExpiryYear(cardPaymentInfo.getValidToYear());
-            paymentDetailsResponse.setSubscriptionId(cardPaymentInfo.getSubscriptionId());
-            orderResponse.setPaymentInfo(paymentDetailsResponse);
+    public OrderResponse changeSubscriptionPlan(Integer userId, Integer newPlanId) throws Exception {
+        List<Order> pendingOrders = orderRepository.findByUserUserIdAndStatus(userId, PaymentStatus.PENDING)
+                .stream()
+                .collect(Collectors.toList());
+        for (Order order : pendingOrders) {
+            cancelPaymentIntent(order);
         }
 
-        return orderResponse;
+        OrderRequest newOrderRequest = new OrderRequest();
+        newOrderRequest.setUserId(userId);
+        newOrderRequest.setSubscriptionPlanId(newPlanId);
+        newOrderRequest.setPayByCC(true);
+
+        return createOrder(newOrderRequest);
     }
 
     protected RequestOptions buildRequestOptions()
