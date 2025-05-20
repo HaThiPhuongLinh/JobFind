@@ -1,6 +1,7 @@
 package com.jobfind.services;
 
 import com.jobfind.dto.dto.ChartDataDTO;
+import com.jobfind.dto.dto.CompanyJobStatsDTO;
 import com.jobfind.dto.dto.RecentApplicationDTO;
 import com.jobfind.dto.dto.RegionChartDataDTO;
 import com.jobfind.dto.request.ApplicationRequest;
@@ -20,4 +21,5 @@ public interface IApplicationService {
     List<RecentApplicationDTO> getRecentApplications();
     ChartDataDTO getApplicationTrends(String type, Integer month);
     RegionChartDataDTO getActiveRegions(String type, Integer month);
+    CompanyJobStatsDTO getCompanyJobStats(String type, Integer month);
 }

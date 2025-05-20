@@ -258,6 +258,33 @@ public class ApplicationServiceImpl implements IApplicationService {
         return dto;
     }
 
+    @Override
+    public CompanyJobStatsDTO getCompanyJobStats(String type, Integer month) {
+        CompanyJobStatsDTO dto = new CompanyJobStatsDTO();
+        LocalDateTime now = LocalDateTime.now();
+        int currentYear = now.getYear();
+        List<Object[]> results;
+
+        if ("range".equals(type)) {
+            LocalDateTime start = LocalDateTime.of(currentYear, 1, 1, 0, 0);
+            LocalDateTime end = LocalDateTime.of(currentYear, now.getMonthValue() + 1, 1, 0, 0);
+            results = jobRepository.countJobsByCompanyAndCreatedAtBetween(start, end);
+        } else if ("month".equals(type) && month != null) {
+            LocalDateTime start = LocalDateTime.of(currentYear, month, 1, 0, 0);
+            LocalDateTime end = start.plusMonths(1);
+            results = jobRepository.countJobsByCompanyAndCreatedAtBetween(start, end);
+        } else {
+            throw new BadRequestException("Invalid type or month");
+        }
+
+        List<String> labels = results.stream().map(row -> (String) row[1]).collect(Collectors.toList());
+        List<Long> counts = results.stream().map(row -> ((Number) row[2]).longValue()).collect(Collectors.toList());
+        dto.setLabels(labels);
+        dto.setCounts(counts);
+
+        return dto;
+    }
+
     private void saveApplicationStatusHistory(Application application, ApplicationStatus status) {
         ApplicationStatusHistory history = ApplicationStatusHistory.builder()
                 .application(application)

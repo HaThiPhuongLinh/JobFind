@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface JobRepository extends JpaRepository<Job, Integer> {
@@ -50,4 +51,17 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
     List<Job> findJobsWithPriorityLevel2();
 
     List<Job> findByIsActiveTrueAndIsExpiredFalseAndIsDeletedFalse();
+
+    @Query("SELECT j.company.companyId, j.company.companyName, COUNT(j) " +
+            "FROM Job j " +
+            "WHERE j.isActive = true " +
+            "AND j.isDeleted = false " +
+            "AND j.isApproved = true " +
+            "AND j.isExpired = false " +
+            "AND j.postedAt BETWEEN :start AND :end " +
+            "GROUP BY j.company.companyId, j.company.companyName")
+    List<Object[]> countJobsByCompanyAndCreatedAtBetween(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
 }

@@ -1,9 +1,6 @@
 package com.jobfind.controllers;
 
-import com.jobfind.dto.dto.ChartDataDTO;
-import com.jobfind.dto.dto.DashboardStatsDTO;
-import com.jobfind.dto.dto.RecentApplicationDTO;
-import com.jobfind.dto.dto.RegionChartDataDTO;
+import com.jobfind.dto.dto.*;
 import com.jobfind.repositories.ApplicationRepository;
 import com.jobfind.repositories.JobRepository;
 import com.jobfind.repositories.UserRepository;
@@ -59,5 +56,12 @@ public class AdminController {
             @RequestParam String type,
             @RequestParam(required = false) Integer month) {
         return ResponseEntity.ok(applicationServiceImpl.getActiveRegions(type, month));
+    }
+
+    @GetMapping("/companies/job-stats")
+    public ResponseEntity<CompanyJobStatsDTO> getCompanyJobStats(
+            @RequestParam String type,
+            @RequestParam(required = false) Integer month) {
+        return ResponseEntity.ok(applicationServiceImpl.getCompanyJobStats(type, month));
     }
 }
