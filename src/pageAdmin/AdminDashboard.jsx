@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-    Card, CardContent, Typography, Table, TableBody, TableCell, TableHead, TableRow, Select, MenuItem, Button, Box, FormControl, InputLabel,
+    Card, CardContent, Typography, Table, TableBody, TableCell, TableHead, TableRow, Select, MenuItem, Button, Box, FormControl, TextField, Autocomplete, InputLabel,
 } from "@mui/material";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import { Bar } from "react-chartjs-2";
@@ -65,10 +65,17 @@ const AdminDashboard = () => {
         labels: [],
         datasets: [{ label: "Đơn ứng tuyển", data: [], backgroundColor: "rgba(99, 102, 241, 0.5)", borderColor: "rgba(99, 102, 241, 1)", borderWidth: 1 }],
     });
+
+    const [jobChartData, setJobChartData] = useState({
+        labels: [],
+        datasets: [{ label: "Công việc", data: [], backgroundColor: "rgba(99, 102, 241, 0.5)", borderColor: "rgba(99, 102, 241, 1)", borderWidth: 1 }],
+    });
     const [trendFilter, setTrendFilter] = useState("range");
     const [trendMonth, setTrendMonth] = useState(null);
     const [regionFilter, setRegionFilter] = useState("range");
     const [regionMonth, setRegionMonth] = useState(null);
+    const [jobFilter, setJobFilter] = useState("range");
+    const [jobMonth, setJobMonth] = useState(null);
 
     // Table states
     const [applications, setApplications] = useState([]);
@@ -151,8 +158,17 @@ const AdminDashboard = () => {
                     });
                 })
                 .catch((err) => console.error("Lỗi lấy regions:", err));
+
+            adminApi.getCompanyJob(jobFilter, jobMonth)
+                .then((res) => {
+                    setJobChartData({
+                        labels: res.labels,
+                        datasets: [{ ...jobChartData.datasets[0], data: res.counts }],
+                    });
+                })
+                .catch((err) => console.error("Lỗi lấy jobs:", err));
         }
-    }, [activeTab, trendFilter, trendMonth, regionFilter, regionMonth]);
+    }, [activeTab, trendFilter, trendMonth, regionFilter, regionMonth, jobFilter, jobMonth]);
 
     // Fetch Applications
     const fetchApplications = () => {
@@ -270,6 +286,21 @@ const AdminDashboard = () => {
         setOpenJobModal(true);
     };
 
+    const [selectedCompany, setSelectedCompany] = useState(null);
+    const [inputValue, setInputValue] = useState("");
+
+    const filteredCompanies = selectedCompany
+        ? companies.filter((company) => company.companyId === selectedCompany.companyId)
+        : companies;
+
+    const getSuggestions = (value) => {
+        const inputValue = value.toLowerCase().trim();
+        return inputValue
+            ? companies.filter((company) =>
+                company.companyName.toLowerCase().includes(inputValue)
+            )
+            : companies;
+    };
 
     return (
         <div className="flex h-screen bg-gray-100 text-gray-900">
@@ -462,6 +493,41 @@ const AdminDashboard = () => {
                                 </div>
                                 <div className="h-64">
                                     <Bar data={regionChartData} options={{ responsive: true, maintainAspectRatio: false }} />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Chart: Top Job Of Company */}
+                        <Card className="mb-6">
+                            <CardContent>
+                                <div className="flex justify-between items-center mb-4">
+                                    <Typography variant="h6" className="font-bold">Số công việc theo công ty</Typography>
+                                    <div className="flex gap-2">
+                                        <Select
+                                            value={jobFilter}
+                                            onChange={(e) => setJobFilter(e.target.value)}
+                                            className="bg-gray-200"
+                                            size="small"
+                                        >
+                                            <MenuItem value="range">Trong năm</MenuItem>
+                                            <MenuItem value="month">Từng Tháng</MenuItem>
+                                        </Select>
+                                        {jobFilter === "month" && (
+                                            <Select
+                                                value={jobMonth || ""}
+                                                onChange={(e) => setJobMonth(Number(e.target.value))}
+                                                className="bg-gray-200"
+                                                size="small"
+                                            >
+                                                {[...Array(new Date().getMonth() + 1)].map((_, i) => (
+                                                    <MenuItem key={i + 1} value={i + 1}>Tháng {i + 1}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="h-64">
+                                    <Bar data={jobChartData} options={{ responsive: true, maintainAspectRatio: false }} />
                                 </div>
                             </CardContent>
                         </Card>
@@ -737,7 +803,36 @@ const AdminDashboard = () => {
                     <>
                         <Card>
                             <CardContent>
-                                <Typography variant="h6" className="font-bold mb-4">Danh Sách Công Ty</Typography>
+                                <Typography variant="h6" className="font-bold mb-14">Danh Sách Công Ty</Typography>
+                                <Autocomplete
+                                    options={companies}
+                                    getOptionLabel={(option) => option.companyName || ""}
+                                    onChange={(event, newValue) => setSelectedCompany(newValue)}
+                                    inputValue={inputValue}
+                                    onInputChange={(event, newInputValue) => setInputValue(newInputValue)}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Tìm kiếm công ty"
+                                            variant="outlined"
+                                            size="small"
+                                            sx={{ width: 500 }}
+                                        />
+                                    )}
+                                    renderOption={(props, option) => {
+                                        const { key, ...otherProps } = props; // Tách `key` ra khỏi `props`
+
+                                        return (
+                                            <li key={key} {...otherProps}> {/* Truyền `key` trực tiếp vào li */}
+                                                <Box display="flex" alignItems="center" gap={2}>
+                                                    {option.companyName}
+                                                </Box>
+                                            </li>
+                                        );
+                                    }}
+
+                                    noOptionsText="Không tìm thấy công ty"
+                                />
                                 <Table>
                                     <TableHead>
                                         <TableRow>
@@ -749,7 +844,7 @@ const AdminDashboard = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {paginate(companies, companyPage).map((company) => (
+                                        {paginate(filteredCompanies, companyPage).map((company) => (
                                             <TableRow
                                                 key={company.companyId}
                                                 onClick={() => handleRowClick(company.companyId)}

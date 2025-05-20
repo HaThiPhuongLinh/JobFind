@@ -22,6 +22,14 @@ const adminApi = {
                 ...(month !== null && { month }),
             },
         }),
+
+    getCompanyJob: (type, month) =>
+        axiosClient.get('/admin/companies/job-stats', {
+            params: {
+                type,
+                ...(month !== null && { month }),
+            },
+        }),
 };
 
 export default adminApi;
