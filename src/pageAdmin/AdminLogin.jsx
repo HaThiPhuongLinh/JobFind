@@ -30,8 +30,8 @@ const AdminLogin = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [formData, setFormData] = useState({
-        email: "",
-        password: "",
+        email: "admin@jobfind.vn",
+        password: "Test#123",
     });
     const [error, setError] = useState(null);
 

@@ -6,10 +6,12 @@ import orderApi from "../../api/orderApi";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { FaCcVisa } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { Dialog, DialogContent, DialogTitle, DialogActions, Button } from "@mui/material";
 
 const stripePromise = loadStripe("pk_test_51Q61wC08BpdjTVb3oNVqG6KXhoIiQKB82Qi2oophJYjbrP0DLtAqDQL9WaoFqz558MgNtpTDfIKu4Ydu4J2Gpgg700dadQ6akd");
 
-const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPaymentSuccess, paymentLoading, setOrderData, existingOrder }) => {
+const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPaymentSuccess, paymentLoading, setOrderData, existingOrder, onChangePlan, onClose }) => {
     const stripe = useStripe();
     const elements = useElements();
     const user = useSelector((state) => state.auth.user);
@@ -27,7 +29,7 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
                 setIsCardConfirmed(true);
             } else if (existingOrder.status === "PENDING") {
                 setIsCardConfirmed(false);
-            } else if (existingOrder.status === "succeeded" || existingOrder.status === "COMPLETED") {
+            } else if (existingOrder.status === "COMPLETED") {
                 setIsCardConfirmed(true);
                 setPaymentSuccess(true);
             }
@@ -56,7 +58,7 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
             setOrderData(orderResponse);
         } catch (err) {
             console.error("Order creation error:", err);
-            setPaymentError(err.message || "Không thể tạo đơn hàng. Vui lòng thử lại.");
+            setPaymentError(err.response?.data?.message || "Không thể tạo đơn hàng. Vui lòng thử lại.");
         } finally {
             setPaymentLoading(false);
         }
@@ -92,7 +94,6 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
                 throw new Error(paymentResult.error.message);
             }
 
-            // Update orderData with paymentInfo (assuming API returns it after confirmation)
             const updatedOrder = {
                 ...orderData,
                 paymentInfo: {
@@ -109,7 +110,7 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
             setIsCardConfirmed(true);
         } catch (err) {
             console.error("Card confirmation error:", err);
-            setPaymentError(err.message || "Không thể xác nhận thẻ. Vui lòng thử lại.");
+            setPaymentError(err.response?.data?.message || "Không thể xác nhận thẻ. Vui lòng thử lại.");
         } finally {
             setPaymentLoading(false);
         }
@@ -125,23 +126,28 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
             setOrderData(chargeResponse);
             setChargeStatus(chargeResponse.status);
 
-            if (chargeResponse.status === "succeeded" || chargeResponse.status === "COMPLETED") {
+            if (chargeResponse.status === "COMPLETED") {
                 setPaymentSuccess(true);
+                toast.success("Thanh toán thành công! Cảm ơn bạn đã sử dụng dịch vụ.");
+                setTimeout(() => {
+                    onClose();
+                    window.location.reload();
+                }, 300);
             } else {
                 setPaymentSuccess(false);
+                toast.error("Thanh toán chưa hoàn tất. Vui lòng thử lại.");
             }
         } catch (err) {
             console.error("Charge order error:", err);
-            setPaymentError(err.message || "Không thể thực hiện thanh toán. Vui lòng thử lại.");
+            setPaymentError(err.response?.data?.message || "Không thể thực hiện thanh toán. Vui lòng thử lại.");
         } finally {
             setPaymentLoading(false);
         }
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Order Summary */}
+        <div className="w-full bg-white p-8 flex items-center justify-center">
+            <div className="w-[80%] justify-center">
                 <div className="bg-gray-50 p-6 rounded-lg shadow-md">
                     <h3 className="text-2xl font-semibold text-gray-800 mb-6">Thông Tin Gói Đăng Ký</h3>
 
@@ -181,6 +187,14 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
                                                 <span className="text-green-600 font-semibold">{orderData.status}</span>
                                             </div>
                                         )}
+                                        {existingOrder && (
+                                            <button
+                                                onClick={onChangePlan}
+                                                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
+                                            >
+                                                Chọn gói khác
+                                            </button>
+                                        )}
                                     </div>
                                 );
                             })()}
@@ -190,11 +204,9 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
                     )}
                 </div>
 
-                {/* Payment Form and Card Graphic */}
                 <div>
-                    {/* Always show card graphic if paymentInfo exists */}
                     {orderData && orderData.paymentInfo && (
-                        <div className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-lg shadow-md mb-6 h-56 w-full max-w-md mx-auto">
+                        <div className="mt-4 relative bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-lg shadow-md mb-6 h-56 w-full max-w-md mx-auto">
                             <div className="absolute top-4 left-4 text-2xl font-bold">VISA</div>
                             <div className="absolute bottom-8 left-4 text-lg font-mono">
                                 {orderData.paymentInfo.cardNumber || "**** **** **** 1234"}
@@ -210,14 +222,12 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
                         </div>
                     )}
 
-                    {/* Card Input Form or Payment Button */}
                     {!orderData ? (
-                        <form onSubmit={handleCreateOrder} className="w-full max-w-md mx-auto">
+                        <form onSubmit={handleCreateOrder} className="w-full max-w-md mx-auto mt-8">
                             <button
                                 type="submit"
                                 disabled={paymentLoading}
-                                className={`w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 ${paymentLoading ? "opacity-50 cursor-not-allowed" : ""
-                                    }`}
+                                className={`w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 ${paymentLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                             >
                                 {paymentLoading ? "Đang xử lý..." : "Đăng ký"}
                             </button>
@@ -225,7 +235,7 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
                     ) : !isCardConfirmed && chargeStatus !== "COMPLETED" ? (
                         <form onSubmit={handleConfirmCard} className="w-full max-w-md mx-auto">
                             <div className="mb-4">
-                                <label className="block text-gray-700 mb-2 font-medium">Thông Tin Thẻ</label>
+                                <label className="block text-gray-700 mb-2 font-medium mt-4">Thông Tin Thẻ</label>
                                 <CardElement
                                     options={{
                                         style: {
@@ -244,8 +254,7 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
                             <button
                                 type="submit"
                                 disabled={paymentLoading}
-                                className={`w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 ${paymentLoading ? "opacity-50 cursor-not-allowed" : ""
-                                    }`}
+                                className={`w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 ${paymentLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                             >
                                 {paymentLoading ? "Đang xử lý..." : "Xác nhận"}
                             </button>
@@ -255,12 +264,11 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
                             <p className="text-green-600 font-semibold">Thanh toán thành công!</p>
                         </div>
                     ) : (
-                        <div className="w-full max-w-md mx-auto">
+                        <div className="w-full max-w-md mx-auto mt-5">
                             <button
                                 onClick={handleChargeOrder}
                                 disabled={paymentLoading}
-                                className={`w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 ${paymentLoading ? "opacity-50 cursor-not-allowed" : ""
-                                    }`}
+                                className={`w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 ${paymentLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                             >
                                 {paymentLoading ? "Đang xử lý..." : "Thanh toán"}
                             </button>
@@ -272,11 +280,11 @@ const CheckoutForm = ({ planId, plans, setPaymentLoading, setPaymentError, setPa
     );
 };
 
-const OrderSummary = ({ orders }) => {
+const OrderSummary = ({ orders, onChangePlan }) => {
     return (
         <div className="w-full max-w-5xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Thông Tin Đăng Ký</h2>
-            {orders.map((order, index) => (
+            {orders.map((order) => (
                 <div key={order.id} className="bg-gray-50 p-6 rounded-lg mb-6">
                     <div className="space-y-4">
                         <div>
@@ -333,9 +341,14 @@ const OrderSummary = ({ orders }) => {
                             </div>
                         )}
                         {order.status === "COMPLETED" && (
-                            <div className="flex">
+                            <div className="flex justify-between items-center">
                                 <div className="text-green-600 font-semibold mt-4">Thanh toán thành công!</div>
-                                <div className="text-gray-600 font-light mt-4 ml-3">{order.createdAt}</div>
+                                <button
+                                    onClick={onChangePlan}
+                                    className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
+                                >
+                                    Chọn gói khác
+                                </button>
                             </div>
                         )}
                     </div>
@@ -355,6 +368,7 @@ const RecruiterSubcribe = () => {
     const [paymentSuccess, setPaymentSuccess] = useState(false);
     const [selectedPlanId, setSelectedPlanId] = useState(null);
     const [orderData, setOrderData] = useState(null);
+    const [openModal, setOpenModal] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const user = useSelector((state) => state.auth.user);
@@ -364,6 +378,7 @@ const RecruiterSubcribe = () => {
         const { selectedPlanId } = location.state || {};
         if (selectedPlanId) {
             setSelectedPlanId(selectedPlanId);
+            setOpenModal(true);
         }
     }, [location.state]);
 
@@ -372,26 +387,26 @@ const RecruiterSubcribe = () => {
             try {
                 setLoading(true);
 
+                // Lấy danh sách gói
+                const planResponse = await subscriptionPlanApi.listAllSubscriptionPlans();
+                const activePlans = planResponse.filter((plan) => plan.isActive);
+                setPlans(activePlans);
+
+                // Lấy order của user
                 const orderResponse = await orderApi.getOrderByUserId(userId);
                 setOrders([orderResponse]);
 
                 if (orderResponse && orderResponse.status === "PENDING") {
                     setOrderData(orderResponse);
-                    setSelectedPlanId(orderResponse.subscriptionPlanId);
+                    setSelectedPlanId(orderResponse.id); // Lấy plan từ order
+                    setOpenModal(true); // Mở modal cho order PENDING
                 }
             } catch (err) {
-                if (err.response && err.response.status === 400) {
-                    try {
-                        const planResponse = await subscriptionPlanApi.listAllSubscriptionPlans();
-                        const activePlans = planResponse.filter((plan) => plan.isActive);
-                        setPlans(activePlans);
-                    } catch (planErr) {
-                        console.error("Error fetching plans:", planErr);
-                        setError("Không thể tải gói dịch vụ. Vui lòng thử lại sau.");
-                    }
+                if (err.response?.status === 400) {
+                    setOrders([]);
                 } else {
-                    console.error("Error fetching order:", err);
-                    setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
+                    console.error("Error fetching data:", err);
+                    setError(err.response?.data?.message || "Không thể tải dữ liệu. Vui lòng thử lại sau.");
                 }
             } finally {
                 setLoading(false);
@@ -403,11 +418,45 @@ const RecruiterSubcribe = () => {
         }
     }, [userId]);
 
-    const handleSelectPlan = (planId) => {
-        setSelectedPlanId(planId);
+    const handleSelectPlan = async (planId) => {
+        if (orders.length > 0 && orders[0].status === "PENDING") {
+            if (window.confirm("Bạn có một đơn hàng đang chờ thanh toán. Chọn gói khác sẽ hủy đơn hàng hiện tại. Tiếp tục?")) {
+                try {
+                    setPaymentLoading(true);
+                    const newOrder = await orderApi.changeSubscriptionPlan(userId, planId);
+                    setOrders([newOrder]);
+                    setOrderData(newOrder);
+                    setSelectedPlanId(planId);
+                    setPaymentSuccess(false);
+                    setPaymentError(null);
+                    setOpenModal(true); // Mở modal cho order mới
+                    toast.success("Đã thay đổi gói thành công!");
+                } catch (err) {
+                    toast.error(err.response?.data?.message || "Không thể thay đổi gói. Vui lòng thử lại.");
+                } finally {
+                    setPaymentLoading(false);
+                }
+            }
+        } else {
+            setSelectedPlanId(planId);
+            setOrderData(null);
+            setPaymentSuccess(false);
+            setPaymentError(null);
+            setOpenModal(true); // Mở modal khi chọn gói
+        }
+    };
+
+    const handleChangePlan = () => {
+        setSelectedPlanId(null);
         setOrderData(null);
-        setPaymentSuccess(false);
-        setPaymentError(null);
+        setOrders([]);
+        setOpenModal(false); // Đóng modal để quay lại danh sách gói
+    };
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setSelectedPlanId(null);
+        setOrderData(null);
     };
 
     return (
@@ -425,18 +474,20 @@ const RecruiterSubcribe = () => {
                     <div className="text-center text-green-600 mb-6">Thanh toán thành công! Cảm ơn bạn đã sử dụng dịch vụ.</div>
                 )}
 
-                {!loading && !error && orders.length > 0 && orders[0].status === "COMPLETED" && <OrderSummary orders={orders} />}
+                {!loading && !error && orders.length > 0 && orders[0].status === "COMPLETED" && (
+                    <OrderSummary orders={orders} onChangePlan={handleChangePlan} />
+                )}
 
-                {!loading && !error && orders.length === 0 && plans.length === 0 && (
+                {!loading && !error && plans.length === 0 && (
                     <div className="text-center text-gray-600">Hiện tại không có gói dịch vụ nào khả dụng.</div>
                 )}
 
-                {!loading && !error && orders.length === 0 && plans.length > 0 && !selectedPlanId && (
+                {!loading && !error && (orders.length === 0 || (orders.length > 0 && orders[0].status === "PENDING")) && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {plans.map((plan) => (
                             <div
                                 key={plan.id}
-                                className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-200 flex flex-col items-center text-center"
+                                className={`bg-white border ${selectedPlanId === plan.id ? "border-green-500" : "border-gray-200"} rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-200 flex flex-col items-center text-center`}
                             >
                                 <h2 className="text-2xl font-semibold text-gray-800 mb-3">{plan.name}</h2>
                                 <p
@@ -450,30 +501,39 @@ const RecruiterSubcribe = () => {
                                 <button
                                     onClick={() => handleSelectPlan(plan.id)}
                                     disabled={paymentLoading}
-                                    className={`bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200 ${paymentLoading ? "opacity-50 cursor-not-allowed" : ""
-                                        }`}
+                                    className={`bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200 ${paymentLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
-                                    Chọn gói
+                                    {selectedPlanId === plan.id ? "Đã chọn" : "Chọn gói"}
                                 </button>
                             </div>
                         ))}
                     </div>
                 )}
 
-                {!loading && !error && ((orders.length === 0 && selectedPlanId) || (orders.length > 0 && orders[0].status === "PENDING")) && (
-                    <Elements stripe={stripePromise}>
-                        <CheckoutForm
-                            planId={selectedPlanId || orders[0]?.subscriptionPlanId}
-                            plans={plans}
-                            setPaymentLoading={setPaymentLoading}
-                            setPaymentError={setPaymentError}
-                            setPaymentSuccess={setPaymentSuccess}
-                            paymentLoading={paymentLoading}
-                            setOrderData={setOrderData}
-                            existingOrder={orders.length > 0 && orders[0].status === "PENDING" ? orders[0] : null}
-                        />
-                    </Elements>
-                )}
+                <Dialog open={openModal} onClose={handleCloseModal} maxWidth="lg" fullWidth>
+                    <DialogTitle>Thanh Toán Gói Dịch Vụ</DialogTitle>
+                    <DialogContent>
+                        <Elements stripe={stripePromise}>
+                            <CheckoutForm
+                                planId={selectedPlanId}
+                                plans={plans}
+                                setPaymentLoading={setPaymentLoading}
+                                setPaymentError={setPaymentError}
+                                setPaymentSuccess={setPaymentSuccess}
+                                paymentLoading={paymentLoading}
+                                setOrderData={setOrderData}
+                                existingOrder={orders.length > 0 && orders[0].status === "PENDING" ? orders[0] : null}
+                                onChangePlan={handleChangePlan}
+                                onClose={handleCloseModal}
+                            />
+                        </Elements>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseModal} variant="outlined">
+                            Đóng
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </div>
         </div>
     );

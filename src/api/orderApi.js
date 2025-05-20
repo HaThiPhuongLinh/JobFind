@@ -11,6 +11,10 @@ const orderApi = {
 
     getOrderByUserId: (userId) => {
         return axiosClient.get(`order/user/${userId}`);
+    },
+
+    changeSubscriptionPlan: (userId, newPlanId) => {
+        return axiosClient.put(`/order/change-plan/${userId}/${newPlanId}`);
     }
 };
 

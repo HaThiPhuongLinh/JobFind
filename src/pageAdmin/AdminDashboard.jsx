@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, Typography, Table, TableBody, TableCell, TableHead, TableRow, Select, MenuItem, Button } from "@mui/material";
+import {
+    Card, CardContent, Typography, Table, TableBody, TableCell, TableHead, TableRow, Select, MenuItem, Button, Box, FormControl, InputLabel,
+} from "@mui/material";
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -25,6 +27,11 @@ import { logout } from "../redux/slices/authSlice";
 import JobDetailModal from "./JobDetailModal";
 import ApplicationListModal from "./ApplicationListModal.JSX";
 import JobsListModal from "./JobsListModal";
+import { toast } from "react-toastify";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import viLocale from "date-fns/locale/vi";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -74,6 +81,48 @@ const AdminDashboard = () => {
     const [jobSeekerPage, setJobSeekerPage] = useState(1);
     const itemsPerPage = 10;
 
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [sortOption, setSortOption] = useState(""); // Mặc định không sort
+
+    // Hàm lọc theo ngày
+    const filterByDate = (apps) => {
+        if (!selectedDate) return apps;
+        return apps.filter((app) => {
+            const firstTime = app.statusDTOList?.[0]?.time;
+            if (!firstTime) return false;
+            const applyDate = new Date(firstTime);
+            return (
+                applyDate.getDate() === selectedDate.getDate() &&
+                applyDate.getMonth() === selectedDate.getMonth() &&
+                applyDate.getFullYear() === selectedDate.getFullYear()
+            );
+        });
+    };
+
+    // Hàm sort theo option
+    const sortApplications = (apps) => {
+        if (!sortOption) return apps;
+        return [...apps].sort((a, b) => {
+            if (sortOption === "dateAsc") {
+                const dateA = new Date(a.statusDTOList?.[0]?.time || 0);
+                const dateB = new Date(b.statusDTOList?.[0]?.time || 0);
+                return dateA - dateB;
+            } else if (sortOption === "dateDesc") {
+                const dateA = new Date(a.statusDTOList?.[0]?.time || 0);
+                const dateB = new Date(b.statusDTOList?.[0]?.time || 0);
+                return dateB - dateA;
+            } else if (sortOption === "status") {
+                const statusA = a.statusDTOList?.[a.statusDTOList.length - 1]?.status || "";
+                const statusB = b.statusDTOList?.[b.statusDTOList.length - 1]?.status || "";
+                return statusA.localeCompare(statusB);
+            }
+            return 0;
+        });
+    };
+
+    // Lọc và sort danh sách
+    const filteredAndSortedApplications = sortApplications(filterByDate(applications));
+
     // Fetch Dashboard data
     useEffect(() => {
         if (activeTab === "Dashboard") {
@@ -110,8 +159,8 @@ const AdminDashboard = () => {
         applicationApi.getAll()
             .then((res) => setApplications(res))
             .catch((err) => console.error("Lỗi lấy applications:", err));
-    };
 
+    };
     // Fetch Jobs
     const fetchJobs = () => {
         jobApi.getAll()
@@ -170,6 +219,7 @@ const AdminDashboard = () => {
             setJobApplications(response);
             setOpenApplicationsModal(true);
         } catch (err) {
+            toast.error("Không có đơn ứng tuyển nào.", { autoClose: 500 });
             console.error("Lỗi lấy applications của job:", err);
         }
     };
@@ -459,6 +509,29 @@ const AdminDashboard = () => {
                     <Card>
                         <CardContent>
                             <Typography variant="h6" className="font-bold mb-4">Danh Sách Đơn Ứng Tuyển</Typography>
+                            <Box display="flex" gap={2}>
+                                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={viLocale}>
+                                    <DatePicker
+                                        label="Lọc theo ngày apply"
+                                        value={selectedDate}
+                                        onChange={(newValue) => setSelectedDate(newValue)}
+                                        slotProps={{ textField: { size: "small" } }}
+                                    />
+                                </LocalizationProvider>
+                                <FormControl size="small" sx={{ minWidth: 150 }}>
+                                    <InputLabel>Sắp xếp</InputLabel>
+                                    <Select
+                                        value={sortOption}
+                                        onChange={(e) => setSortOption(e.target.value)}
+                                        label="Sắp xếp"
+                                    >
+                                        <MenuItem value="">Không sắp xếp</MenuItem>
+                                        <MenuItem value="dateAsc">Ngày apply (Tăng dần)</MenuItem>
+                                        <MenuItem value="dateDesc">Ngày apply (Giảm dần)</MenuItem>
+                                        <MenuItem value="status">Trạng thái</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Box>
                             <Table>
                                 <TableHead>
                                     <TableRow>
@@ -467,10 +540,11 @@ const AdminDashboard = () => {
                                         <TableCell>Vị Trí</TableCell>
                                         <TableCell>Công ty</TableCell>
                                         <TableCell>Trạng Thái</TableCell>
+                                        <TableCell>Ngày apply</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {paginate(applications, applicationPage).map((app) => (
+                                    {paginate(filteredAndSortedApplications, applicationPage).map((app) => (
                                         <TableRow key={app.applicationId}>
                                             <TableCell>{app.applicationId}</TableCell>
                                             <TableCell>{app.jobSeekerProfile.firstName} {app.jobSeekerProfile.lastName}</TableCell>
@@ -488,6 +562,19 @@ const AdminDashboard = () => {
                                                                 }`}
                                                         >
                                                             {latestStatus}
+                                                        </span>
+                                                    );
+                                                })()}
+                                            </TableCell>
+                                            <TableCell>
+                                                {(() => {
+                                                    const firstTime = app.statusDTOList?.[0]?.time;
+                                                    return (
+                                                        <span
+                                                            className={`px-3 py-1 text-sm font-medium rounded-full
+                                                                }`}
+                                                        >
+                                                            {new Date(firstTime).toLocaleDateString("vi-VN")}
                                                         </span>
                                                     );
                                                 })()}
@@ -708,7 +795,7 @@ const AdminDashboard = () => {
                                 </div>
                             </CardContent>
                         </Card>
-                        <JobsListModal open={modalOpen} onClose={handleCloseModal} jobs={jobs} onJobSelect={handleJobSelect}/>
+                        <JobsListModal open={modalOpen} onClose={handleCloseModal} jobs={jobs} onJobSelect={handleJobSelect} />
                     </>
                 )}
 
