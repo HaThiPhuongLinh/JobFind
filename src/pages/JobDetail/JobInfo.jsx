@@ -114,7 +114,7 @@ const JobInfo = ({ job }) => {
                 <ButtonApply isApply={isApplied} jobId={job.jobId} />
               </div>
 
-              {expired ? (
+              {!expired ? (
                 <>
                   <div className="ps-4">
                     <ButtonSave job={job} />
