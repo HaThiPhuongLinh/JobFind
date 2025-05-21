@@ -84,20 +84,57 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
 
     const validateForm = () => {
         const newErrors = {};
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
         if (!formData.title) newErrors.title = "Tiêu đề là bắt buộc";
         if (!formData.description) newErrors.description = "Mô tả là bắt buộc";
         if (!formData.requirements) newErrors.requirements = "Yêu cầu là bắt buộc";
         if (!formData.benefits) newErrors.benefits = "Quyền lợi là bắt buộc";
-        if (formData.salaryMin === undefined || formData.salaryMin < 0) newErrors.salaryMin = "Lương tối thiểu phải >= 0";
-        if (formData.salaryMax === undefined || formData.salaryMax < 0) newErrors.salaryMax = "Lương tối đa phải >= 0";
+        if (formData.salaryMin === undefined || formData.salaryMin < 0) {
+            newErrors.salaryMin = "Lương tối thiểu phải >= 0";
+        }
+
+        if (formData.salaryMax === undefined || formData.salaryMax < 0) {
+            newErrors.salaryMax = "Lương tối đa phải >= 0";
+        }
+
+        if (
+            formData.salaryMin > 0 &&
+            formData.salaryMax !== undefined &&
+            formData.salaryMax < formData.salaryMin
+        ) {
+            newErrors.salaryMax = "Lương tối đa phải lớn hơn hoặc bằng lương tối thiểu";
+        }
+
         if (!formData.jobType) newErrors.jobType = "Hình thức làm việc là bắt buộc";
         if (!formData.location) newErrors.location = "Địa điểm là bắt buộc";
-        if (!formData.deadline) newErrors.deadline = "Hạn chót là bắt buộc";
+
+        if (!formData.deadline) {
+            newErrors.deadline = "Hạn chót là bắt buộc";
+        } else {
+            const deadlineDate = new Date(formData.deadline);
+            deadlineDate.setHours(0, 0, 0, 0);
+            if (deadlineDate <= today) {
+                newErrors.deadline = "Hạn chót phải sau ngày hôm nay";
+            }
+        }
+
         if (isEditMode && formData.isActive === undefined) newErrors.isActive = "Trạng thái là bắt buộc";
         if (formData.yearsOfExperience === undefined || formData.yearsOfExperience < 0) newErrors.yearsOfExperience = "Số năm kinh nghiệm phải >= 0";
         if (!formData.educationLevel) newErrors.educationLevel = "Trình độ học vấn là bắt buộc";
+
+        if (!formData.skillIds || formData.skillIds.length === 0) {
+            newErrors.skillIds = "Phải chọn ít nhất 1 kỹ năng";
+        }
+
+        if (!formData.categoryIds || formData.categoryIds.length === 0) {
+            newErrors.categoryIds = "Phải chọn ít nhất 1 danh mục";
+        }
+
         return newErrors;
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -362,6 +399,7 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
                                         classNamePrefix="react-select"
                                         placeholder="Chọn hoặc gõ kỹ năng..."
                                     />
+                                    {errors.skillIds && <p className="text-sm text-red-500 mt-1">{errors.skillIds}</p>}
                                 </div>
                                 <div className="flex flex-col md:col-span-2">
                                     <label className="text-sm font-medium text-gray-700 mb-1">Danh mục</label>
@@ -378,6 +416,8 @@ const JobModal = ({ mode, setMode, job, skills, categories, companyId, onClose, 
                                         classNamePrefix="react-select"
                                         placeholder="Chọn hoặc gõ danh mục..."
                                     />
+                                    {errors.categoryIds && <p className="text-sm text-red-500 mt-1">{errors.categoryIds}</p>}
+
                                 </div>
                                 <div className="flex flex-col md:col-span-2">
                                     <label className="text-sm font-medium text-gray-700 mb-1">Mô tả *</label>
