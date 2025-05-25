@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SkillPopulator {
     public void populate(Skill source, SkillDTO target) {
+        target.setSkillId(source.getSkillId());
         target.setName(source.getName());
     }
 }

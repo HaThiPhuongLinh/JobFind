@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/job")
@@ -80,6 +82,12 @@ public class JobController {
         return ResponseEntity.ok(new SuccessResponse("Job rejected successfully"));
     }
 
+    @GetMapping("/{jobSeekerId}/skills-and-categories")
+    public ResponseEntity<Map<String, List<Integer>>> getSkillsAndCategories(@PathVariable Integer jobSeekerId) {
+        Map<String, List<Integer>> skillsAndCategories = jobServiceImpl.getSkillsAndCategories(jobSeekerId);
+        return ResponseEntity.ok(skillsAndCategories);
+    }
+
     @GetMapping("/proposedJobs/{jobSeekerId}")
     public ResponseEntity<List<JobDTO>> getProposedJobs(@PathVariable Integer jobSeekerId) {
         List<JobDTO> jobs = jobServiceImpl.getProposedJobs(jobSeekerId);
@@ -96,5 +104,11 @@ public class JobController {
     public ResponseEntity<List<JobDTO>> getJobsPriority() {
         List<JobDTO> jobs = jobServiceImpl.getJobsPriority();
         return ResponseEntity.ok(jobs);
+    }
+
+    @PostMapping("/pushAlgolia")
+    public ResponseEntity<SuccessResponse> pushJobsToAlgolia() throws IOException {
+        jobServiceImpl.pushJobsToAlgolia();
+        return ResponseEntity.ok(new SuccessResponse("Jobs pushed to Algolia successfully"));
     }
 }

@@ -40,7 +40,8 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "LEFT JOIN j.skills s " +
             "LEFT JOIN j.categories c " +
             "WHERE (s.skillId IN :skillIds OR c.jobCategoryId IN :categoryIds) " +
-            "AND j.isActive = true AND j.isDeleted = false AND j.isApproved = true AND j.isExpired = false")
+            "AND j.isActive = true AND j.isDeleted = false AND j.isApproved = true AND j.isExpired = false " +
+            "ORDER BY j.isPriority DESC, j.priorityLevel DESC")
     List<Job> findProposedJobs(@Param("skillIds") List<Integer> skillIds,
                                @Param("categoryIds") List<Integer> categoryIds);
 

@@ -1,5 +1,10 @@
 package com.jobfind.services.impl;
 
+import com.algolia.api.SearchClient;
+import com.algolia.config.ClientOptions;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jobfind.dto.dto.JobDTO;
 import com.jobfind.dto.request.CreateJobRequest;
 import com.jobfind.dto.request.RejectJobRequest;
@@ -13,17 +18,16 @@ import com.jobfind.services.IJobService;
 import com.jobfind.utils.ValidateField;
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import java.time.chrono.ChronoLocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +40,12 @@ public class JobServiceImpl implements IJobService {
     private final JobPositionRepository jobPositionRepository;
     private final ValidateField validateField;
     private final JobConverter jobConverter;
+    @Value("${algolia.search.id}")
+    private String algoliaID;
+    @Value("${algolia.search.key.write}")
+    private String algoliaKey;
+
+    private final String indexName = "jobs_index";
 
     @Override
     public List<JobDTO> getAllJobs() {
@@ -89,8 +99,10 @@ public class JobServiceImpl implements IJobService {
                 .postedAt(LocalDateTime.now())
                 .deadline(request.getDeadline())
                 .isActive(true)
+                .isExpired(false)
                 .isPending(false)
                 .isDeleted(false)
+                .isApproved(false)
                 .skills(skills)
                 .categories(categories)
                 .build();
@@ -99,12 +111,10 @@ public class JobServiceImpl implements IJobService {
             if(company.getUser().getVipLevel() == 1){
                 job.setIsPriority(true);
                 job.setPriorityLevel(1);
-                job.setIsApproved(false);
             } else if(company.getUser().getVipLevel() == 2){
                 job.setIsPriority(true);
                 job.setPriorityLevel(2);
                 job.setIsActive(true);
-                job.setIsApproved(true);
             }
         } else {
             job.setIsPriority(false);
@@ -205,6 +215,33 @@ public class JobServiceImpl implements IJobService {
     }
 
     @Override
+    public void pushJobsToAlgolia() throws IOException {
+        SearchClient client = new SearchClient(algoliaID, algoliaKey, ClientOptions.builder().build());
+
+        try {
+            List<JobDTO> jobs = getAllJobs();
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            List<Map> jobData = jobs.stream()
+                    .map(job -> mapper.convertValue(job, Map.class))
+                    .toList();
+
+            String indexName = "jobs_index";
+            client.saveObjects(indexName, jobData);
+
+            System.out.println("Push " + jobData.size() + " jobs to Algolia index: " + indexName);
+
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            client.close();
+        }
+    }
+
+    @Override
     public JobDTO getJobByID(Integer jobId) {
         Job job = jobRepository.findById(jobId).orElseThrow(() ->
                 new BadRequestException("Job not found"));
@@ -258,6 +295,48 @@ public class JobServiceImpl implements IJobService {
         }
 
         return jobs.stream().map(jobConverter::convertToJobDTO).toList();
+    }
+
+    @Override
+    public Map<String, List<Integer>> getSkillsAndCategories(Integer jobSeekerId) {
+        JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findById(jobSeekerId)
+                .orElseThrow(() -> new BadRequestException("JobSeeker not found"));
+
+        List<Integer> skillIds = new ArrayList<>();
+        if (jobSeekerProfile.getSkills() != null) {
+            skillIds.addAll(jobSeekerProfile.getSkills().stream()
+                    .map(Skill::getSkillId)
+                    .toList());
+        }
+        if (jobSeekerProfile.getWorkExperiences() != null) {
+            jobSeekerProfile.getWorkExperiences().forEach(workExperience -> {
+                if (workExperience.getSkills() != null) {
+                    workExperience.getSkills().forEach(skill -> {
+                        if (!skillIds.contains(skill.getSkillId())) {
+                            skillIds.add(skill.getSkillId());
+                        }
+                    });
+                }
+            });
+        }
+
+        List<Integer> categoryIds = new ArrayList<>();
+        if (jobSeekerProfile.getWorkExperiences() != null) {
+            jobSeekerProfile.getWorkExperiences().forEach(workExperience -> {
+                if (workExperience.getCategories() != null) {
+                    workExperience.getCategories().forEach(category -> {
+                        if (!categoryIds.contains(category.getJobCategoryId())) {
+                            categoryIds.add(category.getJobCategoryId());
+                        }
+                    });
+                }
+            });
+        }
+
+        Map<String, List<Integer>> result = new HashMap<>();
+        result.put("skillIds", skillIds);
+        result.put("categoryIds", categoryIds);
+        return result;
     }
 
     @Override

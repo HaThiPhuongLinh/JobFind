@@ -35,6 +35,7 @@ public class JobPopulator {
         target.setIsApproved(source.getIsApproved());
         target.setNote(source.getNote());
         target.setIsPending(source.getIsPending());
+        target.setIsDeleted(source.getIsDeleted());
         target.setIsPriority(source.getIsPriority());
         target.setPriorityLevel(source.getPriorityLevel());
         target.setExpired(source.getIsExpired());
