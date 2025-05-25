@@ -173,11 +173,6 @@ const BestJob = () => {
           <h1 className="text-primary text-3xl font-bold">
             {role === "COMPANY" ? "Danh Sách Công Việc" : "Việc Làm Tốt Nhất"}
           </h1>
-          <div>
-            <p className="pe-4 underline text-sm cursor-pointer hover:no-underline">
-              Xem tất cả
-            </p>
-          </div>
         </div>
 
         {/* Bộ lọc và danh sách option */}

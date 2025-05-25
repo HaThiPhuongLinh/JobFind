@@ -219,7 +219,6 @@ const PersonalInfoForm = () => {
   const handleUpdateWorkExperience = async (index, updatedWorkExp) => {
     try {
       if (updatedWorkExp === null) {
-        console.log("vv0 " + JSON.stringify(workExperiences[index].id))
         await jobSeekerApi.deleteWorkExperience(user.id, workExperiences[index].id);
         setWorkExperiences((prev) => prev.filter((_, i) => i !== index));
         toast.success("Xóa kinh nghiệm làm việc thành công!", { autoClose: 1000 });
@@ -236,7 +235,8 @@ const PersonalInfoForm = () => {
         skills: updatedWorkExp.skills.filter((id) => id != null && !isNaN(id)),
         categories: updatedWorkExp.categories.filter((id) => id != null && !isNaN(id)),
       };
-      await jobSeekerApi.updateWorkExperience(user.id, workExpRequest);
+      console.log("user" + user.id)
+      await jobSeekerApi.updateWorkExperience(user.userId, workExpRequest);
       setWorkExperiences((prev) =>
         prev.map((exp, i) => (i === index ? updatedWorkExp : exp))
       );

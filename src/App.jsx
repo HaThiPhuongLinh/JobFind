@@ -16,7 +16,7 @@ import { recruiterRoutes } from "./routes/recruiterRoutes";
 import PrivateRoute from "./components/PrivateRoute";
 
 //admin route
-import  adminRoutes  from "./routes/adminRoutes"
+import adminRoutes from "./routes/adminRoutes"
 // layouts
 import Header from "./layouts/Header";
 import Footer from "./layouts/Footer";
@@ -59,9 +59,10 @@ function App() {
         dispatch(fetchApplicationByJSK(user.userId));
         // Load jobs proposed
         dispatch(fetchJobsPropposeByJSKId(user.userId)).then((res) => {
-          if (res.meta.requestStatus === "fulfilled") {
-            console.log("load filterjob propose");
-            dispatch(setJobsRaw({ jobs: res.payload, context: "recommend" })); // Gửi sang filterJobsSlice
+          console.log('Jobs proposed:', res);
+          if (res.meta.requestStatus === 'fulfilled') {
+            console.log('Load filterJobs propose');
+            dispatch(setJobsRaw({ jobs: res.payload, context: 'recommend' }));
           }
         });
       }

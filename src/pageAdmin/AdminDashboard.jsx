@@ -725,6 +725,21 @@ const AdminDashboard = () => {
                                 >
                                     Duyệt lại
                                 </Button>
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={async () => {
+                                        try {
+                                            await jobApi.pushToAlgolia();
+                                            toast.success("Gửi dữ liệu lên Algolia thành công!", {autoClose: 500});
+                                        } catch (error) {
+                                            console.error(error);
+                                            toast.error("Gửi dữ liệu thất bại.", {autoClose: 500});
+                                        }
+                                    }}
+                                >
+                                    Gửi dữ liệu lên Algolia
+                                </Button>
                             </div>
                             <Table>
                                 <TableHead>

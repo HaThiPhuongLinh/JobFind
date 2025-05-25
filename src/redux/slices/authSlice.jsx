@@ -21,6 +21,7 @@ const authSlice = createSlice({
       state.user = null;
       localStorage.removeItem("user"); // Xóa user khỏi localStorage khi logout
       localStorage.removeItem("token"); // Xóa user khỏi localStorage khi logout
+      sessionStorage.removeItem("hasSeenPopup");
     },
   },
 });

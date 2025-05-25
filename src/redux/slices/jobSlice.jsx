@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import jobApi from "../../api/jobApi";
 import jobs from "../../data/jobs";
-
+import algoliasearch from 'algoliasearch/lite';
+const searchClient = algoliasearch('QBHON3L0WI', '7a4ef78c9eb26f9b211100e4a004e256');
 // Thunk
 export const fetchJobsByCompanyId = createAsyncThunk(
   "jobs/fetchJobsByCompanyId",
@@ -18,14 +19,32 @@ export const fetchJobsByCompanyId = createAsyncThunk(
 );
 
 export const fetchJobsPropposeByJSKId = createAsyncThunk(
-  "jobs/fetchJobsProposeByJSKId",
+  'jobs/fetchJobsProposeByJSKId',
   async (jskId, thunkAPI) => {
     try {
-      const response = await jobApi.getProposedJobs(jskId);
-      return response;
+      const response = await jobApi.getSkillsAndCategories(jskId);
+      const { skillIds, categoryIds } = response;
+
+      const skillFilters = skillIds.map(id => `skills.skillId:${id}`);
+      const categoryFilters = categoryIds.map(id => `categories.jobCategoryId:${id}`);
+      const filters = [...skillFilters, ...categoryFilters].join(' OR ');
+
+      const index = searchClient.initIndex('jobs_index');
+      const result = await index.search('', {
+        filters: `isActive:true AND isApproved:true AND isDeleted:false AND expired:false${filters ? ' AND (' + filters + ')' : ''}`,
+        hitsPerPage: 100,
+        distinct: true
+      });
+
+      const jobs = result.hits.map(hit => ({
+        ...hit,
+        category: hit.categories?.[0]?.name || '',
+      }));
+
+      return jobs;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data || "Lỗi không xác định"
+        error.response?.data || 'Error when getting propposeJob'
       );
     }
   }
@@ -50,6 +69,8 @@ const JOBS_PER_PAGE = 6;
 const initState = {
   jobs: jobs,
   jobsPropose: [],
+  skillIds: [],
+  categoryIds: [],
   jobsByCompanyId: [], // Lưu job của công ty đang xem trong trang company detail
   filterJobs: [],
   renderJobs: [],
@@ -66,7 +87,7 @@ const initState = {
 
 const jobSlice = createSlice({
   name: "jobs",
-  initialState: { ...initState, filterJobs: initState.jobs },
+  initialState: initState,
   reducers: {
     setSelectedJob: (state, action) => {
       // lưu job được chọn
